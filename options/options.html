@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Impulse Blocker</title>
+    <style>
+
+        html {
+            font-family: Segoe UI;
+            line-height: 20px;
+            text-shadow: 0 1px 1px #fefffe;
+            font-size: 1rem;
+            color: rgb(51, 51, 51);
+        }
+
+        .list-header {
+            padding-bottom: 0.5em;
+            border-bottom: 1px solid #c1c1c1;;
+        }
+
+        .blocked-sites {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .blocked-sites > li {
+            padding: 0.25em 0;
+        }
+        .blocked-sites button {
+            margin-left: 0.5em;
+        }
+    </style>
+</head>
+<body>
+    <form>
+        <label for="site">Engellenecek Site:</label>
+        <input type="text" id="site" name="site">
+        <input type="submit" value="Ekle">
+    </form>
+    <ul class="blocked-sites">
+        <p class="list-header">Şu anda engelli siteler:</p>
+    </ul>
+    <script src="options.js"></script>
+</body>
+</html>
