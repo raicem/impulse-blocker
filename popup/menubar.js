@@ -12,20 +12,15 @@ radioOn.addEventListener('click', handleClick);
 markExtensionStatus();
 
 function handleClick() {
-    console.log('Status:' + this.value);
     if (this.value === 'off') {
-        getBackgroundPage.then(function(bg) {
-            bg.disableBlocker();
-        });
+        getBackgroundPage.then(bg => bg.disableBlocker());
     } else {
-        getBackgroundPage.then(function(bg) {
-            bg.setBlocker();
-        })
+        getBackgroundPage.then(bg => bg.setBlocker());
     }
 }
 
 function markExtensionStatus() {
-    getBackgroundPage.then(function(bg) {
+    getBackgroundPage.then(bg => {
         var status = bg.getStatus();
         if (status === 'off') {
             radioOff.checked = true;

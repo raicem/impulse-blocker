@@ -6,7 +6,6 @@ form.addEventListener("submit", saveSite);
 blockedSites.addEventListener("click", deleteSite);
 document.addEventListener("DOMContentLoaded", restoreOptions);
 
-
 function restoreOptions() {
     getSites.then(storage => {
         storage.sites.forEach(function(site) {
