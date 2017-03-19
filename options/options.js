@@ -11,13 +11,15 @@ function restoreOptions() {
         storage.sites.forEach(function(site) {
             addToBlockedList(site);
         });
-    })
-    
-    getSites.catch(() => {
+    }).catch(() => {
         browser.storage.local.set({
             sites: []
-        })
+        });
     });
+
+	getSites.then(function(storage) {
+		console.log(storage);
+	})
 }
 
 function saveSite(event) {
