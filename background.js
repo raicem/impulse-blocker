@@ -12,8 +12,6 @@ function setBlocker() {
 	browser.storage.local.get('sites').then(storage => {
 		var pattern = storage.sites.map(item => "*://*." + item  + "/*");
 
-		console.log(pattern); 
-
 		browser.webRequest.onBeforeRequest.removeListener(redirect);
 		browser.webRequest.onBeforeRequest.addListener(
 			redirect, 

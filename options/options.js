@@ -16,10 +16,6 @@ function restoreOptions() {
             sites: []
         });
     });
-
-	getSites.then(function(storage) {
-		console.log(storage);
-	})
 }
 
 function saveSite(event) {
