@@ -1,7 +1,7 @@
 {
 
   "name": "Impulse Blocker",
-  "version": "0.1",
+  "version": "0.1.2",
   "manifest_version": 2,
   "description": "Blocks websites that you impulsively visit.",
 

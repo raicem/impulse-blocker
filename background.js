@@ -18,7 +18,11 @@ function setBlocker() {
 			{urls: pattern, types: ["main_frame"]},
 			["blocking"]
 		);
-	});
+	}).catch(() => {
+        browser.storage.local.set({
+            sites: []
+        });
+    });;
 
 	extStatus = 'on';
 }

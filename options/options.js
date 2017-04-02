@@ -11,11 +11,7 @@ function restoreOptions() {
         storage.sites.forEach(function(site) {
             addToBlockedList(site);
         });
-    }).catch(() => {
-        browser.storage.local.set({
-            sites: []
-        });
-    });
+    })
 }
 
 function saveSite(event) {
@@ -31,6 +27,11 @@ function saveSite(event) {
         });
         
     });
+}
+
+function addToBlockedList(text) {
+    var listItem = `<li>${text}<button>Sil</button></li>`;
+    blockedSites.innerHTML = blockedSites.innerHTML + listItem; 
 }
 
 function normalizeUrl(url) {
@@ -75,7 +76,3 @@ function deleteSite(event) {
     }
 }
 
-function addToBlockedList(text) {
-    var listItem = `<li>${text}<button>Sil</button></li>`;
-    blockedSites.innerHTML = blockedSites.innerHTML + listItem; 
-}
