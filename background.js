@@ -63,3 +63,16 @@ const ImpulseBlocker = {
 
 ImpulseBlocker.init();
 
+// Helper functions to access object literal from menubar.js file. These funcitons are
+// easily accessible from the getBackgroundPage instance.
+function getStatus() {
+  return ImpulseBlocker.getStatus();
+}
+
+function disableBlocker() {
+  ImpulseBlocker.disableBlocker();
+}
+
+function setBlocker() {
+  ImpulseBlocker.setBlocker();
+}
