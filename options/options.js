@@ -3,7 +3,7 @@ const form = document.querySelector('form');
 const getSites = browser.storage.local.get('sites');
 
 function addToBlockedList(text) {
-  const listItem = `<li>${text}<button>Sil</button></li>`;
+  const listItem = `<li>${text}<button>Delete</button></li>`;
   blockedSites.innerHTML += listItem;
 }
 
