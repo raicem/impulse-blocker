@@ -1,35 +1,34 @@
-var extStatus = 'on';
+let extStatus = 'on';
 
 function redirect() {
-	browser.tabs.update({url: "/resources/redirect.html"});
+  browser.tabs.update({url: '/resources/redirect.html'});
 }
 
 function getStatus() {
-	return extStatus;
+  return extStatus;
 }
 
 function setBlocker() {
-	browser.storage.local.get('sites').then(storage => {
-		var pattern = storage.sites.map(item => "*://*." + item  + "/*");
+  browser.storage.local.get('sites').then(storage => {
+    let pattern = storage.sites.map(item => '*://*.' + item + '/*');
 
-		browser.webRequest.onBeforeRequest.removeListener(redirect);
-		browser.webRequest.onBeforeRequest.addListener(
-			redirect, 
-			{urls: pattern, types: ["main_frame"]},
-			["blocking"]
-		);
-	}).catch(() => {
-        browser.storage.local.set({
-            sites: []
-        });
-    });;
-
-	extStatus = 'on';
+    browser.webRequest.onBeforeRequest.removeListener(redirect);
+    browser.webRequest.onBeforeRequest.addListener(
+        redirect,
+        {urls: pattern, types: ['main_frame']},
+        ['blocking'],
+    );
+  }).catch(() => {
+    browser.storage.local.set({
+      sites: [],
+    });
+  });
+  extStatus = 'on';
 }
 
 function disableBlocker() {
-	browser.webRequest.onBeforeRequest.removeListener(redirect);
-	extStatus = 'off';
+  browser.webRequest.onBeforeRequest.removeListener(redirect);
+  extStatus = 'off';
 }
 
 // initial run
