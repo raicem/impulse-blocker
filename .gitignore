@@ -1,2 +1,4 @@
 /web-ext-artifacts
 .idea/
+npm-debug.log
+/node_modules

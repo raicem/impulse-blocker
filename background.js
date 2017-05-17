@@ -1,7 +1,7 @@
 let extStatus = 'on';
 
 function redirect() {
-  browser.tabs.update({url: '/resources/redirect.html'});
+  browser.tabs.update({ url: '/resources/redirect.html' });
 }
 
 function getStatus() {
@@ -9,13 +9,13 @@ function getStatus() {
 }
 
 function setBlocker() {
-  browser.storage.local.get('sites').then(storage => {
-    let pattern = storage.sites.map(item => '*://*.' + item + '/*');
+  browser.storage.local.get('sites').then((storage) => {
+    const pattern = storage.sites.map(item => `*://*.${item}/*`);
 
     browser.webRequest.onBeforeRequest.removeListener(redirect);
     browser.webRequest.onBeforeRequest.addListener(
         redirect,
-        {urls: pattern, types: ['main_frame']},
+        { urls: pattern, types: ['main_frame'] },
         ['blocking'],
     );
   }).catch(() => {

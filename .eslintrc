@@ -1,0 +1,7 @@
+{
+    "extends": "airbnb",
+    "env": {
+    "browser": true,
+    "webextensions": true
+  }
+}
