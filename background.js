@@ -1,39 +1,44 @@
-let extStatus = 'on';
+const ImpulseBlocker = {
+  extStatus: 'on',
 
-function redirect() {
-  browser.tabs.update({ url: '/resources/redirect.html' });
-}
+  init: () => {
+    ImpulseBlocker.setBlocker();
+    browser.storage.onChanged.addListener(ImpulseBlocker.setBlocker);
+  },
 
-function getStatus() {
-  return extStatus;
-}
+  redirect: () => {
+    browser.tabs.update({ url: '/resources/redirect.html' });
+  },
 
-function setBlocker() {
-  browser.storage.local.get('sites').then((storage) => {
-    const pattern = storage.sites.map(item => `*://*.${item}/*`);
+  getStatus: () => ImpulseBlocker.extStatus,
 
-    browser.webRequest.onBeforeRequest.removeListener(redirect);
-    browser.webRequest.onBeforeRequest.addListener(
-        redirect,
+  setStatus: (status) => {
+    ImpulseBlocker.extStatus = status;
+  },
+
+  setBlocker: () => {
+    browser.storage.local.get('sites').then((storage) => {
+      const pattern = storage.sites.map(item => `*://*.${item}/*`);
+
+      browser.webRequest.onBeforeRequest.removeListener(ImpulseBlocker.redirect);
+      browser.webRequest.onBeforeRequest.addListener(
+        ImpulseBlocker.redirect,
         { urls: pattern, types: ['main_frame'] },
         ['blocking'],
-    );
-  }).catch(() => {
-    browser.storage.local.set({
-      sites: [],
+      );
+    }).catch(() => {
+      browser.storage.local.set({
+        sites: [],
+      });
     });
-  });
-  extStatus = 'on';
-}
+    ImpulseBlocker.setStatus('on');
+  },
 
-function disableBlocker() {
-  browser.webRequest.onBeforeRequest.removeListener(redirect);
-  extStatus = 'off';
-}
+  disableBlocker: () => {
+    browser.webRequest.onBeforeRequest.removeListener(ImpulseBlocker.redirect);
+    ImpulseBlocker.setStatus('off');
+  },
+};
 
-// initial run
-setBlocker();
-
-// then refresh the blocked websites if storage is updated
-browser.storage.onChanged.addListener(setBlocker);
+ImpulseBlocker.init();
 
