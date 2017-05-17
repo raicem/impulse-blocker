@@ -1,7 +1,6 @@
 const radioOff = document.querySelector('input#off');
 const radioOn = document.querySelector('input#on');
 
-// this returns a promise
 const getBackgroundPage = browser.runtime.getBackgroundPage();
 
 function handleClick() {
