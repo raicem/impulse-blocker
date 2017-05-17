@@ -1,9 +1,6 @@
 # Impulse Blocker
-Firefox extension that blocks websites that you don't want to visit. Use for procrastination.
+Block distracting websites when you are browsing the web.
 
 Written using [WebExtensions](https://developer.mozilla.org/en-US/Add-ons/WebExtensions) so it will be compatible with the future releases of Firefox.
-Currently it is not in the official [add-ons page](https://addons.mozilla.org/en-US/firefox/). You can install it temporarily by first downloading the source code 
-and then [temporarily add](https://blog.mozilla.org/addons/2015/12/23/loading-temporary-add-ons/) to Firefox using [about:debugging](about:debugging) page.
 
-After installation, you can add the websites you'd like to block by going to about:addons page and then clicking the options button of Impulse Blocker.
-
+You can install the extension from the official [add-ons page](https://addons.mozilla.org/en-US/firefox/addon/impulse-blocker/). Simple usage instructions are [here](http://raicem.github.io/2017/05/17/impulse-blocker-guide/).
