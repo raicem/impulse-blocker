@@ -12,6 +12,10 @@
             padding: 0;
             margin: 0 0 1em 0;
         }
+        
+        .actions {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -20,6 +24,13 @@
         <input type="radio" name="status" id="on" value="on"><label for="on">On</label>
         <input type="radio" name="status" id="off" value="off"><label for="off">Off</label>
     </form>
+    <p class="domain"></p>
+    <div class="actions add-site">
+        <button class="add-site-button">Block this website</button>
+    </div>
+    <div class="actions remove-site">
+        <button class="remove-site-button">Remove this website</button>
+    </div>
     <script src="menubar.js"></script>
 </body>
 </html>

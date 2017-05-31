@@ -59,6 +59,27 @@ const ImpulseBlocker = {
     browser.webRequest.onBeforeRequest.removeListener(ImpulseBlocker.redirect);
     ImpulseBlocker.setStatus('off');
   },
+
+  addSite: (url) => {
+    browser.storage.local.get('sites').then((storage) => {
+      storage.sites.push(url);
+      browser.storage.local.set({
+        sites: storage.sites,
+      });
+    });
+  },
+
+  removeSite: (url) => {
+    browser.storage.local.get('sites').then((storage) => {
+      const i = storage.sites.indexOf(url);
+      if (i !== -1) {
+        storage.sites.splice(i, 1);
+      }
+      browser.storage.local.set({
+        sites: storage.sites,
+      });
+    });
+  },
 };
 
 ImpulseBlocker.init();
@@ -75,4 +96,28 @@ function disableBlocker() {
 
 function setBlocker() {
   ImpulseBlocker.setBlocker();
+}
+
+function getDomain() {
+  return browser.tabs.query({ active: true, currentWindow: true });
+}
+
+function getSites() {
+  return browser.storage.local.get('sites');
+}
+
+function addThisSite() {
+  const gettingActiveTab = browser.tabs.query({ active: true, currentWindow: true });
+  return gettingActiveTab.then((tabs) => {
+    const url = new URL(tabs[0].url);
+    ImpulseBlocker.addSite(url.hostname);
+  });
+}
+
+function removeThisSite() {
+  const gettingActiveTab = browser.tabs.query({ active: true, currentWindow: true });
+  return gettingActiveTab.then((tabs) => {
+    const url = new URL(tabs[0].url);
+    ImpulseBlocker.removeSite(url.hostname);
+  });
 }
