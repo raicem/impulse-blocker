@@ -7,7 +7,11 @@ const ImpulseBlocker = {
    */
   init: () => {
     ImpulseBlocker.setBlocker();
-    browser.storage.onChanged.addListener(ImpulseBlocker.setBlocker);
+    browser.storage.onChanged.addListener(() => {
+      if (ImpulseBlocker.getStatus() === 'on') {
+        ImpulseBlocker.setBlocker();
+      }
+    });
   },
 
   /**
@@ -49,6 +53,7 @@ const ImpulseBlocker = {
         sites: [],
       });
     });
+    ImpulseBlocker.setStatus('on');
   },
 
   /**

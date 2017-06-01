@@ -30,12 +30,11 @@ function displayCurrentDomain() {
     bg.getDomain()
       .then((tabs) => {
         url = new URL(tabs[0].url);
-        console.log(url);
+        if (url.protocol === 'moz-extension:') return false;
         const urlToMatch = url.hostname.replace(/^www\./, '');
         domain.innerHTML = urlToMatch;
 
         bg.getSites().then((storage) => {
-          console.log(storage.sites);
           if (storage.sites.includes(urlToMatch)) {
             removeButton.style.display = 'block';
             addButton.style.display = 'none';
