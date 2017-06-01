@@ -7,7 +7,12 @@ const ImpulseBlocker = {
    */
   init: () => {
     ImpulseBlocker.setBlocker();
-    browser.storage.onChanged.addListener(ImpulseBlocker.setBlocker);
+    browser.storage.onChanged.addListener(() => {
+      // if the extension off we should not be bothered by restarting with new list
+      if (ImpulseBlocker.getStatus() === 'on') {
+        ImpulseBlocker.setBlocker();
+      }
+    });
   },
 
   /**
@@ -59,6 +64,35 @@ const ImpulseBlocker = {
     browser.webRequest.onBeforeRequest.removeListener(ImpulseBlocker.redirect);
     ImpulseBlocker.setStatus('off');
   },
+
+  /**
+   * Add a website to the blocked list
+   * @param  {string} url Url to add to the list
+   */
+  addSite: (url) => {
+    browser.storage.local.get('sites').then((storage) => {
+      storage.sites.push(url);
+      browser.storage.local.set({
+        sites: storage.sites,
+      });
+    });
+  },
+
+  /**
+   * Add a website to the blocked list
+   * @param  {string} url Url to remove to the list
+   */
+  removeSite: (url) => {
+    browser.storage.local.get('sites').then((storage) => {
+      const i = storage.sites.indexOf(url);
+      if (i !== -1) {
+        storage.sites.splice(i, 1);
+      }
+      browser.storage.local.set({
+        sites: storage.sites,
+      });
+    });
+  },
 };
 
 ImpulseBlocker.init();
@@ -75,4 +109,28 @@ function disableBlocker() {
 
 function setBlocker() {
   ImpulseBlocker.setBlocker();
+}
+
+function getDomain() {
+  return browser.tabs.query({ active: true, currentWindow: true });
+}
+
+function getSites() {
+  return browser.storage.local.get('sites');
+}
+
+function addCurrentlyActiveSite() {
+  const gettingActiveTab = browser.tabs.query({ active: true, currentWindow: true });
+  return gettingActiveTab.then((tabs) => {
+    const url = new URL(tabs[0].url);
+    ImpulseBlocker.addSite(url.hostname.replace(/^www\./, ''));
+  });
+}
+
+function removeCurrentlyActiveSite() {
+  const gettingActiveTab = browser.tabs.query({ active: true, currentWindow: true });
+  return gettingActiveTab.then((tabs) => {
+    const url = new URL(tabs[0].url);
+    ImpulseBlocker.removeSite(url.hostname.replace(/^www\./, ''));
+  });
 }

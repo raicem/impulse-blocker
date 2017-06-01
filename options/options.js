@@ -18,15 +18,17 @@ function hasNoExtension(url) {
 }
 
 function normalizeUrl(url) {
-  if (hasNoProtocol(url)) {
-    url = `http://${url}`;
+  let urlToAdd = url.replace(/^www\./, '');
+
+  if (hasNoProtocol(urlToAdd)) {
+    urlToAdd = `http://${urlToAdd}`;
   }
 
-  if (hasNoExtension(url)) {
-    url += '.com';
+  if (hasNoExtension(urlToAdd)) {
+    urlToAdd += '.com';
   }
 
-  return new URL(url);
+  return new URL(urlToAdd);
 }
 
 function restoreOptions() {
@@ -60,7 +62,7 @@ function deleteSite(event) {
 
     getSites.then((storage) => {
       const i = storage.sites.indexOf(toDeleteText);
-      if (i != -1) {
+      if (i !== -1) {
         storage.sites.splice(i, 1);
       }
       browser.storage.local.set({

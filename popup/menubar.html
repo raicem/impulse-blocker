@@ -3,23 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>Impulse Blocker</title>
-    <style>
-        html {
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        .title {
-            padding: 0;
-            margin: 0 0 1em 0;
-        }
-    </style>
+    <link rel="stylesheet" href="menubar.css">
 </head>
 <body>
-    <h5 class="title">Impulse Blocker</h5>
-    <form action="GET">
-        <input type="radio" name="status" id="on" value="on"><label for="on">On</label>
-        <input type="radio" name="status" id="off" value="off"><label for="off">Off</label>
-    </form>
+    <div class="wrapper">
+        <h5 class="title">Impulse Blocker</h5>
+        <form action="GET">
+            <div class="form-group">
+                <input type="radio" name="status" id="on" value="on"><label for="on">On</label>
+            </div>
+            <div class="form-group">
+                <input type="radio" name="status" id="off" value="off"><label for="off">Off</label>
+            </div>
+        </form>
+        <div class="add-domain-section">
+            <button class="button button-add">Block <span class="domain"></span></button>
+            <button class="button button-remove">Allow facebook.com</button>
+        </div>
+        
+    </div>
     <script src="menubar.js"></script>
 </body>
 </html>
