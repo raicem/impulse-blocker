@@ -49,7 +49,6 @@ const ImpulseBlocker = {
         sites: [],
       });
     });
-    ImpulseBlocker.setStatus('on');
   },
 
   /**
@@ -60,6 +59,10 @@ const ImpulseBlocker = {
     ImpulseBlocker.setStatus('off');
   },
 
+  /**
+   * Add a website to the blocked list
+   * @param  {string} url Url to add to the list
+   */
   addSite: (url) => {
     browser.storage.local.get('sites').then((storage) => {
       storage.sites.push(url);
@@ -69,6 +72,10 @@ const ImpulseBlocker = {
     });
   },
 
+  /**
+   * Add a website to the blocked list
+   * @param  {string} url Url to remove to the list
+   */
   removeSite: (url) => {
     browser.storage.local.get('sites').then((storage) => {
       const i = storage.sites.indexOf(url);
@@ -106,18 +113,18 @@ function getSites() {
   return browser.storage.local.get('sites');
 }
 
-function addThisSite() {
+function addCurrentlyActiveSite() {
   const gettingActiveTab = browser.tabs.query({ active: true, currentWindow: true });
   return gettingActiveTab.then((tabs) => {
     const url = new URL(tabs[0].url);
-    ImpulseBlocker.addSite(url.hostname);
+    ImpulseBlocker.addSite(url.hostname.replace(/^www\./, ''));
   });
 }
 
-function removeThisSite() {
+function removeCurrentlyActiveSite() {
   const gettingActiveTab = browser.tabs.query({ active: true, currentWindow: true });
   return gettingActiveTab.then((tabs) => {
     const url = new URL(tabs[0].url);
-    ImpulseBlocker.removeSite(url.hostname);
+    ImpulseBlocker.removeSite(url.hostname.replace(/^www\./, ''));
   });
 }

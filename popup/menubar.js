@@ -1,9 +1,8 @@
 const radioOff = document.querySelector('input#off');
 const radioOn = document.querySelector('input#on');
-const addButton = document.querySelector('button.add-site-button');
-const removeButton = document.querySelector('button.remove-site-button');
-const domain = document.querySelector('p.domain');
-
+const addButton = document.querySelector('button.button-add');
+const removeButton = document.querySelector('button.button-remove');
+const domain = document.querySelector('span.domain');
 const getBackgroundPage = browser.runtime.getBackgroundPage();
 
 function handleClick() {
@@ -31,36 +30,32 @@ function displayCurrentDomain() {
     bg.getDomain()
       .then((tabs) => {
         url = new URL(tabs[0].url);
-        const urlToMatch = `*://*.${url.hostname}/*`;
+        console.log(url);
+        const urlToMatch = url.hostname.replace(/^www\./, '');
+        domain.innerHTML = urlToMatch;
 
-        domain.innerHTML = url.hostname;
         bg.getSites().then((storage) => {
-          const sites = storage.sites.map(item => `*://*.${item}/*`);
-
-          if (sites.includes(urlToMatch)) {
-            document.querySelector('.remove-site').style.display = 'block';
+          console.log(storage.sites);
+          if (storage.sites.includes(urlToMatch)) {
+            removeButton.style.display = 'block';
+            addButton.style.display = 'none';
           } else {
-            document.querySelector('.add-site').style.display = 'block';
+            addButton.style.display = 'block';
+            removeButton.style.display = 'none';
           }
         });
       });
   });
 }
 
-function removeSiteBlockingButtons() {
-  document.querySelector('.remove-site').style.display = 'none';
-  document.querySelector('.add-site').style.display = 'none';
-}
-
 function refreshToolbar() {
   markExtensionStatus();
-  removeSiteBlockingButtons();
   displayCurrentDomain();
 }
 
 function addWebsite() {
   getBackgroundPage.then((bg) => {
-    bg.addThisSite().then(() => {
+    bg.addCurrentlyActiveSite().then(() => {
       refreshToolbar();
     });
   });
@@ -68,7 +63,7 @@ function addWebsite() {
 
 function removeWebsite() {
   getBackgroundPage.then((bg) => {
-    bg.removeThisSite().then(() => {
+    bg.removeCurrentlyActiveSite().then(() => {
       refreshToolbar();
     });
   });
