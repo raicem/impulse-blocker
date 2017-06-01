@@ -8,6 +8,7 @@ const ImpulseBlocker = {
   init: () => {
     ImpulseBlocker.setBlocker();
     browser.storage.onChanged.addListener(() => {
+      // if the extension off we should not be bothered by restarting with new list
       if (ImpulseBlocker.getStatus() === 'on') {
         ImpulseBlocker.setBlocker();
       }
