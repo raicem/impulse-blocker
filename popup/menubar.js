@@ -2,7 +2,8 @@ const radioOff = document.querySelector('input#off');
 const radioOn = document.querySelector('input#on');
 const addButton = document.querySelector('button.button-add');
 const removeButton = document.querySelector('button.button-remove');
-const domain = document.querySelector('span.domain');
+const domainToAllow = document.querySelector('span.domainToAllow');
+const domainToBlock = document.querySelector('span.domainToBlock');
 const getBackgroundPage = browser.runtime.getBackgroundPage();
 
 function handleClick() {
@@ -33,7 +34,8 @@ function displayCurrentDomain() {
         // dont show the button if this is the page of the extension itself
         if (url.protocol === 'moz-extension:') return false;
         const urlToMatch = url.hostname.replace(/^www\./, '');
-        domain.innerHTML = urlToMatch;
+        domainToAllow.innerHTML = urlToMatch;
+        domainToBlock.innerHTML = urlToMatch;
 
         bg.getSites().then((storage) => {
           if (storage.sites.includes(urlToMatch)) {

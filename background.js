@@ -8,6 +8,7 @@ const ImpulseBlocker = {
   init: () => {
     ImpulseBlocker.setBlocker();
     browser.storage.onChanged.addListener(() => {
+      console.log('changes');
       // if the extension off we should not be bothered by restarting with new list
       if (ImpulseBlocker.getStatus() === 'on') {
         ImpulseBlocker.setBlocker();
@@ -40,8 +41,13 @@ const ImpulseBlocker = {
    * by the WebExtensions API.
    */
   setBlocker: () => {
-    browser.storage.local.get('sites').then((storage) => {
+    browser.storage.local.get('sites').catch(() => {
+      browser.storage.local.set({
+        sites: [],
+      });
+    }).then((storage) => {
       const pattern = storage.sites.map(item => `*://*.${item}/*`);
+      console.log(pattern);
 
       browser.webRequest.onBeforeRequest.removeListener(ImpulseBlocker.redirect);
       browser.webRequest.onBeforeRequest.addListener(
@@ -49,10 +55,6 @@ const ImpulseBlocker = {
         { urls: pattern, types: ['main_frame'] },
         ['blocking'],
       );
-    }).catch(() => {
-      browser.storage.local.set({
-        sites: [],
-      });
     });
     ImpulseBlocker.setStatus('on');
   },
