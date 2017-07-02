@@ -6,11 +6,12 @@ const ImpulseBlocker = {
    * to the blocked list the listener is refreshed.
    */
   init: () => {
-    ImpulseBlocker.setBlocker();
-    browser.storage.onChanged.addListener(() => {
-      // if the extension off we should not be bothered by restarting with new list
-      if (ImpulseBlocker.getStatus() === 'on') {
-        ImpulseBlocker.setBlocker();
+    browser.storage.local.get('sites').then((storage) => {
+      if (typeof storage.sites === 'undefined') {
+        const settingSites = browser.storage.local.set({
+          sites: [],
+        });
+        settingSites.then(ImpulseBlocker.setBlocker);
       }
     });
   },
@@ -49,11 +50,15 @@ const ImpulseBlocker = {
         { urls: pattern, types: ['main_frame'] },
         ['blocking'],
       );
-    }).catch(() => {
-      browser.storage.local.set({
-        sites: [],
-      });
     });
+
+    browser.storage.onChanged.addListener(() => {
+      // if the extension off we should not be bothered by restarting with new list
+      if (ImpulseBlocker.getStatus() === 'on') {
+        ImpulseBlocker.setBlocker();
+      }
+    });
+
     ImpulseBlocker.setStatus('on');
   },
 
