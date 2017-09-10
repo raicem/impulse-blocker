@@ -6,11 +6,12 @@ const ImpulseBlocker = {
    * to the blocked list the listener is refreshed.
    */
   init: () => {
-    ImpulseBlocker.setBlocker();
-    browser.storage.onChanged.addListener(() => {
-      // if the extension off we should not be bothered by restarting with new list
-      if (ImpulseBlocker.getStatus() === 'on') {
-        ImpulseBlocker.setBlocker();
+    browser.storage.local.get('sites').then((storage) => {
+      if (typeof storage.sites === 'undefined') {
+        const settingSites = browser.storage.local.set({
+          sites: [],
+        });
+        settingSites.then(ImpulseBlocker.setBlocker);
       }
     });
   },
@@ -44,16 +45,23 @@ const ImpulseBlocker = {
       const pattern = storage.sites.map(item => `*://*.${item}/*`);
 
       browser.webRequest.onBeforeRequest.removeListener(ImpulseBlocker.redirect);
-      browser.webRequest.onBeforeRequest.addListener(
-        ImpulseBlocker.redirect,
-        { urls: pattern, types: ['main_frame'] },
-        ['blocking'],
-      );
-    }).catch(() => {
-      browser.storage.local.set({
-        sites: [],
-      });
+      if (pattern.length > 0) {
+        console.log('setting the blocker');
+        browser.webRequest.onBeforeRequest.addListener(
+          ImpulseBlocker.redirect,
+          { urls: pattern, types: ['main_frame'] },
+          ['blocking'],
+        );
+      }
     });
+
+    browser.storage.onChanged.addListener(() => {
+      // if the extension off we should not be bothered by restarting with new list
+      if (ImpulseBlocker.getStatus() === 'on') {
+        ImpulseBlocker.setBlocker();
+      }
+    });
+
     ImpulseBlocker.setStatus('on');
   },
 

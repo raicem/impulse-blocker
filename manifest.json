@@ -1,11 +1,11 @@
 {
   "name": "Impulse Blocker",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "manifest_version": 2,
   "description": "Block distracting websites when you are browsing the web.",
 
   "permissions": [
-    "webRequest", "webRequestBlocking", "storage", "tabs"
+    "<all_urls>", "webRequest", "webRequestBlocking", "storage", "tabs"
   ],
 
   "icons": {
