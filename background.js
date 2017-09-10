@@ -45,11 +45,14 @@ const ImpulseBlocker = {
       const pattern = storage.sites.map(item => `*://*.${item}/*`);
 
       browser.webRequest.onBeforeRequest.removeListener(ImpulseBlocker.redirect);
-      browser.webRequest.onBeforeRequest.addListener(
-        ImpulseBlocker.redirect,
-        { urls: pattern, types: ['main_frame'] },
-        ['blocking'],
-      );
+      if (pattern.length > 0) {
+        console.log('setting the blocker');
+        browser.webRequest.onBeforeRequest.addListener(
+          ImpulseBlocker.redirect,
+          { urls: pattern, types: ['main_frame'] },
+          ['blocking'],
+        );
+      }
     });
 
     browser.storage.onChanged.addListener(() => {
