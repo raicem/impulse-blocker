@@ -12,6 +12,8 @@ const ImpulseBlocker = {
           sites: [],
         });
         settingSites.then(ImpulseBlocker.setBlocker);
+      } else {
+        ImpulseBlocker.setBlocker();
       }
     });
   },
@@ -46,7 +48,6 @@ const ImpulseBlocker = {
 
       browser.webRequest.onBeforeRequest.removeListener(ImpulseBlocker.redirect);
       if (pattern.length > 0) {
-        console.log('setting the blocker');
         browser.webRequest.onBeforeRequest.addListener(
           ImpulseBlocker.redirect,
           { urls: pattern, types: ['main_frame'] },
