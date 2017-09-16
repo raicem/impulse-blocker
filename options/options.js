@@ -3,8 +3,14 @@ const form = document.querySelector('form');
 const getSites = browser.storage.local.get('sites');
 
 function addToBlockedList(text) {
-  const listItem = `<li>${text}<button>Delete</button></li>`;
-  blockedSites.innerHTML += listItem;
+  const button = document.createElement('button');
+  button.textContent = 'Delete';
+
+  const listItem = document.createElement('li');
+  listItem.textContent = text;
+  listItem.appendChild(button);
+
+  blockedSites.appendChild(listItem);
 }
 
 function hasNoProtocol(url) {

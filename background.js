@@ -6,16 +6,15 @@ const ImpulseBlocker = {
    * to the blocked list the listener is refreshed.
    */
   init: () => {
-    browser.storage.local.get('sites').then((storage) => {
+    const handlingStorage = browser.storage.local.get('sites').then((storage) => {
       if (typeof storage.sites === 'undefined') {
-        const settingSites = browser.storage.local.set({
+        return browser.storage.local.set({
           sites: [],
         });
-        settingSites.then(ImpulseBlocker.setBlocker);
-      } else {
-        ImpulseBlocker.setBlocker();
       }
     });
+
+    handlingStorage.then(ImpulseBlocker.setBlocker);
   },
 
   /**
