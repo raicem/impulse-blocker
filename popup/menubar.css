@@ -45,3 +45,8 @@ form {
 .button-remove {
     background-color: darkred;
 }
+
+.options {
+    height: 1em;
+    float: right;
+}
