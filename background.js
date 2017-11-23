@@ -35,6 +35,14 @@ const ImpulseBlocker = {
    */
   setStatus: (status) => {
     ImpulseBlocker.extStatus = status;
+    if (ImpulseBlocker.extStatus == 'on') {
+      var icon = 'icons/icon96.png';
+    } else {
+      var icon = 'icons/icon96-disabled.png';
+    }
+    browser.browserAction.setIcon({
+      path: icon
+    });
   },
 
   /**
