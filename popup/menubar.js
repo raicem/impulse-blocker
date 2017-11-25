@@ -1,6 +1,7 @@
 const radioOff = document.querySelector('input#off');
 const radioOn = document.querySelector('input#on');
 const addButton = document.querySelector('button.button-add');
+const optionsButton = document.querySelector('img.options');
 const removeButton = document.querySelector('button.button-remove');
 const domainToAllow = document.querySelector('span.domainToAllow');
 const domainToBlock = document.querySelector('span.domainToBlock');
@@ -72,9 +73,17 @@ function removeWebsite() {
   });
 }
 
+function openOptions() {
+  browser.tabs.create({
+    url: "/options/options.html"
+  });
+  window.close();
+}
+
 radioOff.addEventListener('click', handleClick);
 radioOn.addEventListener('click', handleClick);
 addButton.addEventListener('click', addWebsite);
 removeButton.addEventListener('click', removeWebsite);
+optionsButton.addEventListener('click', openOptions);
 
 refreshToolbar();
