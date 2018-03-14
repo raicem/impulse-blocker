@@ -21,7 +21,9 @@ const ImpulseBlocker = {
    * Redirects the tab to local "You have been blocked" page.
    */
   redirect: (requestDetails) => {
-    browser.tabs.update(requestDetails.tabId, { url: '/resources/redirect.html' });
+    const original = encodeURIComponent(requestDetails.url);
+    const intercept_page = '/resources/redirect.html?target=' + original
+    browser.tabs.update(requestDetails.tabId, { url: intercept_page });
   },
 
   /**
