@@ -19,16 +19,17 @@
             border-bottom: 1px solid #c1c1c1;;
         }
 
-        .blocked-sites {
-            margin: 0;
+        .blocked-sites ul {
+            display: table;
             padding: 0;
         }
-        
-        .blocked-sites > li {
-            padding: 0.25em 0;
+
+        .blocked-sites li {
+            display: table-row;
         }
-        .blocked-sites button {
-            margin-left: 0.5em;
+        .blocked-sites li > * {
+            display: table-cell;
+            margin: 0.25em 0.5em;
         }
     </style>
 </head>
@@ -38,9 +39,11 @@
         <input type="text" id="site" name="site">
         <input type="submit" value="Add">
     </form>
-    <ul class="blocked-sites">
+    <div class="blocked-sites">
         <p class="list-header">Currently blocked websites:</p>
-    </ul>
+        <ul>
+        </ul>
+    </div>
     <script src="options.js"></script>
 </body>
 </html>

@@ -1,13 +1,15 @@
-const blockedSites = document.querySelector('ul.blocked-sites');
+const blockedSites = document.querySelector('.blocked-sites ul');
 const form = document.querySelector('form');
 const getSites = browser.storage.local.get('sites');
 
 function addToBlockedList(text) {
+  const label = document.createElement('p');
+  label.textContent = text;
   const button = document.createElement('button');
   button.textContent = 'Delete';
 
   const listItem = document.createElement('li');
-  listItem.textContent = text;
+  listItem.appendChild(label);
   listItem.appendChild(button);
 
   blockedSites.appendChild(listItem);
