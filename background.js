@@ -21,7 +21,9 @@ const ImpulseBlocker = {
    * Redirects the tab to local "You have been blocked" page.
    */
   redirect: (requestDetails) => {
-    browser.tabs.update(requestDetails.tabId, { url: '/resources/redirect.html' });
+    const original = encodeURIComponent(requestDetails.url);
+    const interceptPage = `/resources/redirect.html?target=${original}`;
+    browser.tabs.update(requestDetails.tabId, { url: interceptPage });
   },
 
   /**
@@ -35,13 +37,13 @@ const ImpulseBlocker = {
    */
   setStatus: (status) => {
     ImpulseBlocker.extStatus = status;
-    if (ImpulseBlocker.extStatus == 'on') {
-      var icon = 'icons/icon96.png';
-    } else {
-      var icon = 'icons/icon96-disabled.png';
+    let icon = 'icons/icon96.png';
+    if (ImpulseBlocker.extStatus !== 'on') {
+      icon = 'icons/icon96-disabled.png';
     }
+
     browser.browserAction.setIcon({
-      path: icon
+      path: icon,
     });
   },
 
