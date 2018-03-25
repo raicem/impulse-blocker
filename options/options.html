@@ -31,6 +31,10 @@
             display: table-cell;
             margin: 0.25em 0.5em;
         }
+        #settings-area {
+            width: 100%;
+            height: 20em;
+        }
     </style>
 </head>
 <body>
@@ -43,6 +47,15 @@
         <p class="list-header">Currently blocked websites:</p>
         <ul>
         </ul>
+    </div>
+    <hline />
+    <div class="import">
+        <h2>Settings import &amp; export</h2>
+        <div>
+            <button id="import-settings">Import</button>
+            <button id="export-settings">Export</button>
+        </div>
+        <textarea id="settings-area">Press "Export" to export settings, or replace this text with replacement settings and press "Import"</textarea>
     </div>
     <script src="options.js"></script>
 </body>
