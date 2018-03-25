@@ -29,26 +29,25 @@ function markExtensionStatus() {
 function displayCurrentDomain() {
   getBackgroundPage.then((bg) => {
     let url;
-    bg.getDomain()
-      .then((tabs) => {
-        url = new URL(tabs[0].url);
-        // dont show the button for non-http pages
-        if (['http:', 'https:'].indexOf(url.protocol) == -1) return false;
-        const urlToMatch = url.hostname.replace(/^www\./, '');
+    bg.getDomain().then((tabs) => {
+      url = new URL(tabs[0].url);
+      // dont show the button for non-http pages
+      if (['http:', 'https:'].indexOf(url.protocol) === -1) return false;
+      const urlToMatch = url.hostname.replace(/^www\./, '');
 
-        domainToAllow.textContent = urlToMatch;
-        domainToBlock.textContent = urlToMatch;
+      domainToAllow.textContent = urlToMatch;
+      domainToBlock.textContent = urlToMatch;
 
-        bg.getSites().then((storage) => {
-          if (storage.sites.includes(urlToMatch)) {
-            removeButton.style.display = 'block';
-            addButton.style.display = 'none';
-          } else {
-            addButton.style.display = 'block';
-            removeButton.style.display = 'none';
-          }
-        });
+      bg.getSites().then((storage) => {
+        if (storage.sites.includes(urlToMatch)) {
+          removeButton.style.display = 'block';
+          addButton.style.display = 'none';
+        } else {
+          addButton.style.display = 'block';
+          removeButton.style.display = 'none';
+        }
       });
+    });
   });
 }
 
@@ -75,7 +74,7 @@ function removeWebsite() {
 
 function openOptions() {
   browser.tabs.create({
-    url: "/options/options.html"
+    url: '/options/options.html',
   });
   window.close();
 }
