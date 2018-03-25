@@ -32,8 +32,8 @@ function displayCurrentDomain() {
     bg.getDomain()
       .then((tabs) => {
         url = new URL(tabs[0].url);
-        // dont show the button if this is the page of the extension itself
-        if (url.protocol === 'moz-extension:') return false;
+        // dont show the button for non-http pages
+        if (['http:', 'https:'].indexOf(url.protocol) == -1) return false;
         const urlToMatch = url.hostname.replace(/^www\./, '');
 
         domainToAllow.textContent = urlToMatch;
