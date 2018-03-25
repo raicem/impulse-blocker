@@ -1,12 +1,10 @@
 {
   "name": "Impulse Blocker",
-  "version": "0.3",
+  "version": "0.4",
   "manifest_version": 2,
   "description": "Block distracting websites when you are browsing the web.",
 
-  "permissions": [
-    "<all_urls>", "webRequest", "webRequestBlocking", "storage", "tabs"
-  ],
+  "permissions": ["<all_urls>", "webRequest", "webRequestBlocking", "storage", "tabs"],
 
   "icons": {
     "48": "icons/icon48.png",
@@ -14,14 +12,12 @@
   },
 
   "options_ui": {
-      "page": "options/options.html",
-      "open_in_tab": true
-    },
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
 
-  "web_accessible_resources": [
-      "redirect.html"
-    ],
- 
+  "web_accessible_resources": ["redirect.html"],
+
   "background": {
     "scripts": ["background.js"]
   },
