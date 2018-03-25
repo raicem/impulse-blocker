@@ -28,20 +28,6 @@ function hasNoExtension(url) {
   return !regex.test(url);
 }
 
-function normalizeUrl(url) {
-  let urlToAdd = url.replace(/^www\./, '');
-
-  if (hasNoProtocol(urlToAdd)) {
-    urlToAdd = `http://${urlToAdd}`;
-  }
-
-  if (hasNoExtension(urlToAdd)) {
-    urlToAdd += '.com';
-  }
-
-  return new URL(urlToAdd);
-}
-
 function restoreOptions() {
   getSites.then((storage) => {
     storage.sites.forEach((site) => {
@@ -52,12 +38,13 @@ function restoreOptions() {
 
 function saveSite(event) {
   event.preventDefault();
-  const url = normalizeUrl(form.site.value);
-  addToBlockedList(url.hostname);
+  const url = form.site.value;
+  if (url.length == 0) { return; }
+  addToBlockedList(url);
   form.site.value = '';
 
   getSites.then((storage) => {
-    storage.sites.push(url.hostname);
+    storage.sites.push(url);
     browser.storage.local.set({
       sites: storage.sites,
     });
