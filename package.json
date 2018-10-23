@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "build": "web-ext build --config=web-ext-config.js"
+  },
   "devDependencies": {
     "eslint": "^3.19.0",
     "eslint-config-airbnb": "^15.0.1",
