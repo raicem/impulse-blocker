@@ -73,9 +73,7 @@ function removeWebsite() {
 }
 
 function openOptions() {
-  browser.tabs.create({
-    url: '/options/options.html',
-  });
+  browser.runtime.openOptionsPage();
   window.close();
 }
 
