@@ -1,4 +1,59 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
-    <path d="M0 0h48v48h-48z" fill="none"/>
-    <path d="M24 4c-11.05 0-20 8.95-20 20s8.95 20 20 20 20-8.95 20-20-8.95-20-20-20zm-16 20c0-8.84 7.16-16 16-16 3.7 0 7.09 1.27 9.8 3.37l-22.43 22.43c-2.1-2.71-3.37-6.1-3.37-9.8zm16 16c-3.7 0-7.09-1.27-9.8-3.37l22.43-22.43c2.1 2.71 3.37 6.1 3.37 9.8 0 8.84-7.16 16-16 16z"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="40"
+   height="40"
+   viewBox="0 0 40 40"
+   version="1.1"
+   id="svg5092"
+   sodipodi:docname="ic_block_48px.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+  <metadata
+     id="metadata5098">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs5096" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1981"
+     inkscape:window-height="1097"
+     id="namedview5094"
+     showgrid="false"
+     inkscape:zoom="4.9166667"
+     inkscape:cx="20"
+     inkscape:cy="20"
+     inkscape:window-x="67"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg5092" />
+  <path
+     d="M -4,-4 H 44 V 44 H -4 Z"
+     id="path5088"
+     inkscape:connector-curvature="0"
+     style="fill:none" />
+  <path
+     d="M 20,0 C 8.95,0 0,8.95 0,20 0,31.05 8.95,40 20,40 31.05,40 40,31.05 40,20 40,8.95 31.05,0 20,0 Z M 4,20 C 4,11.16 11.16,4 20,4 c 3.7,0 7.09,1.27 9.8,3.37 L 7.37,29.8 C 5.27,27.09 4,23.7 4,20 Z m 16,16 c -3.7,0 -7.09,-1.27 -9.8,-3.37 L 32.63,10.2 c 2.1,2.71 3.37,6.1 3.37,9.8 0,8.84 -7.16,16 -16,16 z"
+     id="path5090"
+     inkscape:connector-curvature="0" />
 </svg>

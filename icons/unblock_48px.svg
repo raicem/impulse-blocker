@@ -7,9 +7,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="48"
-   height="48"
-   viewBox="0 0 48 48"
+   width="40"
+   height="40"
+   viewBox="0 0 40 40"
    version="1.1"
    id="svg4541"
    sodipodi:docname="unblock_48px.svg"
@@ -22,6 +22,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -36,46 +37,37 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1629"
-     inkscape:window-height="995"
+     inkscape:window-width="1981"
+     inkscape:window-height="1097"
      id="namedview4543"
      showgrid="false"
-     showguides="true"
+     showguides="false"
      inkscape:guide-bbox="true"
-     inkscape:zoom="16"
-     inkscape:cx="25.892094"
-     inkscape:cy="26.913908"
-     inkscape:window-x="51"
+     inkscape:zoom="11.313709"
+     inkscape:cx="12.507383"
+     inkscape:cy="8.3443395"
+     inkscape:window-x="67"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg4541">
-    <sodipodi:guide
-       position="28.173955,40.006691"
-       orientation="0,1"
-       id="guide4549"
-       inkscape:locked="false" />
-    <sodipodi:guide
-       position="7.9960938,22.777344"
-       orientation="1,0"
-       id="guide4551"
-       inkscape:locked="false" />
-    <sodipodi:guide
-       position="40,22.765625"
-       orientation="1,0"
-       id="guide4553"
-       inkscape:locked="false" />
-    <sodipodi:guide
-       position="21.403091,8.0024233"
-       orientation="0,1"
-       id="guide4555"
-       inkscape:locked="false" />
-  </sodipodi:namedview>
+     inkscape:current-layer="svg4541" />
   <path
-     d="M0 0h48v48h-48z"
-     fill="none"
-     id="path4537" />
-  <path
-     style="fill:#000000"
-     d="M 24 4 C 12.95 4 4 12.95 4 24 C 4 35.05 12.95 44 24 44 C 35.05 44 44 35.05 44 24 C 44 12.95 35.05 4 24 4 z M 23.998047 7.9941406 A 16.002134 16.002134 0 0 1 40 23.996094 A 16.002134 16.002134 0 0 1 23.998047 39.998047 A 16.002134 16.002134 0 0 1 7.9960938 23.996094 A 16.002134 16.002134 0 0 1 23.998047 7.9941406 z "
-     id="path4539" />
+     d="M -4,-4 H 44 V 44 H -4 Z"
+     id="path4537"
+     inkscape:connector-curvature="0"
+     style="fill:none" />
+  <g
+     id="g828"
+     transform="rotate(90,24,20)">
+    <path
+       id="path4539"
+       d="M 24,4 C 12.95,4 4,12.95 4,24 4,35.05 12.95,44 24,44 35.05,44 44,35.05 44,24 44,12.95 35.05,4 24,4 Z M 23.998,7.9941406 A 16.002134,16.002134 0 0 1 40,23.996094 16.002134,16.002134 0 0 1 23.998047,39.998047 16.002134,16.002134 0 0 1 7.9960938,23.996094 16.002134,16.002134 0 0 1 23.998047,7.9941406 Z"
+       style="fill:#000000"
+       inkscape:connector-curvature="0" />
+    <path
+       sodipodi:nodetypes="ccccc"
+       inkscape:connector-curvature="0"
+       id="path437"
+       d="M 14.382813,30.702171 30.885121,14.167663 33.847487,17.065629 17.276754,33.648438 Z"
+       style="fill:#808080;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+  </g>
 </svg>
