@@ -26,8 +26,8 @@ function hasNoExtension(url) {
 }
 
 function restoreOptions() {
-  getSites.then((storage) => {
-    storage.sites.forEach((site) => {
+  getSites.then(storage => {
+    storage.sites.forEach(site => {
       addToBlockedList(site);
     });
   });
@@ -36,11 +36,13 @@ function restoreOptions() {
 function saveSite(event) {
   event.preventDefault();
   const url = form.site.value;
-  if (url.length == 0) { return; }
+  if (url.length == 0) {
+    return;
+  }
   addToBlockedList(url);
   form.site.value = '';
 
-  getSites.then((storage) => {
+  getSites.then(storage => {
     storage.sites.push(url);
     browser.storage.local.set({
       sites: storage.sites,
@@ -55,7 +57,7 @@ function deleteSite(event) {
     const toDeleteText = event.target.previousSibling.textContent;
     toDeleteParent.removeChild(toDelete);
 
-    getSites.then((storage) => {
+    getSites.then(storage => {
       const i = storage.sites.indexOf(toDeleteText);
       if (i !== -1) {
         storage.sites.splice(i, 1);

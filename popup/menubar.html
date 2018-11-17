@@ -1,28 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Impulse Blocker</title>
-    <link rel="stylesheet" href="menubar.css">
-</head>
-<body>
+    <link rel="stylesheet" href="menubar.css" />
+  </head>
+  <body>
     <div class="wrapper">
-        <h5 class="title">Impulse Blocker<img class="options" src="cogs.svg" /></h5>
-        <form action="GET">
-            <div class="form-group">
-                <input type="radio" name="status" id="on" value="on"><label for="on">On</label>
-            </div>
-            <div class="form-group">
-                <input type="radio" name="status" id="off" value="off"><label for="off">Off</label>
-            </div>
-        </form>
-        <div class="add-domain-section">
-            <button class="button button-add">Block <span class="domainToAllow"></span></button>
-            <button class="button button-remove">Allow <span class="domainToBlock"></span></button>
+      <h5 class="title">
+        Impulse Blocker<img class="options" src="cogs.svg" />
+      </h5>
+      <form action="GET">
+        <div class="form-group">
+          <input type="radio" name="status" id="on" value="on" /><label for="on"
+            >On</label
+          >
         </div>
-        
+        <div class="form-group">
+          <input type="radio" name="status" id="off" value="off" /><label
+            for="off"
+            >Off</label
+          >
+        </div>
+      </form>
+      <div class="add-domain-section">
+        <button class="button button-add">
+          Block <span class="domainToAllow"></span>
+        </button>
+        <button class="button button-remove">
+          Allow <span class="domainToBlock"></span>
+        </button>
+      </div>
     </div>
     <script src="menubar.js"></script>
-</body>
+  </body>
 </html>

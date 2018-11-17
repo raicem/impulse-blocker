@@ -138,7 +138,10 @@ function getSites() {
 }
 
 function addCurrentlyActiveSite() {
-  const gettingActiveTab = browser.tabs.query({ active: true, currentWindow: true });
+  const gettingActiveTab = browser.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
   return gettingActiveTab.then((tabs) => {
     const url = new URL(tabs[0].url);
     ImpulseBlocker.addSite(url.hostname.replace(/^www\./, ''));
@@ -146,7 +149,10 @@ function addCurrentlyActiveSite() {
 }
 
 function removeCurrentlyActiveSite() {
-  const gettingActiveTab = browser.tabs.query({ active: true, currentWindow: true });
+  const gettingActiveTab = browser.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
   return gettingActiveTab.then((tabs) => {
     const url = new URL(tabs[0].url);
     ImpulseBlocker.removeSite(url.hostname.replace(/^www\./, ''));
