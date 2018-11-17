@@ -4,10 +4,9 @@
   },
   "devDependencies": {
     "eslint": "^5.9.0",
-    "eslint-config-airbnb": "^15.1.0",
     "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-prettier": "^3.3.0",
     "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-jsx-a11y": "^6.1.2",
     "eslint-plugin-prettier": "^3.0.0",
     "prettier": "^1.15.2"
   }
