@@ -6,7 +6,7 @@ const ImpulseBlocker = {
    * to the blocked list the listener is refreshed.
    */
   init: () => {
-    const handlingStorage = browser.storage.local.get('sites').then((storage) => {
+    const handlingStorage = browser.storage.local.get('sites').then(storage => {
       if (typeof storage.sites === 'undefined') {
         return browser.storage.local.set({
           sites: [],
@@ -20,7 +20,7 @@ const ImpulseBlocker = {
   /**
    * Redirects the tab to local "You have been blocked" page.
    */
-  redirect: (requestDetails) => {
+  redirect: requestDetails => {
     const original = encodeURIComponent(requestDetails.url);
     const interceptPage = `/resources/redirect.html?target=${original}`;
     browser.tabs.update(requestDetails.tabId, { url: interceptPage });
@@ -35,7 +35,7 @@ const ImpulseBlocker = {
    * Sets the current status of the extension.
    * @param string status
    */
-  setStatus: (status) => {
+  setStatus: status => {
     ImpulseBlocker.extStatus = status;
     let icon = 'icons/icon96.png';
     if (ImpulseBlocker.extStatus !== 'on') {
@@ -52,10 +52,12 @@ const ImpulseBlocker = {
    * by the WebExtensions API.
    */
   setBlocker: () => {
-    browser.storage.local.get('sites').then((storage) => {
+    browser.storage.local.get('sites').then(storage => {
       const pattern = storage.sites.map(item => `*://*.${item}/*`);
 
-      browser.webRequest.onBeforeRequest.removeListener(ImpulseBlocker.redirect);
+      browser.webRequest.onBeforeRequest.removeListener(
+        ImpulseBlocker.redirect,
+      );
       if (pattern.length > 0) {
         browser.webRequest.onBeforeRequest.addListener(
           ImpulseBlocker.redirect,
@@ -79,6 +81,7 @@ const ImpulseBlocker = {
    * Removes the web request listener and turns the extension off.
    */
   disableBlocker: () => {
+    console.log('disabling blocker');
     browser.webRequest.onBeforeRequest.removeListener(ImpulseBlocker.redirect);
     ImpulseBlocker.setStatus('off');
   },
@@ -87,8 +90,8 @@ const ImpulseBlocker = {
    * Add a website to the blocked list
    * @param  {string} url Url to add to the list
    */
-  addSite: (url) => {
-    browser.storage.local.get('sites').then((storage) => {
+  addSite: url => {
+    browser.storage.local.get('sites').then(storage => {
       storage.sites.push(url);
       browser.storage.local.set({
         sites: storage.sites,
@@ -100,8 +103,8 @@ const ImpulseBlocker = {
    * Add a website to the blocked list
    * @param  {string} url Url to remove to the list
    */
-  removeSite: (url) => {
-    browser.storage.local.get('sites').then((storage) => {
+  removeSite: url => {
+    browser.storage.local.get('sites').then(storage => {
       const i = storage.sites.indexOf(url);
       if (i !== -1) {
         storage.sites.splice(i, 1);
@@ -142,7 +145,7 @@ function addCurrentlyActiveSite() {
     active: true,
     currentWindow: true,
   });
-  return gettingActiveTab.then((tabs) => {
+  return gettingActiveTab.then(tabs => {
     const url = new URL(tabs[0].url);
     ImpulseBlocker.addSite(url.hostname.replace(/^www\./, ''));
   });
@@ -153,7 +156,7 @@ function removeCurrentlyActiveSite() {
     active: true,
     currentWindow: true,
   });
-  return gettingActiveTab.then((tabs) => {
+  return gettingActiveTab.then(tabs => {
     const url = new URL(tabs[0].url);
     ImpulseBlocker.removeSite(url.hostname.replace(/^www\./, ''));
   });

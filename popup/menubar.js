@@ -32,7 +32,10 @@ function displayCurrentDomain() {
     bg.getDomain().then(tabs => {
       url = new URL(tabs[0].url);
       // dont show the button for non-http pages
-      if (['http:', 'https:'].indexOf(url.protocol) === -1) return false;
+      if (['http:', 'https:'].indexOf(url.protocol) === -1) {
+        return false;
+      }
+
       const urlToMatch = url.hostname.replace(/^www\./, '');
 
       domainToAllow.textContent = urlToMatch;
