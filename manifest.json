@@ -4,7 +4,13 @@
   "manifest_version": 2,
   "description": "Block distracting websites when you are browsing the web.",
 
-  "permissions": ["<all_urls>", "webRequest", "webRequestBlocking", "storage", "tabs"],
+  "permissions": [
+    "<all_urls>",
+    "webRequest",
+    "webRequestBlocking",
+    "storage",
+    "tabs"
+  ],
 
   "icons": {
     "48": "icons/icon48.png",
@@ -26,5 +32,7 @@
     "default_icon": "icons/icon96.png",
     "default_title": "Impulse Blocker",
     "default_popup": "popup/menubar.html"
-  }
+  },
+
+  "incognito": "spanning"
 }
