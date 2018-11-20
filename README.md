@@ -8,4 +8,4 @@ You can install the extension from the official [add-ons page](https://addons.mo
 
 ## Contributors
 
-Many to thanks to [Crote](https://github.com/Crotek) for his contributions.
+Many to thanks to [Crote](https://github.com/Crotek) and [pkonneker](https://github.com/pkonneker) for their contributions.
