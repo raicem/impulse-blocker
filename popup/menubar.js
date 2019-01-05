@@ -16,7 +16,7 @@ function handleClick() {
 }
 
 function markExtensionStatus() {
-  getBackgroundPage.then((bg) => {
+  getBackgroundPage.then(bg => {
     const status = bg.getStatus();
     if (status === 'off') {
       radioOff.checked = true;
@@ -27,18 +27,21 @@ function markExtensionStatus() {
 }
 
 function displayCurrentDomain() {
-  getBackgroundPage.then((bg) => {
+  getBackgroundPage.then(bg => {
     let url;
-    bg.getDomain().then((tabs) => {
+    bg.getDomain().then(tabs => {
       url = new URL(tabs[0].url);
       // dont show the button for non-http pages
-      if (['http:', 'https:'].indexOf(url.protocol) === -1) return false;
+      if (['http:', 'https:'].indexOf(url.protocol) === -1) {
+        return false;
+      }
+
       const urlToMatch = url.hostname.replace(/^www\./, '');
 
       domainToAllow.textContent = urlToMatch;
       domainToBlock.textContent = urlToMatch;
 
-      bg.getSites().then((storage) => {
+      bg.getSites().then(storage => {
         if (storage.sites.includes(urlToMatch)) {
           removeButton.style.display = 'block';
           addButton.style.display = 'none';
@@ -57,7 +60,7 @@ function refreshToolbar() {
 }
 
 function addWebsite() {
-  getBackgroundPage.then((bg) => {
+  getBackgroundPage.then(bg => {
     bg.addCurrentlyActiveSite().then(() => {
       refreshToolbar();
     });
@@ -65,7 +68,7 @@ function addWebsite() {
 }
 
 function removeWebsite() {
-  getBackgroundPage.then((bg) => {
+  getBackgroundPage.then(bg => {
     bg.removeCurrentlyActiveSite().then(() => {
       refreshToolbar();
     });
@@ -73,9 +76,7 @@ function removeWebsite() {
 }
 
 function openOptions() {
-  browser.tabs.create({
-    url: '/options/options.html',
-  });
+  browser.runtime.openOptionsPage();
   window.close();
 }
 
