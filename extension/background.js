@@ -81,7 +81,6 @@ const ImpulseBlocker = {
    * Removes the web request listener and turns the extension off.
    */
   disableBlocker: () => {
-    console.log('disabling blocker');
     browser.webRequest.onBeforeRequest.removeListener(ImpulseBlocker.redirect);
     ImpulseBlocker.setStatus('off');
   },
@@ -132,8 +131,17 @@ function setBlocker() {
   ImpulseBlocker.setBlocker();
 }
 
-function getDomain() {
-  return browser.tabs.query({ active: true, currentWindow: true });
+async function getDomain() {
+  const [activeTab] = await browser.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+
+  console.log(activeTab);
+
+  return 'deneme';
+
+  // return DomainParser(activeTab.url);
 }
 
 function getSites() {
@@ -161,3 +169,5 @@ function removeCurrentlyActiveSite() {
     ImpulseBlocker.removeSite(url.hostname.replace(/^www\./, ''));
   });
 }
+
+browser.runtime.onMessage.addListener(() => getDomain());
