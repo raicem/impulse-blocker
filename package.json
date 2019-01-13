@@ -3,7 +3,7 @@
     "watch": "webpack --mode=development --watch",
     "build": "webpack --mode=development",
     "release ": "web-ext build --config=web-ext-config.js",
-    "browser": "web-ext run -s extension"
+    "browser": "web-ext run --browser-console --source-dir extension"
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",
