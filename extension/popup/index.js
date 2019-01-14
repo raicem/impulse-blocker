@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import './popup.css';
 import cogs from './cogs.svg';
 
-import Enum from '../enums/messages';
+import MessageEnums from '../enums/messages';
 
 import InvalidWebPage from './components/InvalidWebPage';
 
@@ -33,7 +33,7 @@ export default class App extends React.Component {
   async componentDidMount() {
     this.getExtensionStatus();
     const activeTabUrl = await browser.runtime.sendMessage({
-      type: Enum.GET_CURRENT_DOMAIN,
+      type: MessageEnums.GET_CURRENT_DOMAIN,
     });
 
     if (activeTabUrl !== false) {
@@ -46,7 +46,7 @@ export default class App extends React.Component {
 
   async getExtensionStatus() {
     const extensionStatus = await browser.runtime.sendMessage({
-      type: 'getExtensionStatus',
+      type: MessageEnums.GET_EXTENSION_STATUS,
     });
 
     this.setState({

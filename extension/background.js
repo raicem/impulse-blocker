@@ -1,4 +1,5 @@
 import DomainParser from './DomainParser';
+import MessageEnums from './enums/messages';
 
 const ImpulseBlocker = {
   extStatus: 'on',
@@ -168,4 +169,14 @@ function removeCurrentlyActiveSite() {
   });
 }
 
-browser.runtime.onMessage.addListener(() => getDomain());
+browser.runtime.onMessage.addListener(request => {
+  if (request.type === MessageEnums.GET_CURRENT_DOMAIN) {
+    return getDomain();
+  }
+
+  if (request.type === MessageEnums.GET_EXTENSION_STATUS) {
+    return getStatus();
+  }
+
+  throw new Error('Message type not recognized');
+});
