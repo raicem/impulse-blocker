@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom';
 import './popup.css';
 import cogs from './cogs.svg';
 
+import Enum from '../enums/messages';
+
+import InvalidWebPage from './components/InvalidWebPage';
+
 export default class App extends React.Component {
   constructor() {
     super();
@@ -10,18 +14,50 @@ export default class App extends React.Component {
       extensionStatus: 'off',
       domain: '',
       isBlocked: false,
+      isValidUrl: false,
     };
   }
 
+  isBlockable() {
+    if (this.state.isValidUrl === false) {
+      return false;
+    }
+
+    if (this.state.isBlocked === true) {
+      return false;
+    }
+
+    return true;
+  }
+
   async componentDidMount() {
-    const activeTab = await browser.runtime.sendMessage({
-      type: 'getFirstPopupState',
+    this.getExtensionStatus();
+    const activeTabUrl = await browser.runtime.sendMessage({
+      type: Enum.GET_CURRENT_DOMAIN,
     });
 
-    console.log(activeTab);
+    if (activeTabUrl !== false) {
+      this.setState({
+        domain: activeTabUrl,
+        isValidUrl: true,
+      });
+    }
+  }
+
+  async getExtensionStatus() {
+    const extensionStatus = await browser.runtime.sendMessage({
+      type: 'getExtensionStatus',
+    });
+
+    this.setState({
+      extensionStatus,
+    });
   }
 
   render() {
+    if (!this.state.isValidUrl) {
+      return <InvalidWebPage />;
+    }
     return (
       <div>
         <header>
@@ -39,7 +75,13 @@ export default class App extends React.Component {
             </div>
           </form>
           <div className="add-domain-section">
-            <button className="button button-add">{this.state.domain}</button>
+            <button
+              className={`button ${
+                this.isBlockable() ? 'button-add' : 'button-remove'
+              }`}
+            >
+              {this.isBlockable() ? 'Block' : 'Allow'} {this.state.domain}
+            </button>
           </div>
         </main>
       </div>

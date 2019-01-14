@@ -4,14 +4,8 @@ body {
 }
 
 .wrapper {
-  width: 90%;
   margin: 0 auto;
-}
-
-.title {
   text-align: center;
-  padding: 0;
-  margin: 0 0 1em 0;
 }
 
 form {
@@ -35,7 +29,6 @@ form {
   border: none;
   cursor: pointer;
   color: white;
-  display: none;
 }
 
 .button-add {
