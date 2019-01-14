@@ -1,3 +1,5 @@
+import DomainParser from './DomainParser';
+
 const ImpulseBlocker = {
   extStatus: 'on',
 
@@ -137,11 +139,7 @@ async function getDomain() {
     currentWindow: true,
   });
 
-  console.log(activeTab);
-
-  return 'deneme';
-
-  // return DomainParser(activeTab.url);
+  return DomainParser.parse(activeTab.url);
 }
 
 function getSites() {

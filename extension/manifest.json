@@ -20,7 +20,7 @@
   },
   "web_accessible_resources": ["redirect.html"],
   "background": {
-    "scripts": ["extension/dist/background.bundle.js"]
+    "scripts": ["dist/background.bundle.js"]
   },
   "browser_action": {
     "default_icon": "icons/icon96.png",

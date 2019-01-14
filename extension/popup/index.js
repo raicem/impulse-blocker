@@ -18,7 +18,7 @@ export default class App extends React.Component {
       type: 'getFirstPopupState',
     });
 
-    console.log(response);
+    console.log(activeTab);
   }
 
   render() {
