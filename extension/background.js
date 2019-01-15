@@ -1,8 +1,9 @@
 import DomainParser from './DomainParser';
 import MessageEnums from './enums/messages';
+import ExtensionStatusEnum from './enums/extensionStatus';
 
 const ImpulseBlocker = {
-  extStatus: 'on',
+  extStatus: ExtensionStatusEnum.OFF,
 
   /**
    * Starts the blocker. Adds a listener so that if new websites is added
@@ -123,6 +124,7 @@ ImpulseBlocker.init();
 // Helper functions to access object literal from menubar.js file. These funcitons are
 // easily accessible from the getBackgroundPage instance.
 function getStatus() {
+  return ExtensionStatusEnum.ON;
   return ImpulseBlocker.getStatus();
 }
 
@@ -175,6 +177,7 @@ browser.runtime.onMessage.addListener(request => {
   }
 
   if (request.type === MessageEnums.GET_EXTENSION_STATUS) {
+    console.log('handled');
     return getStatus();
   }
 

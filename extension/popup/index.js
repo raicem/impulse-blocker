@@ -4,6 +4,7 @@ import './popup.css';
 import cogs from './cogs.svg';
 
 import MessageEnums from '../enums/messages';
+import ExtensionStatusEnum from '../enums/extensionStatus';
 
 import InvalidWebPage from './components/InvalidWebPage';
 
@@ -11,7 +12,7 @@ export default class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      extensionStatus: 'off',
+      extensionStatus: ExtensionStatusEnum.OFF,
       domain: '',
       isBlocked: false,
       isValidUrl: false,
@@ -48,6 +49,8 @@ export default class App extends React.Component {
     const extensionStatus = await browser.runtime.sendMessage({
       type: MessageEnums.GET_EXTENSION_STATUS,
     });
+
+    console.log(extensionStatus);
 
     this.setState({
       extensionStatus,
