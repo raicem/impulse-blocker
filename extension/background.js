@@ -1,5 +1,5 @@
 import DomainParser from './DomainParser';
-import MessageEnums from './enums/messages';
+import MessageTypes from './enums/messages';
 import ExtensionStatusEnum from './enums/extensionStatus';
 
 const ImpulseBlocker = {
@@ -124,7 +124,6 @@ ImpulseBlocker.init();
 // Helper functions to access object literal from menubar.js file. These funcitons are
 // easily accessible from the getBackgroundPage instance.
 function getStatus() {
-  return ExtensionStatusEnum.ON;
   return ImpulseBlocker.getStatus();
 }
 
@@ -171,14 +170,30 @@ function removeCurrentlyActiveSite() {
   });
 }
 
-browser.runtime.onMessage.addListener(request => {
-  if (request.type === MessageEnums.GET_CURRENT_DOMAIN) {
+browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.type === MessageTypes.GET_CURRENT_DOMAIN) {
     return getDomain();
   }
 
-  if (request.type === MessageEnums.GET_EXTENSION_STATUS) {
-    console.log('handled');
-    return getStatus();
+  if (request.type === MessageTypes.GET_EXTENSION_STATUS) {
+    // For an unknown reason returning the extension status directly causes undefined value in the popup
+    // Therefore we use the sendResponse function.
+    return sendResponse(getStatus());
+  }
+
+  if (request.type === MessageTypes.UPDATE_EXTENSION_STATUS) {
+    console.log(request.type);
+    if (request.parameter === ExtensionStatusEnum.ON) {
+      // TODO: Return true or false
+      setBlocker();
+      return sendResponse(true);
+    }
+
+    if (request.parameter === ExtensionStatusEnum.OFF) {
+      // TODO: Return true or false
+      disableBlocker();
+      return sendResponse(true);
+    }
   }
 
   throw new Error('Message type not recognized');

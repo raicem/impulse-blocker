@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import './popup.css';
 import cogs from './cogs.svg';
 
-import MessageEnums from '../enums/messages';
+import MessageTypes from '../enums/messages';
 import ExtensionStatusEnum from '../enums/extensionStatus';
 
 import InvalidWebPage from './components/InvalidWebPage';
@@ -12,11 +12,13 @@ export default class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      extensionStatus: ExtensionStatusEnum.OFF,
+      extensionStatus: 'now known',
       domain: '',
       isBlocked: false,
       isValidUrl: false,
     };
+
+    this.handleStatusChange = this.handleStatusChange.bind(this);
   }
 
   isBlockable() {
@@ -32,9 +34,8 @@ export default class App extends React.Component {
   }
 
   async componentDidMount() {
-    this.getExtensionStatus();
     const activeTabUrl = await browser.runtime.sendMessage({
-      type: MessageEnums.GET_CURRENT_DOMAIN,
+      type: MessageTypes.GET_CURRENT_DOMAIN,
     });
 
     if (activeTabUrl !== false) {
@@ -43,24 +44,32 @@ export default class App extends React.Component {
         isValidUrl: true,
       });
     }
+
+    const extensionStatus = await browser.runtime.sendMessage({
+      type: MessageTypes.GET_EXTENSION_STATUS,
+    });
+
+    this.setState({ extensionStatus });
   }
 
-  async getExtensionStatus() {
-    const extensionStatus = await browser.runtime.sendMessage({
-      type: MessageEnums.GET_EXTENSION_STATUS,
+  async handleStatusChange(extensionStatus) {
+    const extensionStatusChange = await browser.runtime.sendMessage({
+      type: MessageTypes.UPDATE_EXTENSION_STATUS,
+      parameter: extensionStatus,
     });
 
-    console.log(extensionStatus);
-
-    this.setState({
-      extensionStatus,
-    });
+    if (extensionStatusChange === true) {
+      this.setState({
+        extensionStatus,
+      });
+    }
   }
 
   render() {
     if (!this.state.isValidUrl) {
       return <InvalidWebPage />;
     }
+
     return (
       <div>
         <header>
@@ -69,11 +78,27 @@ export default class App extends React.Component {
         <main>
           <form action="GET">
             <div className="form-group">
-              <input type="radio" name="status" id="on" value="on" />
+              <input
+                type="radio"
+                name="status"
+                id="on"
+                value="on"
+                checked={this.state.extensionStatus === ExtensionStatusEnum.ON}
+                onChange={() => this.handleStatusChange(ExtensionStatusEnum.ON)}
+              />
               <label htmlFor="on">On</label>
             </div>
             <div className="form-group">
-              <input type="radio" name="status" id="off" value="off" />
+              <input
+                type="radio"
+                name="status"
+                id="off"
+                value="off"
+                checked={this.state.extensionStatus === ExtensionStatusEnum.OFF}
+                onChange={() =>
+                  this.handleStatusChange(ExtensionStatusEnum.OFF)
+                }
+              />
               <label htmlFor="off">Off</label>
             </div>
           </form>
