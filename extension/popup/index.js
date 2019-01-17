@@ -6,8 +6,6 @@ import cogs from './cogs.svg';
 import MessageTypes from '../enums/messages';
 import ExtensionStatusEnum from '../enums/extensionStatus';
 
-import InvalidWebPage from './components/InvalidWebPage';
-
 export default class App extends React.Component {
   constructor() {
     super();
@@ -19,6 +17,7 @@ export default class App extends React.Component {
     };
 
     this.handleStatusChange = this.handleStatusChange.bind(this);
+    this.handleDomainClicked = this.handleDomainClicked.bind(this);
   }
 
   isBlockable() {
@@ -59,17 +58,44 @@ export default class App extends React.Component {
     });
 
     if (extensionStatusChange === true) {
+      this.setState({ extensionStatus });
+    }
+  }
+
+  handleDomainClicked() {
+    console.log('clicked');
+    if (this.state.isBlocked === true) {
+      this.startAllowingCurrentDomain();
+    }
+
+    if (this.state.isBlocked === false) {
+      this.startBlockingCurrentDomain();
+    }
+  }
+
+  async startBlockingCurrentDomain() {
+    const blockingDomainResponse = await browser.runtime.sendMessage({
+      type: MessageTypes.START_BLOCKING_DOMAIN,
+    });
+
+    if (blockingDomainResponse === true) {
       this.setState({
-        extensionStatus,
+        isBlocked: true,
       });
     }
   }
 
-  render() {
-    if (!this.state.isValidUrl) {
-      return <InvalidWebPage />;
-    }
+  async startAllowingCurrentDomain() {
+    const allowingDomainResponse = await browser.runtime.sendMessage({
+      type: MessageTypes.START_ALLOWING_DOMAIN,
+    });
 
+    if (allowingDomainResponse === true) {
+      this.setState({ isBlocked: false });
+    }
+  }
+
+  render() {
     return (
       <div>
         <header>
@@ -103,13 +129,16 @@ export default class App extends React.Component {
             </div>
           </form>
           <div className="add-domain-section">
-            <button
-              className={`button ${
-                this.isBlockable() ? 'button-add' : 'button-remove'
-              }`}
-            >
-              {this.isBlockable() ? 'Block' : 'Allow'} {this.state.domain}
-            </button>
+            {this.state.isValidUrl && (
+              <button
+                className={`button ${
+                  this.isBlockable() ? 'button-add' : 'button-remove'
+                }`}
+                onClick={this.handleDomainClicked}
+              >
+                {this.isBlockable() ? 'Block' : 'Allow'} {this.state.domain}
+              </button>
+            )}
           </div>
         </main>
       </div>

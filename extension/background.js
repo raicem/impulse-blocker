@@ -172,28 +172,41 @@ function removeCurrentlyActiveSite() {
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === MessageTypes.GET_CURRENT_DOMAIN) {
-    return getDomain();
+    // TODO: Figure out what to return sendResponse does not really return anyting.
+    // But eslint expects something to be returned from the callback function
+    return sendResponse(getDomain());
   }
 
   if (request.type === MessageTypes.GET_EXTENSION_STATUS) {
-    // For an unknown reason returning the extension status directly causes undefined value in the popup
-    // Therefore we use the sendResponse function.
     return sendResponse(getStatus());
   }
 
   if (request.type === MessageTypes.UPDATE_EXTENSION_STATUS) {
-    console.log(request.type);
     if (request.parameter === ExtensionStatusEnum.ON) {
-      // TODO: Return true or false
+      // TODO: Return true or false according to the setBlocker function. If it fails to turn on (for example listener can not be added)
+      // it should return false
       setBlocker();
       return sendResponse(true);
     }
 
     if (request.parameter === ExtensionStatusEnum.OFF) {
-      // TODO: Return true or false
+      // TODO: Return true or false according to the setBlocker function. If it fails to turn off
+      // (for example listener can not be removed) it should return false
       disableBlocker();
       return sendResponse(true);
     }
+  }
+
+  if (request.type === MessageTypes.START_BLOCKING_DOMAIN) {
+    console.log('adding');
+    addCurrentlyActiveSite();
+    return sendResponse(true);
+  }
+
+  if (request.type === MessageTypes.START_ALLOWING_DOMAIN) {
+    console.log('removing');
+    removeCurrentlyActiveSite();
+    return sendResponse(true);
   }
 
   throw new Error('Message type not recognized');
