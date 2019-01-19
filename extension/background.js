@@ -159,6 +159,11 @@ function addCurrentlyActiveSite() {
   });
 }
 
+async function isDomainBlocked(urlToMatch) {
+  const storage = await getSites();
+  return storage.sites.includes(urlToMatch);
+}
+
 function removeCurrentlyActiveSite() {
   const gettingActiveTab = browser.tabs.query({
     active: true,
@@ -175,6 +180,10 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // TODO: Figure out what to return sendResponse does not really return anyting.
     // But eslint expects something to be returned from the callback function
     return sendResponse(getDomain());
+  }
+
+  if (request.type === MessageTypes.IS_DOMAIN_BLOCKED) {
+    return sendResponse(isDomainBlocked(request.domain));
   }
 
   if (request.type === MessageTypes.GET_EXTENSION_STATUS) {
@@ -198,13 +207,11 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.type === MessageTypes.START_BLOCKING_DOMAIN) {
-    console.log('adding');
     addCurrentlyActiveSite();
     return sendResponse(true);
   }
 
   if (request.type === MessageTypes.START_ALLOWING_DOMAIN) {
-    console.log('removing');
     removeCurrentlyActiveSite();
     return sendResponse(true);
   }
