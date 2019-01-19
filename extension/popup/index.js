@@ -4,27 +4,22 @@ import './popup.css';
 import cogs from './cogs.svg';
 
 import MessageTypes from '../enums/messages';
-import ExtensionStatusEnum from '../enums/extensionStatus';
+import ExtensionStatus from './components/ExtensionStatus';
 
 export default class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      extensionStatus: 'now known',
       domain: '',
       isBlocked: false,
       isValidUrl: false,
     };
 
-    this.handleStatusChange = this.handleStatusChange.bind(this);
     this.handleDomainClicked = this.handleDomainClicked.bind(this);
   }
 
   isBlockable() {
-    if (this.state.isValidUrl === false) {
-      return false;
-    }
-
+    console.log(this.state);
     if (this.state.isBlocked === true) {
       return false;
     }
@@ -38,9 +33,17 @@ export default class App extends React.Component {
     });
 
     if (activeTabUrl !== false) {
+      const isBlocked = await browser.runtime.sendMessage({
+        type: MessageTypes.IS_DOMAIN_BLOCKED,
+        domain: activeTabUrl,
+      });
+
+      console.log('mount', isBlocked);
+
       this.setState({
         domain: activeTabUrl,
         isValidUrl: true,
+        isBlocked,
       });
     }
 
@@ -63,7 +66,6 @@ export default class App extends React.Component {
   }
 
   handleDomainClicked() {
-    console.log('clicked');
     if (this.state.isBlocked === true) {
       this.startAllowingCurrentDomain();
     }
@@ -96,38 +98,14 @@ export default class App extends React.Component {
   }
 
   render() {
+    console.log('render', this.isBlockable());
     return (
       <div>
         <header>
           <img className="options" src={cogs} />
         </header>
         <main>
-          <form action="GET">
-            <div className="form-group">
-              <input
-                type="radio"
-                name="status"
-                id="on"
-                value="on"
-                checked={this.state.extensionStatus === ExtensionStatusEnum.ON}
-                onChange={() => this.handleStatusChange(ExtensionStatusEnum.ON)}
-              />
-              <label htmlFor="on">On</label>
-            </div>
-            <div className="form-group">
-              <input
-                type="radio"
-                name="status"
-                id="off"
-                value="off"
-                checked={this.state.extensionStatus === ExtensionStatusEnum.OFF}
-                onChange={() =>
-                  this.handleStatusChange(ExtensionStatusEnum.OFF)
-                }
-              />
-              <label htmlFor="off">Off</label>
-            </div>
-          </form>
+          <ExtensionStatus />
           <div className="add-domain-section">
             {this.state.isValidUrl && (
               <button
