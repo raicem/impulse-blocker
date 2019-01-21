@@ -5,12 +5,15 @@ import cogs from './cogs.svg';
 
 import ExtensionStatus from './components/ExtensionStatus';
 import DomainButton from './components/DomainButton';
+import openOptionsPage from '../utils/openOptionsPage';
 
 function Popup() {
   return (
     <div>
       <header>
-        <img className="options" src={cogs} />
+        <a href="">
+          <img className="options" src={cogs} onClick={openOptionsPage} />
+        </a>
       </header>
       <main>
         <ExtensionStatus />
