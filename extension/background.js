@@ -216,5 +216,9 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return sendResponse(true);
   }
 
+  if (request.type === MessageTypes.GET_BLOCKED_DOMAINS_LIST) {
+    return sendResponse(getSites());
+  }
+
   throw new Error('Message type not recognized');
 });

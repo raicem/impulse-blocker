@@ -5,6 +5,7 @@ const messages = {
   UPDATE_EXTENSION_STATUS: 'updateExtensionStatus',
   START_BLOCKING_DOMAIN: 'startBlockingDomain',
   START_ALLOWING_DOMAIN: 'startAllowingDomain',
+  GET_BLOCKED_DOMAINS_LIST: 'getBlockedDomainsList',
 };
 
 Object.freeze(messages);

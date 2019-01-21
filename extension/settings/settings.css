@@ -1,0 +1,22 @@
+html {
+  font-family: Segoe UI;
+  line-height: 20px;
+  text-shadow: 0 1px 1px #fefffe;
+  font-size: 1rem;
+  color: rgb(51, 51, 51);
+}
+.list-header {
+  padding-bottom: 0.5em;
+  border-bottom: 1px solid #c1c1c1;
+}
+.blocked-sites ul {
+  display: table;
+  padding: 0;
+}
+.blocked-sites li {
+  display: table-row;
+}
+.blocked-sites li > * {
+  display: table-cell;
+  margin: 0.25em 0.5em;
+}

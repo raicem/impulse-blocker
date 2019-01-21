@@ -1,74 +1,66 @@
-const blockedSites = document.querySelector('.blocked-sites ul');
-const form = document.querySelector('form');
-const getSites = browser.storage.local.get('sites');
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './settings.css';
 
-function addToBlockedList(text) {
-  const label = document.createElement('p');
-  label.textContent = text;
-  const button = document.createElement('button');
-  button.textContent = 'Delete';
+import MessageTypes from '../enums/messages';
 
-  const listItem = document.createElement('li');
-  listItem.appendChild(label);
-  listItem.appendChild(button);
+class Settings extends React.Component {
+  constructor() {
+    super();
 
-  blockedSites.appendChild(listItem);
-}
+    this.state = {
+      value: '',
+      blockedSites: [],
+    };
 
-function hasNoProtocol(url) {
-  const regex = /^[a-zA-Z]{3,}:\/\//;
-  return !regex.test(url);
-}
-
-function hasNoExtension(url) {
-  const regex = /(\w+\.\w+)$/;
-  return !regex.test(url);
-}
-
-function restoreOptions() {
-  getSites.then(storage => {
-    storage.sites.forEach(site => {
-      addToBlockedList(site);
-    });
-  });
-}
-
-function saveSite(event) {
-  event.preventDefault();
-  const url = form.site.value;
-  if (url.length == 0) {
-    return;
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.listItems = this.listItems.bind(this);
   }
-  addToBlockedList(url);
-  form.site.value = '';
 
-  getSites.then(storage => {
-    storage.sites.push(url);
-    browser.storage.local.set({
-      sites: storage.sites,
+  async componentDidMount() {
+    const storage = await browser.runtime.sendMessage({
+      type: MessageTypes.GET_BLOCKED_DOMAINS_LIST,
     });
-  });
-}
 
-function deleteSite(event) {
-  if (event.target.nodeName === 'BUTTON') {
-    const toDelete = event.target.parentElement;
-    const toDeleteParent = toDelete.parentElement;
-    const toDeleteText = event.target.previousSibling.textContent;
-    toDeleteParent.removeChild(toDelete);
-
-    getSites.then(storage => {
-      const i = storage.sites.indexOf(toDeleteText);
-      if (i !== -1) {
-        storage.sites.splice(i, 1);
-      }
-      browser.storage.local.set({
-        sites: storage.sites,
-      });
+    this.setState({
+      blockedSites: storage.sites,
     });
+  }
+
+  handleChange(e) {
+    this.setState({ value: e.target.value });
+  }
+
+  handleSubmit() {
+    console.log('submitting');
+  }
+
+  listItems() {
+    return this.state.blockedSites.map(site => <li key={site}>{site}</li>);
+  }
+
+  render() {
+    return (
+      <div>
+        <form onSubmit={this.handleSubmit}>
+          <label htmlFor="site">Website to block: </label>
+          <input
+            type="text"
+            id="site"
+            name="site"
+            value={this.state.value}
+            onChange={this.handleChange}
+          />
+          <input type="submit" value="Add" />
+        </form>
+        <div className="blocked-sites">
+          <p className="list-header">Currently blocked websites:</p>
+          <ul>{this.listItems()}</ul>
+        </div>
+      </div>
+    );
   }
 }
 
-form.addEventListener('submit', saveSite);
-blockedSites.addEventListener('click', deleteSite);
-document.addEventListener('DOMContentLoaded', restoreOptions);
+ReactDOM.render(<Settings />, document.getElementById('root'));
