@@ -5,6 +5,7 @@ module.exports = {
   entry: {
     background: './extension/background.js',
     popup: './extension/popup/index.js',
+    settings: './extension/settings/index.js',
   },
   output: {
     path: path.resolve(__dirname, 'extension/dist'),

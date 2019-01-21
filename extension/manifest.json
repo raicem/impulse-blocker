@@ -15,7 +15,7 @@
     "96": "icons/icon96.png"
   },
   "options_ui": {
-    "page": "options/options.html",
+    "page": "settings/index.html",
     "open_in_tab": true
   },
   "web_accessible_resources": ["redirect.html"],
