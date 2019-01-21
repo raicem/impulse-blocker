@@ -37,19 +37,22 @@ export default class DomainButton extends React.Component {
     if (this.state.isBlocked === true) {
       this.updateDomainInBlockedList({
         type: MessageTypes.START_ALLOWING_DOMAIN,
+        domain: this.state.domain,
       });
     }
 
     if (this.state.isBlocked === false) {
       this.updateDomainInBlockedList({
         type: MessageTypes.START_BLOCKING_DOMAIN,
+        domain: this.state.domain,
       });
     }
   }
 
-  async updateDomainInBlockedList({ type }) {
+  async updateDomainInBlockedList({ type, domain }) {
     const response = await browser.runtime.sendMessage({
       type,
+      domain,
     });
 
     if (response === true) {

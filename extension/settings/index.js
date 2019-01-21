@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './settings.css';
 
 import MessageTypes from '../enums/messages';
+import Domain from './components/Domain';
 
 class Settings extends React.Component {
   constructor() {
@@ -16,6 +17,7 @@ class Settings extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.listItems = this.listItems.bind(this);
+    this.onClick = this.onClick.bind(this);
   }
 
   async componentDidMount() {
@@ -32,12 +34,42 @@ class Settings extends React.Component {
     this.setState({ value: e.target.value });
   }
 
-  handleSubmit() {
-    console.log('submitting');
+  async handleSubmit(e) {
+    e.preventDefault();
+    const response = await browser.runtime.sendMessage({
+      type: MessageTypes.START_BLOCKING_DOMAIN,
+      domain: this.state.value,
+    });
+
+    if (response === true) {
+      this.setState(prevState => ({
+        blockedSites: [...prevState.blockedSites, this.state.value],
+        value: '',
+      }));
+    }
+  }
+
+  async onClick(domain) {
+    const response = await browser.runtime.sendMessage({
+      type: MessageTypes.START_ALLOWING_DOMAIN,
+      domain,
+    });
+
+    if (response === true) {
+      const updatedBlockedSites = this.state.blockedSites.filter(
+        item => item !== domain,
+      );
+
+      this.setState({
+        blockedSites: updatedBlockedSites,
+      });
+    }
   }
 
   listItems() {
-    return this.state.blockedSites.map(site => <li key={site}>{site}</li>);
+    return this.state.blockedSites.map(domain => (
+      <Domain domain={domain} onClick={this.onClick} key={Math.random()} />
+    ));
   }
 
   render() {

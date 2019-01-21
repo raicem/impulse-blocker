@@ -1,6 +1,7 @@
 import DomainParser from './DomainParser';
 import MessageTypes from './enums/messages';
 import ExtensionStatusEnum from './enums/extensionStatus';
+import getActiveTab from './utils/getActiveTab';
 
 const ImpulseBlocker = {
   extStatus: ExtensionStatusEnum.OFF,
@@ -136,10 +137,7 @@ function setBlocker() {
 }
 
 async function getDomain() {
-  const [activeTab] = await browser.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
+  const activeTab = await getActiveTab();
 
   return DomainParser.parse(activeTab.url);
 }
@@ -148,31 +146,17 @@ function getSites() {
   return browser.storage.local.get('sites');
 }
 
-function addCurrentlyActiveSite() {
-  const gettingActiveTab = browser.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-  return gettingActiveTab.then(tabs => {
-    const url = new URL(tabs[0].url);
-    ImpulseBlocker.addSite(url.hostname.replace(/^www\./, ''));
-  });
+function addDomainToTheBlockedList(url) {
+  return ImpulseBlocker.addSite(url.replace(/^www\./, ''));
+}
+
+function removeDomainToTheBlockedList(url) {
+  return ImpulseBlocker.removeSite(url.replace(/^www\./, ''));
 }
 
 async function isDomainBlocked(urlToMatch) {
   const storage = await getSites();
   return storage.sites.includes(urlToMatch);
-}
-
-function removeCurrentlyActiveSite() {
-  const gettingActiveTab = browser.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-  return gettingActiveTab.then(tabs => {
-    const url = new URL(tabs[0].url);
-    ImpulseBlocker.removeSite(url.hostname.replace(/^www\./, ''));
-  });
 }
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -207,12 +191,12 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.type === MessageTypes.START_BLOCKING_DOMAIN) {
-    addCurrentlyActiveSite();
+    addDomainToTheBlockedList(request.domain);
     return sendResponse(true);
   }
 
   if (request.type === MessageTypes.START_ALLOWING_DOMAIN) {
-    removeCurrentlyActiveSite();
+    removeDomainToTheBlockedList(request.domain);
     return sendResponse(true);
   }
 
