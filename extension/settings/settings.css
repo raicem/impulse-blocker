@@ -41,18 +41,19 @@ h5 {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .header__title {
   color: #ffffff;
   margin: 0;
-  padding: 0 4rem;
+  padding: 0 2rem;
   font-size: 2.4rem;
 }
 
 .header__form {
   margin: 0;
-  padding: 0 4rem;
+  padding: 0 2rem;
   display: flex;
 }
 
@@ -69,7 +70,7 @@ h5 {
 
 .button {
   font-size: 1.2rem;
-  padding: 1.5rem 2rem;
+  padding: 1.2rem 2rem;
   margin: 0 0.5rem;
   line-height: 1.5rem;
   border-radius: 0;
@@ -93,14 +94,15 @@ h5 {
   border-color: #1a1a1a;
 }
 
+.blocklist {
+  padding: 0 2rem;
+  width: 90%;
+  margin: 0 auto;
+}
+
 .blocklist__header {
   font-size: 1.8rem;
   color: #1a1a1a;
-}
-
-.list-header {
-  padding-bottom: 0.5em;
-  border-bottom: 1px solid #c1c1c1;
 }
 
 hr {
@@ -113,8 +115,16 @@ hr {
   padding: 2rem;
 }
 
-.blocklist li {
-  font-weight: 300;
+.blocklist__item {
+  font-weight: 400;
   color: #1a1a1a;
   font-size: 1.6rem;
+  padding: 1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.blocklist__item:nth-child(2n) {
+  background-color: #f2f2f2;
 }

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import './settings.css';
 
 import MessageTypes from '../enums/messages';
-import Domain from './components/Domain';
+import DomainListItem from './components/DomainListItem';
 
 class Settings extends React.Component {
   constructor() {
@@ -68,7 +68,11 @@ class Settings extends React.Component {
 
   listItems() {
     return this.state.blockedSites.map(domain => (
-      <Domain domain={domain} onClick={this.onClick} key={Math.random()} />
+      <DomainListItem
+        domain={domain}
+        onClick={this.onClick}
+        key={Math.random()}
+      />
     ));
   }
 
@@ -95,7 +99,7 @@ class Settings extends React.Component {
           <div className="blocklist">
             <h3 className="blocklist__header">Currently blocked websites:</h3>
             <hr />
-            <ul>{this.listItems()}</ul>
+            <ul className="blocklist__list">{this.listItems()}</ul>
           </div>
         </div>
       </div>
