@@ -75,20 +75,28 @@ class Settings extends React.Component {
   render() {
     return (
       <div>
-        <form onSubmit={this.handleSubmit}>
-          <label htmlFor="site">Website to block: </label>
-          <input
-            type="text"
-            id="site"
-            name="site"
-            value={this.state.value}
-            onChange={this.handleChange}
-          />
-          <input type="submit" value="Add" />
-        </form>
-        <div className="blocked-sites">
-          <p className="list-header">Currently blocked websites:</p>
-          <ul>{this.listItems()}</ul>
+        <header className="header">
+          <h1 className="header__title">Impulse Blocker</h1>
+          <form onSubmit={this.handleSubmit} className="header__form">
+            <input
+              type="text"
+              className="form__input"
+              id="site"
+              name="site"
+              value={this.state.value}
+              onChange={this.handleChange}
+              placeholder="Add a site to the blocklist..."
+              required
+            />
+            <input type="submit" className="button button--red" value="Block" />
+          </form>
+        </header>
+        <div className="container">
+          <div className="blocklist">
+            <h3 className="blocklist__header">Currently blocked websites:</h3>
+            <hr />
+            <ul>{this.listItems()}</ul>
+          </div>
         </div>
       </div>
     );
