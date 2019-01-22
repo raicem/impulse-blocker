@@ -58,11 +58,23 @@ const ImpulseBlocker = {
    */
   setBlocker: () => {
     browser.storage.local.get('sites').then(storage => {
-      const pattern = storage.sites.map(item => `*://*.${item}/*`);
+      console.log(storage);
+      const pattern = storage.sites.map(item => {
+        if (item instanceof Object) {
+          return `*://*.${item.domain}/*`;
+        }
 
+        return `*://*.${item}/*`;
+      });
+
+      console.log(pattern);
+
+      // remove the old listener with the old list of websites.
       browser.webRequest.onBeforeRequest.removeListener(
         ImpulseBlocker.redirect,
       );
+
+      // if there are websites to block add the new blocklist to the listener
       if (pattern.length > 0) {
         browser.webRequest.onBeforeRequest.addListener(
           ImpulseBlocker.redirect,
@@ -96,7 +108,13 @@ const ImpulseBlocker = {
    */
   addSite: url => {
     browser.storage.local.get('sites').then(storage => {
-      storage.sites.push(url);
+      const record = {
+        domain: url,
+        timesBlocked: 0,
+        isActive: true,
+        added: '2018-09-21',
+      };
+      storage.sites.push(record);
       browser.storage.local.set({
         sites: storage.sites,
       });
@@ -142,8 +160,15 @@ async function getDomain() {
   return DomainParser.parse(activeTab.url);
 }
 
-function getSites() {
-  return browser.storage.local.get('sites');
+async function getSites() {
+  const storage = await browser.storage.local.get('sites');
+  return storage.sites.map(item => {
+    if (item instanceof Object) {
+      return `*://*.${item.domain}/*`;
+    }
+
+    return `*://*.${item}/*`;
+  });
 }
 
 function addDomainToTheBlockedList(url) {
