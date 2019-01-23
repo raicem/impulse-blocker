@@ -1,10 +1,11 @@
 import DomainParser from './DomainParser';
 import MessageTypes from './enums/messages';
-import ExtensionStatusEnum from './enums/extensionStatus';
+import ExtensionStatus from './enums/extensionStatus';
 import getActiveTab from './utils/getActiveTab';
+import StorageHandler from './StorageHandler';
 
 const ImpulseBlocker = {
-  extStatus: ExtensionStatusEnum.OFF,
+  extStatus: ExtensionStatus.OFF,
 
   /**
    * Starts the blocker. Adds a listener so that if new websites is added
@@ -43,7 +44,7 @@ const ImpulseBlocker = {
   setStatus: status => {
     ImpulseBlocker.extStatus = status;
     let icon = 'icons/icon96.png';
-    if (ImpulseBlocker.extStatus !== 'on') {
+    if (ImpulseBlocker.extStatus !== ExtensionStatus.ON) {
       icon = 'icons/icon96-disabled.png';
     }
 
@@ -57,28 +58,17 @@ const ImpulseBlocker = {
    * by the WebExtensions API.
    */
   setBlocker: () => {
-    browser.storage.local.get('sites').then(storage => {
-      console.log(storage);
-      const pattern = storage.sites.map(item => {
-        if (item instanceof Object) {
-          return `*://*.${item.domain}/*`;
-        }
-
-        return `*://*.${item}/*`;
-      });
-
-      console.log(pattern);
-
+    StorageHandler.getArrayOfWebsiteDomains().then(domains => {
       // remove the old listener with the old list of websites.
       browser.webRequest.onBeforeRequest.removeListener(
         ImpulseBlocker.redirect,
       );
 
       // if there are websites to block add the new blocklist to the listener
-      if (pattern.length > 0) {
+      if (domains.length > 0) {
         browser.webRequest.onBeforeRequest.addListener(
           ImpulseBlocker.redirect,
-          { urls: pattern, types: ['main_frame'] },
+          { urls: domains, types: ['main_frame'] },
           ['blocking'],
         );
       }
@@ -86,12 +76,12 @@ const ImpulseBlocker = {
 
     browser.storage.onChanged.addListener(() => {
       // if the extension off we should not be bothered by restarting with new list
-      if (ImpulseBlocker.getStatus() === 'on') {
+      if (ImpulseBlocker.getStatus() === ExtensionStatus.ON) {
         ImpulseBlocker.setBlocker();
       }
     });
 
-    ImpulseBlocker.setStatus('on');
+    ImpulseBlocker.setStatus(ExtensionStatus.ON);
   },
 
   /**
@@ -99,7 +89,7 @@ const ImpulseBlocker = {
    */
   disableBlocker: () => {
     browser.webRequest.onBeforeRequest.removeListener(ImpulseBlocker.redirect);
-    ImpulseBlocker.setStatus('off');
+    ImpulseBlocker.setStatus(ExtensionStatus.OFF);
   },
 
   /**
@@ -160,15 +150,8 @@ async function getDomain() {
   return DomainParser.parse(activeTab.url);
 }
 
-async function getSites() {
-  const storage = await browser.storage.local.get('sites');
-  return storage.sites.map(item => {
-    if (item instanceof Object) {
-      return `*://*.${item.domain}/*`;
-    }
-
-    return `*://*.${item}/*`;
-  });
+function getSites() {
+  return StorageHandler.getArrayOfWebsiteDomains();
 }
 
 function addDomainToTheBlockedList(url) {
@@ -200,14 +183,14 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.type === MessageTypes.UPDATE_EXTENSION_STATUS) {
-    if (request.parameter === ExtensionStatusEnum.ON) {
+    if (request.parameter === ExtensionStatus.ON) {
       // TODO: Return true or false according to the setBlocker function. If it fails to turn on (for example listener can not be added)
       // it should return false
       setBlocker();
       return sendResponse(true);
     }
 
-    if (request.parameter === ExtensionStatusEnum.OFF) {
+    if (request.parameter === ExtensionStatus.OFF) {
       // TODO: Return true or false according to the setBlocker function. If it fails to turn off
       // (for example listener can not be removed) it should return false
       disableBlocker();
