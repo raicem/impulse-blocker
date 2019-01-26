@@ -1,14 +1,37 @@
-export default {
-  getArrayOfWebsiteDomains: () =>
-    browser.storage.local.get('sites').then(storage => {
-      const pattern = storage.sites.map(item => {
-        if (item instanceof Object) {
-          return `*://*.${item.domain}/*`;
+export default class StorageHandler {
+  static async getArrayOfWebsiteDomainsWithMatchPatterns() {
+    const { sites } = await StorageHandler.getBlockedWebsites();
+
+    return new Promise((resolve, reject) => {
+      const mappedWebsites = sites.map(website => {
+        if (website instanceof Object) {
+          return `*://*.${website.domain}/*`;
         }
 
-        return `*://*.${item}/*`;
+        return `*://*.${website}/*`;
       });
 
-      return pattern;
-    }),
-};
+      resolve(mappedWebsites);
+    });
+  }
+
+  static async getArrayOfWebsiteDomains() {
+    const { sites } = await StorageHandler.getBlockedWebsites();
+
+    return new Promise((resolve, reject) => {
+      const mappedWebsites = sites.map(website => {
+        if (website instanceof Object) {
+          return website.domain;
+        }
+
+        return website;
+      });
+
+      resolve(mappedWebsites);
+    });
+  }
+
+  static getBlockedWebsites() {
+    return browser.storage.local.get('sites');
+  }
+}

@@ -21,12 +21,12 @@ class Settings extends React.Component {
   }
 
   async componentDidMount() {
-    const storage = await browser.runtime.sendMessage({
-      type: MessageTypes.GET_BLOCKED_DOMAINS_LIST,
+    const domains = await browser.runtime.sendMessage({
+      type: MessageTypes.GET_BLOCKED_DOMAINsS_LIST,
     });
 
-    this.setState({
-      blockedSites: storage.sites,
+    this.setStatse({
+      blockedSites: domains,
     });
   }
 

@@ -57,8 +57,13 @@ const ImpulseBlocker = {
    * Fetches blocked websites lists, attaches them to the listener provided
    * by the WebExtensions API.
    */
-  setBlocker: () => {
+  setBlocker: async () => {
+    const websites = await StorageHandler.getArrayOfWebsiteDomainsWithMatchPatterns();
+
+    console.log('setBlocker', websites);
+
     StorageHandler.getArrayOfWebsiteDomains().then(domains => {
+      console.log(domains);
       // remove the old listener with the old list of websites.
       browser.webRequest.onBeforeRequest.removeListener(
         ImpulseBlocker.redirect,
@@ -163,8 +168,8 @@ function removeDomainToTheBlockedList(url) {
 }
 
 async function isDomainBlocked(urlToMatch) {
-  const storage = await getSites();
-  return storage.sites.includes(urlToMatch);
+  const websites = await StorageHandler.getArrayOfWebsiteDomains();
+  return websites.includes(urlToMatch);
 }
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
