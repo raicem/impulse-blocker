@@ -1,31 +1,19 @@
 export default class StorageHandler {
-  static async getArrayOfWebsiteDomainsWithMatchPatterns() {
+  static async getWebsiteDomainsAsMatchPatterns() {
     const { sites } = await StorageHandler.getBlockedWebsites();
 
     return new Promise((resolve, reject) => {
-      const mappedWebsites = sites.map(website => {
-        if (website instanceof Object) {
-          return `*://*.${website.domain}/*`;
-        }
-
-        return `*://*.${website}/*`;
-      });
+      const mappedWebsites = sites.map(website => `*://*.${website.domain}/*`);
 
       resolve(mappedWebsites);
     });
   }
 
-  static async getArrayOfWebsiteDomains() {
+  static async getWebsiteDomains() {
     const { sites } = await StorageHandler.getBlockedWebsites();
 
     return new Promise((resolve, reject) => {
-      const mappedWebsites = sites.map(website => {
-        if (website instanceof Object) {
-          return website.domain;
-        }
-
-        return website;
-      });
+      const mappedWebsites = sites.map(website => website.domain);
 
       resolve(mappedWebsites);
     });

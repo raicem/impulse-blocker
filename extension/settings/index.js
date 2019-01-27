@@ -22,10 +22,10 @@ class Settings extends React.Component {
 
   async componentDidMount() {
     const domains = await browser.runtime.sendMessage({
-      type: MessageTypes.GET_BLOCKED_DOMAINsS_LIST,
+      type: MessageTypes.GET_BLOCKED_DOMAINS_LIST,
     });
 
-    this.setStatse({
+    this.setState({
       blockedSites: domains,
     });
   }

@@ -3,6 +3,7 @@ import MessageTypes from './enums/messages';
 import ExtensionStatus from './enums/extensionStatus';
 import getActiveTab from './utils/getActiveTab';
 import StorageHandler from './StorageHandler';
+import Website from './Website';
 
 const ImpulseBlocker = {
   extStatus: ExtensionStatus.OFF,
@@ -12,15 +13,14 @@ const ImpulseBlocker = {
    * to the blocked list the listener is refreshed.
    */
   init: () => {
-    const handlingStorage = browser.storage.local.get('sites').then(storage => {
-      if (typeof storage.sites === 'undefined') {
-        return browser.storage.local.set({
-          sites: [],
-        });
+    browser.storage.onChanged.addListener(() => {
+      // if the extension off we should not be bothered by restarting with new list
+      if (ImpulseBlocker.getStatus() === ExtensionStatus.ON) {
+        ImpulseBlocker.setBlocker();
       }
     });
 
-    handlingStorage.then(ImpulseBlocker.setBlocker);
+    ImpulseBlocker.setBlocker();
   },
 
   /**
@@ -58,33 +58,18 @@ const ImpulseBlocker = {
    * by the WebExtensions API.
    */
   setBlocker: async () => {
-    const websites = await StorageHandler.getArrayOfWebsiteDomainsWithMatchPatterns();
+    console.log('setting blocker');
+    const websites = await StorageHandler.getWebsiteDomainsAsMatchPatterns();
 
-    console.log('setBlocker', websites);
+    browser.webRequest.onBeforeRequest.removeListener(ImpulseBlocker.redirect);
 
-    StorageHandler.getArrayOfWebsiteDomains().then(domains => {
-      console.log(domains);
-      // remove the old listener with the old list of websites.
-      browser.webRequest.onBeforeRequest.removeListener(
+    if (websites.length > 0) {
+      browser.webRequest.onBeforeRequest.addListener(
         ImpulseBlocker.redirect,
+        { urls: websites, types: ['main_frame'] },
+        ['blocking'],
       );
-
-      // if there are websites to block add the new blocklist to the listener
-      if (domains.length > 0) {
-        browser.webRequest.onBeforeRequest.addListener(
-          ImpulseBlocker.redirect,
-          { urls: domains, types: ['main_frame'] },
-          ['blocking'],
-        );
-      }
-    });
-
-    browser.storage.onChanged.addListener(() => {
-      // if the extension off we should not be bothered by restarting with new list
-      if (ImpulseBlocker.getStatus() === ExtensionStatus.ON) {
-        ImpulseBlocker.setBlocker();
-      }
-    });
+    }
 
     ImpulseBlocker.setStatus(ExtensionStatus.ON);
   },
@@ -103,15 +88,10 @@ const ImpulseBlocker = {
    */
   addSite: url => {
     browser.storage.local.get('sites').then(storage => {
-      const record = {
-        domain: url,
-        timesBlocked: 0,
-        isActive: true,
-        added: '2018-09-21',
-      };
-      storage.sites.push(record);
+      const updatedWebsites = [...storage.sites, Website.create(url)];
+
       browser.storage.local.set({
-        sites: storage.sites,
+        sites: updatedWebsites,
       });
     });
   },
@@ -122,12 +102,12 @@ const ImpulseBlocker = {
    */
   removeSite: url => {
     browser.storage.local.get('sites').then(storage => {
-      const i = storage.sites.indexOf(url);
-      if (i !== -1) {
-        storage.sites.splice(i, 1);
-      }
+      const updatedWebsites = storage.sites.filter(
+        website => website.domain !== url,
+      );
+
       browser.storage.local.set({
-        sites: storage.sites,
+        sites: updatedWebsites,
       });
     });
   },
@@ -156,7 +136,7 @@ async function getDomain() {
 }
 
 function getSites() {
-  return StorageHandler.getArrayOfWebsiteDomains();
+  return StorageHandler.getWebsiteDomains();
 }
 
 function addDomainToTheBlockedList(url) {
@@ -168,7 +148,7 @@ function removeDomainToTheBlockedList(url) {
 }
 
 async function isDomainBlocked(urlToMatch) {
-  const websites = await StorageHandler.getArrayOfWebsiteDomains();
+  const websites = await StorageHandler.getWebsiteDomains();
   return websites.includes(urlToMatch);
 }
 
@@ -217,5 +197,35 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return sendResponse(getSites());
   }
 
+  console.log(request.type);
   throw new Error('Message type not recognized');
+});
+
+/**
+ * In versions before 1.0, the blocked website domains were stores as array of strings
+ * like ["example.com", "example2.com"]. To contain metadata about the blocked
+ * websites we should convert the old structure to be array ob objects.
+ * Website model represents that object in storage.
+ */
+browser.runtime.onInstalled.addListener(() => {
+  browser.storage.local.get('sites').then(storage => {
+    if (Array.isArray(storage.sites)) {
+      const updatedSitesArray = storage.sites.map(url => {
+        if (typeof url === 'string') {
+          return Website.create(url);
+        }
+
+        return url;
+      });
+
+      return browser.storage.local.set({
+        sites: updatedSitesArray,
+      });
+    }
+
+    // if the user is installed the extension first time, we should create the sites key in the storage
+    if (!Array.isArray(storage.sites)) {
+      return browser.storage.local.set({ sites: [] });
+    }
+  });
 });
