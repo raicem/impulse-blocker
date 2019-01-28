@@ -1,203 +1,128 @@
-import DomainParser from './DomainParser';
 import MessageTypes from './enums/messages';
 import ExtensionStatus from './enums/extensionStatus';
-import getActiveTab from './utils/getActiveTab';
-import StorageHandler from './StorageHandler';
-import Website from './Website';
 
-const ImpulseBlocker = {
-  extStatus: ExtensionStatus.OFF,
+import StorageHandler from './storage/StorageHandler';
+import Website from './storage/Website';
 
-  /**
-   * Starts the blocker. Adds a listener so that if new websites is added
-   * to the blocked list the listener is refreshed.
-   */
-  init: () => {
+import { redirectToBlockedPage } from './utils/functions';
+import DomainParser from './utils/DomainParser';
+
+class ImpulseBlocker {
+  constructor() {
+    this.status = ExtensionStatus.OFF;
+  }
+
+  getStatus() {
+    return this.status;
+  }
+
+  setStatus(status) {
+    this.status = status;
+  }
+
+  start() {
+    this.addStorageChangeListener();
+    this.startBlocker();
+  }
+
+  addStorageChangeListener() {
     browser.storage.onChanged.addListener(() => {
-      // if the extension off we should not be bothered by restarting with new list
-      if (ImpulseBlocker.getStatus() === ExtensionStatus.ON) {
-        ImpulseBlocker.setBlocker();
+      // if the extension is off we should not start the extension with the new list
+      if (this.getStatus() === ExtensionStatus.ON) {
+        this.startBlocker();
       }
     });
+  }
 
-    ImpulseBlocker.setBlocker();
-  },
-
-  /**
-   * Redirects the tab to local "You have been blocked" page.
-   */
-  redirect: requestDetails => {
-    const original = encodeURIComponent(requestDetails.url);
-    const interceptPage = `/resources/redirect.html?target=${original}`;
-    browser.tabs.update(requestDetails.tabId, { url: interceptPage });
-  },
-
-  /**
-   * Returns the current status of the extension.
-   */
-  getStatus: () => ImpulseBlocker.extStatus,
-
-  /**
-   * Sets the current status of the extension.
-   * @param string status
-   */
-  setStatus: status => {
-    ImpulseBlocker.extStatus = status;
-    let icon = 'icons/icon96.png';
-    if (ImpulseBlocker.extStatus !== ExtensionStatus.ON) {
-      icon = 'icons/icon96-disabled.png';
-    }
-
-    browser.browserAction.setIcon({
-      path: icon,
-    });
-  },
-
-  /**
-   * Fetches blocked websites lists, attaches them to the listener provided
-   * by the WebExtensions API.
-   */
-  setBlocker: async () => {
-    console.log('setting blocker');
+  async startBlocker() {
     const websites = await StorageHandler.getWebsiteDomainsAsMatchPatterns();
 
-    browser.webRequest.onBeforeRequest.removeListener(ImpulseBlocker.redirect);
+    browser.webRequest.onBeforeRequest.removeListener(redirectToBlockedPage);
 
     if (websites.length > 0) {
       browser.webRequest.onBeforeRequest.addListener(
-        ImpulseBlocker.redirect,
+        redirectToBlockedPage,
         { urls: websites, types: ['main_frame'] },
         ['blocking'],
       );
     }
 
-    ImpulseBlocker.setStatus(ExtensionStatus.ON);
-  },
+    this.setStatus(ExtensionStatus.ON);
+  }
 
-  /**
-   * Removes the web request listener and turns the extension off.
-   */
-  disableBlocker: () => {
-    browser.webRequest.onBeforeRequest.removeListener(ImpulseBlocker.redirect);
-    ImpulseBlocker.setStatus(ExtensionStatus.OFF);
-  },
+  stop() {
+    browser.webRequest.onBeforeRequest.removeListener(redirectToBlockedPage);
+    this.setStatus(ExtensionStatus.OFF);
+  }
 
-  /**
-   * Add a website to the blocked list
-   * @param  {string} url Url to add to the list
-   */
-  addSite: url => {
+  // TODO: Refactor this to the StorageHandler
+  static addWebsite(url) {
     browser.storage.local.get('sites').then(storage => {
       const updatedWebsites = [...storage.sites, Website.create(url)];
 
-      browser.storage.local.set({
-        sites: updatedWebsites,
-      });
+      browser.storage.local.set({ sites: updatedWebsites });
     });
-  },
+  }
 
-  /**
-   * Add a website to the blocked list
-   * @param  {string} url Url to remove to the list
-   */
-  removeSite: url => {
+  static removeWebsite(url) {
     browser.storage.local.get('sites').then(storage => {
       const updatedWebsites = storage.sites.filter(
         website => website.domain !== url,
       );
 
-      browser.storage.local.set({
-        sites: updatedWebsites,
-      });
+      browser.storage.local.set({ sites: updatedWebsites });
     });
-  },
-};
-
-ImpulseBlocker.init();
-
-// Helper functions to access object literal from menubar.js file. These funcitons are
-// easily accessible from the getBackgroundPage instance.
-function getStatus() {
-  return ImpulseBlocker.getStatus();
+  }
 }
 
-function disableBlocker() {
-  ImpulseBlocker.disableBlocker();
-}
-
-function setBlocker() {
-  ImpulseBlocker.setBlocker();
-}
-
-async function getDomain() {
-  const activeTab = await getActiveTab();
-
-  return DomainParser.parse(activeTab.url);
-}
-
-function getSites() {
-  return StorageHandler.getWebsiteDomains();
-}
-
-function addDomainToTheBlockedList(url) {
-  return ImpulseBlocker.addSite(url.replace(/^www\./, ''));
-}
-
-function removeDomainToTheBlockedList(url) {
-  return ImpulseBlocker.removeSite(url.replace(/^www\./, ''));
-}
-
-async function isDomainBlocked(urlToMatch) {
-  const websites = await StorageHandler.getWebsiteDomains();
-  return websites.includes(urlToMatch);
-}
+const blocker = new ImpulseBlocker();
+blocker.start();
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === MessageTypes.GET_CURRENT_DOMAIN) {
     // TODO: Figure out what to return sendResponse does not really return anyting.
     // But eslint expects something to be returned from the callback function
-    return sendResponse(getDomain());
+    return sendResponse(DomainParser.getCurrentDomain());
   }
 
   if (request.type === MessageTypes.IS_DOMAIN_BLOCKED) {
-    return sendResponse(isDomainBlocked(request.domain));
+    return sendResponse(StorageHandler.isDomainBlocked(request.domain));
   }
 
   if (request.type === MessageTypes.GET_EXTENSION_STATUS) {
-    return sendResponse(getStatus());
+    return sendResponse(blocker.getStatus());
   }
 
   if (request.type === MessageTypes.UPDATE_EXTENSION_STATUS) {
     if (request.parameter === ExtensionStatus.ON) {
       // TODO: Return true or false according to the setBlocker function. If it fails to turn on (for example listener can not be added)
       // it should return false
-      setBlocker();
+      blocker.setStatus(ExtensionStatus.ON);
       return sendResponse(true);
     }
 
     if (request.parameter === ExtensionStatus.OFF) {
       // TODO: Return true or false according to the setBlocker function. If it fails to turn off
       // (for example listener can not be removed) it should return false
-      disableBlocker();
+      blocker.stop();
       return sendResponse(true);
     }
   }
 
   if (request.type === MessageTypes.START_BLOCKING_DOMAIN) {
-    addDomainToTheBlockedList(request.domain);
+    ImpulseBlocker.addWebsite(request.domain.replace(/^www\./, ''));
     return sendResponse(true);
   }
 
   if (request.type === MessageTypes.START_ALLOWING_DOMAIN) {
-    removeDomainToTheBlockedList(request.domain);
+    ImpulseBlocker.removeWebsite(request.domain.replace(/^www\./, ''));
     return sendResponse(true);
   }
 
   if (request.type === MessageTypes.GET_BLOCKED_DOMAINS_LIST) {
-    return sendResponse(getSites());
+    return sendResponse(StorageHandler.getWebsiteDomains());
   }
 
-  console.log(request.type);
   throw new Error('Message type not recognized');
 });
 

@@ -22,4 +22,9 @@ export default class StorageHandler {
   static getBlockedWebsites() {
     return browser.storage.local.get('sites');
   }
+
+  static async isDomainBlocked(urlToMatch) {
+    const websites = await StorageHandler.getWebsiteDomains();
+    return websites.includes(urlToMatch);
+  }
 }

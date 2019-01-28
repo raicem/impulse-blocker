@@ -5,7 +5,7 @@ import cogs from './cogs.svg';
 
 import ExtensionStatus from './components/ExtensionStatus';
 import DomainButton from './components/DomainButton';
-import openOptionsPage from '../utils/openOptionsPage';
+import { openOptionsPage } from '../utils/functions';
 
 function Popup() {
   return (
