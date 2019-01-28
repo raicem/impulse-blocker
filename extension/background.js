@@ -1,96 +1,28 @@
+import ImpulseBlocker from './ImpulseBlocker';
+
 import MessageTypes from './enums/messages';
 import ExtensionStatus from './enums/extensionStatus';
-
 import StorageHandler from './storage/StorageHandler';
 import Website from './storage/Website';
-
-import { redirectToBlockedPage } from './utils/functions';
 import DomainParser from './utils/DomainParser';
-
-class ImpulseBlocker {
-  constructor() {
-    this.status = ExtensionStatus.OFF;
-  }
-
-  getStatus() {
-    return this.status;
-  }
-
-  setStatus(status) {
-    this.status = status;
-  }
-
-  start() {
-    this.addStorageChangeListener();
-    this.startBlocker();
-  }
-
-  addStorageChangeListener() {
-    browser.storage.onChanged.addListener(() => {
-      // if the extension is off we should not start the extension with the new list
-      if (this.getStatus() === ExtensionStatus.ON) {
-        this.startBlocker();
-      }
-    });
-  }
-
-  async startBlocker() {
-    const websites = await StorageHandler.getWebsiteDomainsAsMatchPatterns();
-
-    browser.webRequest.onBeforeRequest.removeListener(redirectToBlockedPage);
-
-    if (websites.length > 0) {
-      browser.webRequest.onBeforeRequest.addListener(
-        redirectToBlockedPage,
-        { urls: websites, types: ['main_frame'] },
-        ['blocking'],
-      );
-    }
-
-    this.setStatus(ExtensionStatus.ON);
-  }
-
-  stop() {
-    browser.webRequest.onBeforeRequest.removeListener(redirectToBlockedPage);
-    this.setStatus(ExtensionStatus.OFF);
-  }
-
-  // TODO: Refactor this to the StorageHandler
-  static addWebsite(url) {
-    browser.storage.local.get('sites').then(storage => {
-      const updatedWebsites = [...storage.sites, Website.create(url)];
-
-      browser.storage.local.set({ sites: updatedWebsites });
-    });
-  }
-
-  static removeWebsite(url) {
-    browser.storage.local.get('sites').then(storage => {
-      const updatedWebsites = storage.sites.filter(
-        website => website.domain !== url,
-      );
-
-      browser.storage.local.set({ sites: updatedWebsites });
-    });
-  }
-}
 
 const blocker = new ImpulseBlocker();
 blocker.start();
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === MessageTypes.GET_CURRENT_DOMAIN) {
-    // TODO: Figure out what to return sendResponse does not really return anyting.
-    // But eslint expects something to be returned from the callback function
-    return sendResponse(DomainParser.getCurrentDomain());
+    sendResponse(DomainParser.getCurrentDomain());
+    return;
   }
 
   if (request.type === MessageTypes.IS_DOMAIN_BLOCKED) {
-    return sendResponse(StorageHandler.isDomainBlocked(request.domain));
+    sendResponse(StorageHandler.isDomainBlocked(request.domain));
+    return;
   }
 
   if (request.type === MessageTypes.GET_EXTENSION_STATUS) {
-    return sendResponse(blocker.getStatus());
+    sendResponse(blocker.getStatus());
+    return;
   }
 
   if (request.type === MessageTypes.UPDATE_EXTENSION_STATUS) {
@@ -98,29 +30,34 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
       // TODO: Return true or false according to the setBlocker function. If it fails to turn on (for example listener can not be added)
       // it should return false
       blocker.setStatus(ExtensionStatus.ON);
-      return sendResponse(true);
+      sendResponse(true);
+      return;
     }
 
     if (request.parameter === ExtensionStatus.OFF) {
       // TODO: Return true or false according to the setBlocker function. If it fails to turn off
       // (for example listener can not be removed) it should return false
       blocker.stop();
-      return sendResponse(true);
+      sendResponse(true);
+      return;
     }
   }
 
   if (request.type === MessageTypes.START_BLOCKING_DOMAIN) {
     ImpulseBlocker.addWebsite(request.domain.replace(/^www\./, ''));
-    return sendResponse(true);
+    sendResponse(true);
+    return;
   }
 
   if (request.type === MessageTypes.START_ALLOWING_DOMAIN) {
     ImpulseBlocker.removeWebsite(request.domain.replace(/^www\./, ''));
-    return sendResponse(true);
+    sendResponse(true);
+    return;
   }
 
   if (request.type === MessageTypes.GET_BLOCKED_DOMAINS_LIST) {
-    return sendResponse(StorageHandler.getWebsiteDomains());
+    sendResponse(StorageHandler.getWebsiteDomains());
+    return;
   }
 
   throw new Error('Message type not recognized');
