@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 import ExtensionStatus from './enums/extensionStatus';
 import StorageHandler from './storage/StorageHandler';
 import { redirectToBlockedPage } from './utils/functions';
@@ -5,6 +7,7 @@ import { redirectToBlockedPage } from './utils/functions';
 export default class ImpulseBlocker {
   constructor() {
     this.status = ExtensionStatus.OFF;
+    this.pausedUntil = null;
   }
 
   getStatus() {
@@ -17,6 +20,28 @@ export default class ImpulseBlocker {
 
   start() {
     this.addStorageChangeListener();
+    this.startBlocker();
+  }
+
+  pause(duration = 60 * 5) {
+    this.stop();
+    this.setStatus(ExtensionStatus.PAUSED);
+    this.setPausedUntil(dayjs().add(duration, 'seconds'));
+
+    setTimeout(() => {
+      this.start();
+    }, 1000 * duration);
+  }
+
+  setPausedUntil(datetime) {
+    this.pausedUntil = datetime;
+  }
+
+  getPausedUntil() {
+    return this.pausedUntil;
+  }
+
+  unpause() {
     this.startBlocker();
   }
 

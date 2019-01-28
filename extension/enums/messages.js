@@ -6,6 +6,8 @@ const messages = {
   START_BLOCKING_DOMAIN: 'startBlockingDomain',
   START_ALLOWING_DOMAIN: 'startAllowingDomain',
   GET_BLOCKED_DOMAINS_LIST: 'getBlockedDomainsList',
+  PAUSE_BLOCKER: 'pauseBlocker',
+  UNPAUSE_BLOCKER: 'unpauseBlocker',
 };
 
 Object.freeze(messages);

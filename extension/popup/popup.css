@@ -19,7 +19,12 @@ form {
 }
 
 .add-domain-section {
-  margin: 1em 0;
+  margin: 0.25em 0;
+}
+
+.pause-section {
+  margin-top: 1em;
+  display: block;
 }
 
 .button {
@@ -37,6 +42,18 @@ form {
 
 .button-remove {
   background-color: darkred;
+}
+
+.button--pause {
+  background-color: rgb(255, 165, 0);
+}
+
+.button--pause-disabled {
+  background-color: rgba(255, 165, 0, 0.4);
+}
+
+.button--unpause {
+  background-color: blueviolet;
 }
 
 .options {

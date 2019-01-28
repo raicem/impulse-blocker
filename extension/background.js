@@ -21,7 +21,10 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.type === MessageTypes.GET_EXTENSION_STATUS) {
-    sendResponse(blocker.getStatus());
+    sendResponse({
+      extensionStatus: blocker.getStatus(),
+      pausedUntil: blocker.getPausedUntil(),
+    });
     return;
   }
 
@@ -57,6 +60,18 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   if (request.type === MessageTypes.GET_BLOCKED_DOMAINS_LIST) {
     sendResponse(StorageHandler.getWebsiteDomains());
+    return;
+  }
+
+  if (request.type === MessageTypes.PAUSE_BLOCKER) {
+    blocker.pause(request.duration);
+    sendResponse(true);
+    return;
+  }
+
+  if (request.type === MessageTypes.UNPAUSE_BLOCKER) {
+    blocker.unpause();
+    sendResponse(true);
     return;
   }
 
