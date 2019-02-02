@@ -6,7 +6,7 @@ class Website {
       domain: url,
       isActive: true,
       timesBlocked: 0,
-      createdAt: dayjs(),
+      createdAt: dayjs().format(),
     };
   }
 }

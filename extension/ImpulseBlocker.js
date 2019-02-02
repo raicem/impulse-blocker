@@ -38,11 +38,16 @@ export default class ImpulseBlocker {
   }
 
   getPausedUntil() {
-    return this.pausedUntil;
+    if (this.status === ExtensionStatus.PAUSED) {
+      return this.pausedUntil.format();
+    }
+
+    return null;
   }
 
   unpause() {
     this.startBlocker();
+    this.setPausedUntil(null);
   }
 
   addStorageChangeListener() {

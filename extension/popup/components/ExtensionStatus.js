@@ -10,8 +10,7 @@ export default class ExtensionStatus extends React.Component {
     this.state = { extensionStatus: 'now known', pausedUntil: null };
 
     this.handleStatusChange = this.handleStatusChange.bind(this);
-    this.handlePause = this.handlePause.bind(this);
-    this.handleUnpause = this.handleUnpause.bind(this);
+    this.updateExtensionStatus = this.updateExtensionStatus.bind(this);
   }
 
   async componentDidMount() {
@@ -38,16 +37,14 @@ export default class ExtensionStatus extends React.Component {
     }
   }
 
-  handlePause() {
-    this.setState({
-      pausedUntil: dayjs().add(this.defaultDuration, 'minute'),
-      extensionStatus: ExtensionStatusTypes.PAUSED,
+  async updateExtensionStatus() {
+    const statusResponse = await browser.runtime.sendMessage({
+      type: MessageTypes.GET_EXTENSION_STATUS,
     });
-  }
 
-  handleUnpause() {
     this.setState({
-      extensionStatus: ExtensionStatusTypes.ON,
+      extensionStatus: statusResponse.extensionStatus,
+      pausedUntil: statusResponse.pausedUntil,
     });
   }
 
@@ -81,8 +78,7 @@ export default class ExtensionStatus extends React.Component {
         <PauseButton
           pausedUntil={this.state.pausedUntil}
           extensionStatus={this.state.extensionStatus}
-          onPause={this.handlePause}
-          onUnpause={this.handleUnpause}
+          onChange={this.updateExtensionStatus}
         />
       </div>
     );

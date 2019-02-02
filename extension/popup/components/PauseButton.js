@@ -8,10 +8,22 @@ export default class PauseButton extends React.Component {
   constructor() {
     super();
 
-    this.defaultDuration = 5 * 60;
+    this.state = {
+      secondsToExpire: 0,
+    };
+
+    this.defaultDuration = 300;
 
     this.pauseExtension = this.pauseExtension.bind(this);
     this.unpauseExtension = this.unpauseExtension.bind(this);
+    this.calculateTimeRemaining = this.calculateTimeRemaining.bind(this);
+  }
+
+  componentDidMount() {
+    if (this.props.extensionStatus === ExtensionStatusTypes.PAUSED) {
+      this.calculateTimeRemaining();
+      this.startCountdownTimer();
+    }
   }
 
   async pauseExtension(event) {
@@ -22,7 +34,8 @@ export default class PauseButton extends React.Component {
     });
 
     if (pauseRequest === true) {
-      this.props.onPause();
+      this.startCountdownTimer();
+      this.props.onChange();
     }
   }
 
@@ -33,8 +46,45 @@ export default class PauseButton extends React.Component {
     });
 
     if (unpauseRequest === true) {
-      this.props.onUnpause();
+      clearInterval(this.countdownTimer);
+      this.props.onChange();
     }
+
+    this.setState({
+      secondsToExpire: 0,
+    });
+  }
+
+  calculateTimeRemaining() {
+    const currentDatetime = dayjs();
+    const expiresAt = dayjs(this.props.pausedUntil);
+
+    const secondsToExpire = expiresAt.diff(currentDatetime, 'second');
+
+    this.setState({
+      secondsToExpire,
+    });
+  }
+
+  startCountdownTimer() {
+    this.countdownTimer = setInterval(
+      () => this.calculateTimeRemaining(),
+      1000,
+    );
+  }
+
+  remainingTime() {
+    const time = dayjs()
+      .set('hour', 0)
+      .set('minute', 0)
+      .set('second', 0)
+      .add(this.state.secondsToExpire, 'second');
+
+    return time.format('mm:ss');
+  }
+
+  isExtensionPaused() {
+    return this.props.extensionStatus === ExtensionStatusTypes.PAUSED;
   }
 
   render() {
@@ -59,7 +109,8 @@ export default class PauseButton extends React.Component {
               className="button button--unpause"
               onClick={this.unpauseExtension}
             >
-              Cancel Pause - {this.props.pausedUntil.format()}
+              {`Cancel Pause - ${this.isExtensionPaused() &&
+                this.remainingTime()}`}
             </button>
           )}
         </div>
