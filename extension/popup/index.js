@@ -10,10 +10,11 @@ import { openOptionsPage } from '../utils/functions';
 function Popup() {
   return (
     <div>
-      <header>
-        <a href="">
-          <img className="options" src={cogs} onClick={openOptionsPage} />
+      <header className="header">
+        <a href="" className="header__options">
+          <img className="options-icon" src={cogs} onClick={openOptionsPage} />
         </a>
+        <h5 className="header__title">Impulse Blocker</h5>
       </header>
       <main>
         <ExtensionStatus />

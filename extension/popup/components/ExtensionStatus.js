@@ -1,13 +1,12 @@
 import React from 'react';
-import dayjs from 'dayjs';
 import ExtensionStatusTypes from '../../enums/extensionStatus';
 import MessageTypes from '../../enums/messages';
-import PauseButton from './PauseButton';
+import PauseSection from './Pause/PauseSection';
 
 export default class ExtensionStatus extends React.Component {
   constructor() {
     super();
-    this.state = { extensionStatus: 'now known', pausedUntil: null };
+    this.state = { extensionStatus: null, pausedUntil: null };
 
     this.handleStatusChange = this.handleStatusChange.bind(this);
     this.updateExtensionStatus = this.updateExtensionStatus.bind(this);
@@ -17,8 +16,6 @@ export default class ExtensionStatus extends React.Component {
     const statusResponse = await browser.runtime.sendMessage({
       type: MessageTypes.GET_EXTENSION_STATUS,
     });
-
-    console.log(statusResponse);
 
     this.setState({
       extensionStatus: statusResponse.extensionStatus,
@@ -75,7 +72,7 @@ export default class ExtensionStatus extends React.Component {
             <label htmlFor="off">Off</label>
           </div>
         </form>
-        <PauseButton
+        <PauseSection
           pausedUntil={this.state.pausedUntil}
           extensionStatus={this.state.extensionStatus}
           onChange={this.updateExtensionStatus}

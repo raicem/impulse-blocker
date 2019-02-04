@@ -1,10 +1,13 @@
 import React from 'react';
 import dayjs from 'dayjs';
-import ExtensionStatusTypes from '../../enums/extensionStatus';
-import MessageTypes from '../../enums/messages';
+import ExtensionStatusTypes from '../../../enums/extensionStatus';
+import MessageTypes from '../../../enums/messages';
+import PauseButton from './PauseButton';
+import DisabledPauseButton from './DisabledPauseButton';
+import CancelPauseButton from './CancelPauseButton';
 
 // TODO: Add prop types
-export default class PauseButton extends React.Component {
+export default class PauseSection extends React.Component {
   constructor(props) {
     super(props);
 
@@ -17,13 +20,17 @@ export default class PauseButton extends React.Component {
     this.pauseExtension = this.pauseExtension.bind(this);
     this.unpauseExtension = this.unpauseExtension.bind(this);
     this.calculateTimeRemaining = this.calculateTimeRemaining.bind(this);
-    this.createPauseButton = this.createPauseButton.bind(this);
-    this.createDisabledPauseButton = this.createDisabledPauseButton.bind(this);
+    this.startCountdownTimer = this.startCountdownTimer.bind(this);
   }
 
-  componentDidMount() {
-    this.calculateTimeRemaining();
-    this.startCountdownTimer();
+  componentDidUpdate(prevProps) {
+    if (
+      this.props.extensionStatus === ExtensionStatusTypes.PAUSED &&
+      prevProps.extensionStatus !== this.props.extensionStatus
+    ) {
+      this.calculateTimeRemaining();
+      this.startCountdownTimer();
+    }
   }
 
   async pauseExtension(event, duration) {
@@ -87,21 +94,6 @@ export default class PauseButton extends React.Component {
     return time.format('mm:ss');
   }
 
-  isExtensionPaused() {
-    return this.props.extensionStatus === ExtensionStatusTypes.PAUSED;
-  }
-
-  createPauseButton(label, duration) {
-    return (
-      <button
-        className="button button--pause"
-        onClick={e => this.pauseExtension(e, duration)}
-      >
-        {label}
-      </button>
-    );
-  }
-
   createDisabledPauseButton(label, duration) {
     return (
       <button
@@ -120,39 +112,60 @@ export default class PauseButton extends React.Component {
         {this.props.extensionStatus === ExtensionStatusTypes.ON && (
           <div className="duration-buttons">
             <div className="duration-buttons__row">
-              {this.createPauseButton('5 Minutes', 5 * 60)}
-              {this.createPauseButton('10 Minutes', 10 * 60)}
-              {this.createPauseButton('15 Minutes', 15 * 60)}
+              <PauseButton
+                label="5 Minutes"
+                duration={5 * 60}
+                onClick={this.pauseExtension}
+              />
+              <PauseButton
+                label="10 Minutes"
+                duration={10 * 60}
+                onClick={this.pauseExtension}
+              />
+              <PauseButton
+                label="15 Minutes"
+                duration={15 * 60}
+                onClick={this.pauseExtension}
+              />
             </div>
             <div className="duration-buttons__row">
-              {this.createPauseButton('30 Minutes', 30 * 60)}
-              {this.createPauseButton('1 Hour', 60 * 60)}
-              {this.createPauseButton('3 Hours', 3 * 60 * 60)}
+              <PauseButton
+                label="30 Minutes"
+                duration={30 * 60}
+                onClick={this.pauseExtension}
+              />
+              <PauseButton
+                label="1 Hour"
+                duration={60 * 60}
+                onClick={this.pauseExtension}
+              />
+              <PauseButton
+                label="3 Hours"
+                duration={3 * 60 * 60}
+                onClick={this.pauseExtension}
+              />
             </div>
           </div>
         )}
         {this.props.extensionStatus === ExtensionStatusTypes.OFF && (
           <div className="duration-buttons">
             <div className="duration-buttons__row">
-              {this.createDisabledPauseButton('5 Minutes', 5 * 60)}
-              {this.createDisabledPauseButton('10 Minutes', 10 * 60)}
-              {this.createDisabledPauseButton('15 Minutes', 15 * 60)}
+              <DisabledPauseButton label="5 Minutes" />
+              <DisabledPauseButton label="10 Minutes" />
+              <DisabledPauseButton label="15 Minutes" />
             </div>
             <div className="duration-buttons__row">
-              {this.createDisabledPauseButton('30 Minutes', 30 * 60)}
-              {this.createDisabledPauseButton('1 Hour', 60 * 60)}
-              {this.createDisabledPauseButton('3 Hours', 3 * 60 * 60)}
+              <DisabledPauseButton label="30 Minutes" />
+              <DisabledPauseButton label="1 Hour" />
+              <DisabledPauseButton label="3 Hours" />
             </div>
           </div>
         )}
         {this.props.extensionStatus === ExtensionStatusTypes.PAUSED && (
-          <button
-            className="button button--unpause"
+          <CancelPauseButton
             onClick={this.unpauseExtension}
-          >
-            {`Cancel Pause - ${this.isExtensionPaused() &&
-              this.remainingTime()}`}
-          </button>
+            remainingTime={this.remainingTime()}
+          />
         )}
       </div>
     );
