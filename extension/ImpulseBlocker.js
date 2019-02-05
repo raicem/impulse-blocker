@@ -6,16 +6,19 @@ import { redirectToBlockedPage } from './utils/functions';
 
 export default class ImpulseBlocker {
   constructor() {
-    this.status = ExtensionStatus.OFF;
     this.pausedUntil = null;
   }
 
-  getStatus() {
-    return this.status;
+  async getStatus() {
+    return StorageHandler.getExtensionStatus();
   }
 
-  setStatus(status) {
-    this.status = status;
+  async setStatus(status) {
+    return StorageHandler.setExtensionStatus(status);
+  }
+
+  async getSettings() {
+    return StorageHandler.getExtensionSettings();
   }
 
   start() {
@@ -38,7 +41,7 @@ export default class ImpulseBlocker {
   }
 
   getPausedUntil() {
-    if (this.status === ExtensionStatus.PAUSED) {
+    if (this.getStatus() === ExtensionStatus.PAUSED) {
       return this.pausedUntil.format();
     }
 

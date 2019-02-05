@@ -2,6 +2,7 @@ import ImpulseBlocker from './ImpulseBlocker';
 
 import MessageTypes from './enums/messages';
 import ExtensionStatus from './enums/extensionStatus';
+import SettingTypes from './enums/settings';
 import StorageHandler from './storage/StorageHandler';
 import Website from './storage/Website';
 import DomainParser from './utils/DomainParser';
@@ -21,11 +22,13 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.type === MessageTypes.GET_EXTENSION_STATUS) {
-    sendResponse({
-      extensionStatus: blocker.getStatus(),
-      pausedUntil: blocker.getPausedUntil(),
-    });
-    return;
+    return Promise.all([blocker.getStatus(), blocker.getSettings()]).then(
+      values => ({
+        extensionStatus: values[0].status,
+        extensionSettings: values[1].extensionSettings,
+        pausedUntil: blocker.getPausedUntil(),
+      }),
+    );
   }
 
   if (request.type === MessageTypes.UPDATE_EXTENSION_STATUS) {
@@ -103,6 +106,25 @@ browser.runtime.onInstalled.addListener(() => {
     // if the user is installed the extension first time, we should create the sites key in the storage
     if (!Array.isArray(storage.sites)) {
       return browser.storage.local.set({ sites: [] });
+    }
+  });
+
+  browser.storage.local.get('extensionSettings').then(storage => {
+    if (!Array.isArray(storage.extensionSettings)) {
+      return browser.storage.local.set({
+        extensionSettings: [
+          {
+            key: SettingTypes.SHOW_ON_OFF_BUTTONS_IN_POPUP,
+            value: SettingTypes.ON,
+          },
+        ],
+      });
+    }
+  });
+
+  browser.storage.local.get('status').then(storage => {
+    if (!Array.isArray(storage.status)) {
+      return browser.storage.local.set({ status: ExtensionStatus.ON });
     }
   });
 });

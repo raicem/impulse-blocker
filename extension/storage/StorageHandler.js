@@ -51,4 +51,18 @@ export default class StorageHandler {
       });
     });
   }
+
+  static getExtensionStatus() {
+    return browser.storage.local.get('status');
+  }
+
+  static async setExtensionStatus(status) {
+    return browser.storage.local.set({
+      status,
+    });
+  }
+
+  static getExtensionSettings() {
+    return browser.storage.local.get('extensionSettings');
+  }
 }
