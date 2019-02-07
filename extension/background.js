@@ -79,7 +79,7 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.type === MessageTypes.UPDATE_EXTENSION_SETTING) {
-    return;
+    return blocker.updateSettings(request.key, request.value);
   }
 
   throw new Error('Message type not recognized');

@@ -22,6 +22,7 @@ class Settings extends React.Component {
     this.handleChange = this.handleChange.bind(this);
     this.listItems = this.listItems.bind(this);
     this.onClick = this.onClick.bind(this);
+    this.getSetting = this.getSetting.bind(this);
     this.handleOnOffButtonSettingsChange = this.handleOnOffButtonSettingsChange.bind(
       this,
     );
@@ -35,6 +36,8 @@ class Settings extends React.Component {
     const statusResponse = await browser.runtime.sendMessage({
       type: MessageTypes.GET_EXTENSION_STATUS,
     });
+
+    console.log('settings page', statusResponse);
 
     this.setState({
       blockedSites: domains,
@@ -90,13 +93,41 @@ class Settings extends React.Component {
     ));
   }
 
+  getSetting(key) {
+    return this.state.extensionSettings.find(item => item.key === key);
+  }
+
+  onOffButtonSetting() {
+    const setting = this.state.extensionSettings.find(
+      item => item.key === settings.SHOW_ON_OFF_BUTTONS_IN_POPUP,
+    );
+
+    if (setting === undefined) {
+      return false;
+    }
+
+    return setting.value;
+  }
+
   async handleOnOffButtonSettingsChange(e) {
     e.preventDefault();
+
+    let value = settings.ON;
+    if (this.onOffButtonSetting() === settings.ON) {
+      value = settings.OFF;
+    }
+
     const response = await browser.runtime.sendMessage({
       type: MessageTypes.UPDATE_EXTENSION_SETTING,
       key: settings.SHOW_ON_OFF_BUTTONS_IN_POPUP,
-      value: settings.ON,
+      value,
     });
+
+    if (response !== false) {
+      this.setState({
+        extensionSettings: response,
+      });
+    }
   }
 
   render() {
@@ -130,11 +161,12 @@ class Settings extends React.Component {
             <form>
               <label htmlFor="onOffButton">Show On/Off Buttons in Popup</label>
               <input
+                name="onOffButton"
                 type="checkbox"
+                checked={this.onOffButtonSetting() === settings.ON}
                 onChange={e => {
                   this.handleOnOffButtonSettingsChange(e);
                 }}
-                value={settings.ON}
               />
             </form>
           </div>

@@ -117,6 +117,7 @@ export default class PauseButton extends React.Component {
   render() {
     return (
       <div className="pause-section">
+        <p>Pause for...</p>
         {this.props.extensionStatus === ExtensionStatusTypes.ON && (
           <div className="duration-buttons">
             <div className="duration-buttons__row">
