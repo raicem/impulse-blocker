@@ -65,4 +65,15 @@ export default class StorageHandler {
   static getExtensionSettings() {
     return browser.storage.local.get('extensionSettings');
   }
+
+  static updateExtensionSettings(key, value) {
+    browser.storage.local.get('extensionSettings').then(storage => {
+      const extensionSettings = storage.extensionSettings;
+      extensionSettings[key] = value;
+
+      browser.storage.local.set({
+        extensionSettings,
+      });
+    });
+  }
 }

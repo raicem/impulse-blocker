@@ -21,6 +21,10 @@ export default class ImpulseBlocker {
     return StorageHandler.getExtensionSettings();
   }
 
+  async updateSettings(key, value) {
+    return StorageHandler.updateExtensionSettings(key, value);
+  }
+
   start() {
     this.addStorageChangeListener();
     this.startBlocker();

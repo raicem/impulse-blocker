@@ -31,6 +31,8 @@ h5 {
 
 .container {
   max-width: 800px;
+  padding: 0 2rem;
+  width: 90%;
   margin: 0 auto;
 }
 
@@ -94,12 +96,6 @@ h5 {
   border-color: #1a1a1a;
 }
 
-.blocklist {
-  padding: 0 2rem;
-  width: 90%;
-  margin: 0 auto;
-}
-
 .blocklist__header {
   font-size: 1.8rem;
   color: #1a1a1a;
@@ -127,4 +123,9 @@ hr {
 
 .blocklist__item:nth-child(2n) {
   background-color: #f2f2f2;
+}
+
+.settings__header {
+  font-size: 1.8rem;
+  color: #1a1a1a;
 }

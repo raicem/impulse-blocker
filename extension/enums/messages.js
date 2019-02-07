@@ -8,6 +8,7 @@ const messages = {
   GET_BLOCKED_DOMAINS_LIST: 'getBlockedDomainsList',
   PAUSE_BLOCKER: 'pauseBlocker',
   UNPAUSE_BLOCKER: 'unpauseBlocker',
+  UPDATE_EXTENSION_SETTING: 'updateExtensionSetting',
 };
 
 Object.freeze(messages);

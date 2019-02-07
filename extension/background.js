@@ -78,6 +78,10 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return;
   }
 
+  if (request.type === MessageTypes.UPDATE_EXTENSION_SETTING) {
+    return;
+  }
+
   throw new Error('Message type not recognized');
 });
 

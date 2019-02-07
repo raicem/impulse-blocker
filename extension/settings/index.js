@@ -4,6 +4,7 @@ import './settings.css';
 
 import MessageTypes from '../enums/messages';
 import DomainListItem from './components/DomainListItem';
+import settings from '../enums/settings';
 
 class Settings extends React.Component {
   constructor() {
@@ -12,12 +13,18 @@ class Settings extends React.Component {
     this.state = {
       value: '',
       blockedSites: [],
+      extensionStatus: null,
+      pausedUntil: null,
+      extensionSettings: [],
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.listItems = this.listItems.bind(this);
     this.onClick = this.onClick.bind(this);
+    this.handleOnOffButtonSettingsChange = this.handleOnOffButtonSettingsChange.bind(
+      this,
+    );
   }
 
   async componentDidMount() {
@@ -25,8 +32,15 @@ class Settings extends React.Component {
       type: MessageTypes.GET_BLOCKED_DOMAINS_LIST,
     });
 
+    const statusResponse = await browser.runtime.sendMessage({
+      type: MessageTypes.GET_EXTENSION_STATUS,
+    });
+
     this.setState({
       blockedSites: domains,
+      extensionStatus: statusResponse.extensionStatus,
+      pausedUntil: statusResponse.pausedUntil,
+      extensionSettings: statusResponse.extensionSettings,
     });
   }
 
@@ -76,6 +90,15 @@ class Settings extends React.Component {
     ));
   }
 
+  async handleOnOffButtonSettingsChange(e) {
+    e.preventDefault();
+    const response = await browser.runtime.sendMessage({
+      type: MessageTypes.UPDATE_EXTENSION_SETTING,
+      key: settings.SHOW_ON_OFF_BUTTONS_IN_POPUP,
+      value: settings.ON,
+    });
+  }
+
   render() {
     return (
       <div>
@@ -100,6 +123,20 @@ class Settings extends React.Component {
             <h3 className="blocklist__header">Currently blocked websites:</h3>
             <hr />
             <ul className="blocklist__list">{this.listItems()}</ul>
+          </div>
+          <div className="settings">
+            <h3 className="settings__header">Extension Settings</h3>
+            <hr />
+            <form>
+              <label htmlFor="onOffButton">Show On/Off Buttons in Popup</label>
+              <input
+                type="checkbox"
+                onChange={e => {
+                  this.handleOnOffButtonSettingsChange(e);
+                }}
+                value={settings.ON}
+              />
+            </form>
           </div>
         </div>
       </div>
