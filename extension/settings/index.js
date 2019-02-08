@@ -40,8 +40,6 @@ class Settings extends React.Component {
       type: MessageTypes.GET_EXTENSION_STATUS,
     });
 
-    console.log('settings page', statusResponse);
-
     this.setState({
       blockedSites: domains,
       extensionStatus: statusResponse.extensionStatus,

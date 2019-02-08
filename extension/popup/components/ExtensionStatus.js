@@ -24,8 +24,6 @@ export default class ExtensionStatus extends React.Component {
       type: MessageTypes.GET_EXTENSION_STATUS,
     });
 
-    console.log(statusResponse);
-
     this.setState({
       extensionStatus: statusResponse.extensionStatus,
       pausedUntil: statusResponse.pausedUntil,
