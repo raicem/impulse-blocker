@@ -129,3 +129,30 @@ hr {
   font-size: 1.8rem;
   color: #1a1a1a;
 }
+
+.extension-status {
+  margin: 1rem 0;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.extension-status--on {
+  background-color: green;
+  color: #ffffff;
+}
+
+.extension-status--off {
+  background-color: darkred;
+  color: #ffffff;
+}
+
+.extension-status--paused {
+  background-color: blueviolet;
+  color: #ffffff;
+}
+
+.extension-status__title {
+  color: #ffffff;
+}

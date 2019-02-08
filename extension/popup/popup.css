@@ -42,6 +42,13 @@ form {
   display: block;
 }
 
+.pause-section__title {
+  text-align: center;
+  font-size: 0.8rem;
+  margin: 0;
+  padding: 0;
+}
+
 .button {
   display: block;
   width: 100%;
@@ -72,7 +79,7 @@ form {
 }
 
 .duration-buttons {
-  margin: 1rem 0 0 0;
+  margin: 0;
 }
 
 .duration-buttons__row {

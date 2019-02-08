@@ -5,6 +5,8 @@ import './settings.css';
 import MessageTypes from '../enums/messages';
 import DomainListItem from './components/DomainListItem';
 import settings from '../enums/settings';
+import extensionStatus from '../enums/extensionStatus';
+import ExtensionStatus from './components/ExtensionStatus';
 
 class Settings extends React.Component {
   constructor() {
@@ -23,6 +25,7 @@ class Settings extends React.Component {
     this.listItems = this.listItems.bind(this);
     this.onClick = this.onClick.bind(this);
     this.getSetting = this.getSetting.bind(this);
+    this.updateExtensionStatus = this.updateExtensionStatus.bind(this);
     this.handleOnOffButtonSettingsChange = this.handleOnOffButtonSettingsChange.bind(
       this,
     );
@@ -130,6 +133,17 @@ class Settings extends React.Component {
     }
   }
 
+  async updateExtensionStatus(extensionStatus) {
+    const extensionStatusChange = await browser.runtime.sendMessage({
+      type: MessageTypes.UPDATE_EXTENSION_STATUS,
+      parameter: extensionStatus,
+    });
+
+    if (extensionStatusChange === true) {
+      this.setState({ extensionStatus });
+    }
+  }
+
   render() {
     return (
       <div>
@@ -150,6 +164,10 @@ class Settings extends React.Component {
           </form>
         </header>
         <div className="container">
+          <ExtensionStatus
+            status={this.state.extensionStatus}
+            onStatusUpdate={this.updateExtensionStatus}
+          />
           <div className="blocklist">
             <h3 className="blocklist__header">Currently blocked websites:</h3>
             <hr />
