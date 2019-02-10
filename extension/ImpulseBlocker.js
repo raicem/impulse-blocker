@@ -40,21 +40,21 @@ export default class ImpulseBlocker {
     }, 1000 * duration);
   }
 
+  unpause() {
+    this.startBlocker();
+    this.setPausedUntil(null);
+  }
+
   setPausedUntil(datetime) {
     this.pausedUntil = datetime;
   }
 
   getPausedUntil() {
-    if (this.getStatus() === ExtensionStatus.PAUSED) {
-      return this.pausedUntil.format();
+    if (this.pausedUntil === null) {
+      return null;
     }
 
-    return null;
-  }
-
-  unpause() {
-    this.startBlocker();
-    this.setPausedUntil(null);
+    return this.pausedUntil.format();
   }
 
   addStorageChangeListener() {
