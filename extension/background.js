@@ -35,7 +35,7 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.parameter === ExtensionStatus.ON) {
       // TODO: Return true or false according to the setBlocker function. If it fails to turn on (for example listener can not be added)
       // it should return false
-      blocker.setStatus(ExtensionStatus.ON);
+      blocker.start();
       sendResponse(true);
       return;
     }

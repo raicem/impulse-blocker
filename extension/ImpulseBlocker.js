@@ -69,6 +69,8 @@ export default class ImpulseBlocker {
   async startBlocker() {
     const websites = await StorageHandler.getWebsiteDomainsAsMatchPatterns();
 
+    console.log(websites);
+
     browser.webRequest.onBeforeRequest.removeListener(redirectToBlockedPage);
 
     if (websites.length > 0) {
