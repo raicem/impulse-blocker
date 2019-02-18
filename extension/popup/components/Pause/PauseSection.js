@@ -109,9 +109,9 @@ export default class PauseSection extends React.Component {
   render() {
     return (
       <div className="pause-section">
-        <p className="pause-section__title">Pause for...</p>
         {this.props.extensionStatus === ExtensionStatusTypes.ON && (
           <div className="duration-buttons">
+            <p className="pause-section__title">Pause for...</p>
             <div className="duration-buttons__row">
               <PauseButton
                 label="5 Minutes"
