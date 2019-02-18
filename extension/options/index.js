@@ -1,16 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './settings.css';
+import './options.css';
 
 import MessageTypes from '../enums/messages';
 import DomainListItem from './components/DomainListItem';
-import settings from '../enums/settings';
-import extensionStatus from '../enums/extensionStatus';
 import ExtensionStatus from './components/ExtensionStatus';
 
 class Settings extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this.state = {
       value: '',
@@ -26,9 +24,6 @@ class Settings extends React.Component {
     this.onClick = this.onClick.bind(this);
     this.getSetting = this.getSetting.bind(this);
     this.updateExtensionStatus = this.updateExtensionStatus.bind(this);
-    this.handleOnOffButtonSettingsChange = this.handleOnOffButtonSettingsChange.bind(
-      this,
-    );
   }
 
   async componentDidMount() {
@@ -98,39 +93,6 @@ class Settings extends React.Component {
     return this.state.extensionSettings.find(item => item.key === key);
   }
 
-  onOffButtonSetting() {
-    const setting = this.state.extensionSettings.find(
-      item => item.key === settings.SHOW_ON_OFF_BUTTONS_IN_POPUP,
-    );
-
-    if (setting === undefined) {
-      return false;
-    }
-
-    return setting.value;
-  }
-
-  async handleOnOffButtonSettingsChange(e) {
-    e.preventDefault();
-
-    let value = settings.ON;
-    if (this.onOffButtonSetting() === settings.ON) {
-      value = settings.OFF;
-    }
-
-    const response = await browser.runtime.sendMessage({
-      type: MessageTypes.UPDATE_EXTENSION_SETTING,
-      key: settings.SHOW_ON_OFF_BUTTONS_IN_POPUP,
-      value,
-    });
-
-    if (response !== false) {
-      this.setState({
-        extensionSettings: response,
-      });
-    }
-  }
-
   async updateExtensionStatus(extensionStatus) {
     const extensionStatusChange = await browser.runtime.sendMessage({
       type: MessageTypes.UPDATE_EXTENSION_STATUS,
@@ -170,21 +132,6 @@ class Settings extends React.Component {
             <h3 className="blocklist__header">Currently blocked websites:</h3>
             <hr />
             <ul className="blocklist__list">{this.listItems()}</ul>
-          </div>
-          <div className="settings">
-            <h3 className="settings__header">Extension Settings</h3>
-            <hr />
-            <form>
-              <label htmlFor="onOffButton">Show On/Off Buttons in Popup</label>
-              <input
-                name="onOffButton"
-                type="checkbox"
-                checked={this.onOffButtonSetting() === settings.ON}
-                onChange={e => {
-                  this.handleOnOffButtonSettingsChange(e);
-                }}
-              />
-            </form>
           </div>
         </div>
       </div>
