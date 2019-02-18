@@ -1,5 +1,7 @@
 import React from 'react';
 import dayjs from 'dayjs';
+import PropTypes from 'prop-types';
+
 import ExtensionStatusTypes from '../../../enums/extensionStatus';
 import MessageTypes from '../../../enums/messages';
 import PauseButton from './PauseButton';
@@ -172,3 +174,9 @@ export default class PauseSection extends React.Component {
     );
   }
 }
+
+PauseSection.propTypes = {
+  extensionStatus: PropTypes.string,
+  pausedUntil: PropTypes.string,
+  onChange: PropTypes.func,
+};

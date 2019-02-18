@@ -5,8 +5,9 @@ import PauseSection from './Pause/PauseSection';
 import SettingTypes from '../../enums/settings';
 
 export default class ExtensionStatus extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+
     this.state = {
       extensionStatus: null,
       pausedUntil: null,

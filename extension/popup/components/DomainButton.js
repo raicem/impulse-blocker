@@ -2,8 +2,8 @@ import React from 'react';
 import MessageTypes from '../../enums/messages';
 
 export default class DomainButton extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this.state = {
       domain: '',

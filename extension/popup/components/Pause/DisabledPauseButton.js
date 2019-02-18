@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 export default function DisabledPauseButton(props) {
   return (
@@ -7,3 +8,7 @@ export default function DisabledPauseButton(props) {
     </button>
   );
 }
+
+DisabledPauseButton.propTypes = {
+  label: PropTypes.string,
+};

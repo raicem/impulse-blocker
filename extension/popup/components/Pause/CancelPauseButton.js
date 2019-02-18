@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 export default function CancelPauseButton(props) {
   return (
@@ -7,3 +8,8 @@ export default function CancelPauseButton(props) {
     </button>
   );
 }
+
+CancelPauseButton.propTypes = {
+  onClick: PropTypes.func,
+  remainingTime: PropTypes.string,
+};
