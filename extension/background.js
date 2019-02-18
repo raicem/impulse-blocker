@@ -6,19 +6,18 @@ import SettingTypes from './enums/settings';
 import StorageHandler from './storage/StorageHandler';
 import Website from './storage/Website';
 import DomainParser from './utils/DomainParser';
+import { backgroundResponse } from './utils/functions';
 
 const blocker = new ImpulseBlocker();
 blocker.start();
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === MessageTypes.GET_CURRENT_DOMAIN) {
-    sendResponse(DomainParser.getCurrentDomain());
-    return;
+    return DomainParser.getCurrentDomain();
   }
 
   if (request.type === MessageTypes.IS_DOMAIN_BLOCKED) {
-    sendResponse(StorageHandler.isDomainBlocked(request.domain));
-    return;
+    return StorageHandler.isDomainBlocked(request.domain);
   }
 
   if (request.type === MessageTypes.GET_EXTENSION_STATUS) {
@@ -33,49 +32,48 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   if (request.type === MessageTypes.UPDATE_EXTENSION_STATUS) {
     if (request.parameter === ExtensionStatus.ON) {
-      // TODO: Return true or false according to the setBlocker function. If it fails to turn on (for example listener can not be added)
-      // it should return false
-      blocker.start();
-      sendResponse(true);
-      return;
+      return blocker
+        .start()
+        .then(() => true)
+        .catch(() => false);
     }
 
     if (request.parameter === ExtensionStatus.OFF) {
-      // TODO: Return true or false according to the setBlocker function. If it fails to turn off
-      // (for example listener can not be removed) it should return false
-      blocker.stop();
-      sendResponse(true);
-      return;
+      return blocker
+        .stop()
+        .then(() => true)
+        .catch(() => false);
     }
   }
 
   if (request.type === MessageTypes.START_BLOCKING_DOMAIN) {
-    ImpulseBlocker.addWebsite(request.domain.replace(/^www\./, ''));
-    sendResponse(true);
-    return;
+    return StorageHandler.addWebsite(request.domain.replace(/^www\./, ''))
+      .then(() => true)
+      .catch(() => false);
   }
 
   if (request.type === MessageTypes.START_ALLOWING_DOMAIN) {
-    ImpulseBlocker.removeWebsite(request.domain.replace(/^www\./, ''));
-    sendResponse(true);
-    return;
+    return StorageHandler.removeWebsite(request.domain.replace(/^www\./, ''))
+      .then(() => true)
+      .catch(() => false);
   }
 
   if (request.type === MessageTypes.GET_BLOCKED_DOMAINS_LIST) {
-    sendResponse(StorageHandler.getWebsiteDomains());
-    return;
+    return backgroundResponse(StorageHandler.getWebsiteDomains());
   }
 
   if (request.type === MessageTypes.PAUSE_BLOCKER) {
-    blocker.pause(request.duration);
-    sendResponse(true);
-    return;
+    return blocker
+      .pause(request.duration)
+      .then(() => true)
+      .catch(() => false);
   }
 
   if (request.type === MessageTypes.UNPAUSE_BLOCKER) {
-    blocker.unpause();
-    sendResponse(true);
-    return;
+    return blocker
+      .unpause()
+      .then(() => true)
+      .catch(() => false);
   }
 
   if (request.type === MessageTypes.UPDATE_EXTENSION_SETTING) {

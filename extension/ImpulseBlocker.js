@@ -26,24 +26,25 @@ export default class ImpulseBlocker {
   }
 
   start() {
-    this.setStatus(ExtensionStatus.ON);
     this.addStorageChangeListener();
     this.startBlocker();
+    return this.setStatus(ExtensionStatus.ON);
   }
 
   pause(duration = 60 * 5) {
     browser.webRequest.onBeforeRequest.removeListener(redirectToBlockedPage);
-    this.setStatus(ExtensionStatus.PAUSED);
     this.setPausedUntil(dayjs().add(duration, 'seconds'));
 
     setTimeout(() => {
       this.start();
     }, 1000 * duration);
+
+    return this.setStatus(ExtensionStatus.PAUSED);
   }
 
   unpause() {
-    this.start();
     this.setPausedUntil(null);
+    return this.start();
   }
 
   setPausedUntil(datetime) {
@@ -70,7 +71,7 @@ export default class ImpulseBlocker {
   }
 
   async startBlocker() {
-    const websites = await StorageHandler.getWebsiteDomainsAsMatchPatterns();
+    const websites = await this.getDomainsToBlock();
 
     browser.webRequest.onBeforeRequest.removeListener(redirectToBlockedPage);
 
@@ -85,14 +86,10 @@ export default class ImpulseBlocker {
 
   stop() {
     browser.webRequest.onBeforeRequest.removeListener(redirectToBlockedPage);
-    this.setStatus(ExtensionStatus.OFF);
+    return this.setStatus(ExtensionStatus.OFF);
   }
 
-  static addWebsite(url) {
-    StorageHandler.addWebsite(url);
-  }
-
-  static removeWebsite(url) {
-    StorageHandler.removeWebsite(url);
+  getDomainsToBlock() {
+    return StorageHandler.getWebsiteDomainsAsMatchPatterns();
   }
 }

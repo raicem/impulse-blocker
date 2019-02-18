@@ -8,3 +8,7 @@ export function redirectToBlockedPage(requestDetails) {
   const interceptPage = `/resources/redirect.html?target=${original}`;
   browser.tabs.update(requestDetails.tabId, { url: interceptPage });
 }
+
+export function backgroundResponse(value) {
+  return new Promise(res => res(value));
+}
