@@ -26,12 +26,13 @@ export default class ImpulseBlocker {
   }
 
   start() {
+    this.setStatus(ExtensionStatus.ON);
     this.addStorageChangeListener();
     this.startBlocker();
   }
 
   pause(duration = 60 * 5) {
-    this.stop();
+    browser.webRequest.onBeforeRequest.removeListener(redirectToBlockedPage);
     this.setStatus(ExtensionStatus.PAUSED);
     this.setPausedUntil(dayjs().add(duration, 'seconds'));
 
@@ -41,7 +42,7 @@ export default class ImpulseBlocker {
   }
 
   unpause() {
-    this.startBlocker();
+    this.start();
     this.setPausedUntil(null);
   }
 
@@ -58,9 +59,11 @@ export default class ImpulseBlocker {
   }
 
   addStorageChangeListener() {
-    browser.storage.onChanged.addListener(() => {
+    browser.storage.onChanged.addListener(async () => {
       // if the extension is off we should not start the extension with the new list
-      if (this.getStatus() === ExtensionStatus.ON) {
+      const { status } = await this.getStatus();
+
+      if (status === ExtensionStatus.ON) {
         this.startBlocker();
       }
     });
@@ -68,8 +71,6 @@ export default class ImpulseBlocker {
 
   async startBlocker() {
     const websites = await StorageHandler.getWebsiteDomainsAsMatchPatterns();
-
-    console.log(websites);
 
     browser.webRequest.onBeforeRequest.removeListener(redirectToBlockedPage);
 
@@ -80,8 +81,6 @@ export default class ImpulseBlocker {
         ['blocking'],
       );
     }
-
-    this.setStatus(ExtensionStatus.ON);
   }
 
   stop() {
