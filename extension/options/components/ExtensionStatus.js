@@ -46,4 +46,7 @@ export default function ExtensionStatus(props) {
   );
 }
 
-ExtensionStatus.propTypes = {};
+ExtensionStatus.propTypes = {
+  status: PropTypes.string,
+  onStatusUpdate: PropTypes.func,
+};

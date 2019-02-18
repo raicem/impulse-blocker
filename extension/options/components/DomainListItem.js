@@ -12,4 +12,7 @@ export default function DomainListItem({ domain, onClick }) {
   );
 }
 
-// TODO: Do the prop types
+DomainListItem.propTypes = {
+  domain: PropTypes.string,
+  onClick: PropTypes.func,
+};
