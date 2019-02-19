@@ -11,7 +11,7 @@ import { backgroundResponse } from './utils/functions';
 const blocker = new ImpulseBlocker();
 blocker.start();
 
-browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
+browser.runtime.onMessage.addListener(request => {
   if (request.type === MessageTypes.GET_CURRENT_DOMAIN) {
     return DomainParser.getCurrentDomain();
   }
