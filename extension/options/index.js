@@ -109,7 +109,26 @@ class Options extends React.Component {
     return (
       <div>
         <header className="header">
-          <h1 className="header__title">Impulse Blocker</h1>
+          <h1 className="header__title">
+            Impulse Blocker
+            <div className="header__links">
+              <a
+                href="https://blog.cemunalan.com.tr/2019/02/20/impulse-blocker-1-0/"
+                target="_blank"
+                className="header__link"
+              >
+                v1.0.0
+              </a>
+              <span className="header__links-seperator">|</span>
+              <a
+                href="https://blog.cemunalan.com.tr/2017/05/17/impulse-blocker-guide/"
+                target="_blank"
+                className="header__link"
+              >
+                Guide
+              </a>
+            </div>
+          </h1>
           <form onSubmit={this.handleSubmit} className="header__form">
             <input
               type="text"

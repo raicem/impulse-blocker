@@ -53,6 +53,17 @@ h5 {
   font-size: 2.4rem;
 }
 
+.header__link {
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+.header__links-seperator {
+  font-size: 1.5rem;
+  margin: 0 0.3rem;
+  font-weight: normal;
+}
+
 .header__form {
   margin: 0;
   padding: 0 2rem;
