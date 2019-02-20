@@ -130,7 +130,7 @@ class Options extends React.Component {
             onStatusUpdate={this.updateExtensionStatus}
           />
           <div className="blocklist">
-            <h3 className="blocklist__header">Currently blocked websites:</h3>
+            <h3 className="blocklist__header">Currently blocked websites</h3>
             <hr />
             <ul className="blocklist__list">{this.listItems()}</ul>
           </div>
