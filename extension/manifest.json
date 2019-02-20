@@ -15,7 +15,7 @@
     "96": "icons/icon96.png"
   },
   "options_ui": {
-    "page": "options/index.html",
+    "page": "options.html",
     "open_in_tab": true
   },
   "web_accessible_resources": ["redirect.html"],
@@ -25,7 +25,7 @@
   "browser_action": {
     "default_icon": "icons/icon96.png",
     "default_title": "Impulse Blocker",
-    "default_popup": "popup/popup.html"
+    "default_popup": "popup.html"
   },
   "incognito": "spanning"
 }

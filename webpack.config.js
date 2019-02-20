@@ -1,11 +1,12 @@
 const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
-    background: './extension/background.js',
-    popup: './extension/popup/index.js',
-    options: './extension/options/index.js',
+    background: './src/background.js',
+    popup: './src/popup/index.js',
+    options: './src/options/index.js',
   },
   output: {
     path: path.resolve(__dirname, 'extension/dist'),
@@ -15,7 +16,7 @@ module.exports = {
     rules: [
       {
         test: /\.m?js$/,
-        exclude: /(node_modules|bower_components)/,
+        exclude: /(node_modules)/,
         use: {
           loader: 'babel-loader',
           options: {

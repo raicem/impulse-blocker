@@ -2,15 +2,13 @@
   "scripts": {
     "watch": "webpack --mode=development --watch",
     "build": "webpack --mode=development",
-    "release ": "web-ext build --config=web-ext-config.js",
-    "browser": "web-ext run --browser-console --source-dir extension",
-    "test": "jest"
+    "release": "web-ext build --source-dir extension --config web-ext-config.js",
+    "browser": "web-ext run --browser-console --source-dir extension"
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.2.3",
     "@babel/preset-react": "^7.0.0",
-    "babel-jest": "^23.6.0",
     "babel-loader": "^8.0.5",
     "clean-webpack-plugin": "^1.0.0",
     "css-loader": "^2.1.0",
@@ -21,7 +19,6 @@
     "eslint-plugin-prettier": "^3.0.0",
     "eslint-plugin-react": "^7.12.3",
     "file-loader": "^3.0.1",
-    "jest": "^23.6.0",
     "prettier": "^1.15.2",
     "react-test-renderer": "^16.7.0",
     "style-loader": "^0.23.1",
