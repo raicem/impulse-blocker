@@ -1,0 +1,97 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  min-width: 300px;
+}
+
+.wrapper {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.header__title {
+  text-align: center;
+  margin: 0.5rem 0;
+}
+
+.header__options {
+  position: absolute;
+  right: 0.5rem;
+  top: 0.5rem;
+}
+
+.options-icon {
+  height: 1rem;
+}
+
+form {
+  display: flex;
+}
+
+.form-group {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+}
+
+.add-domain-section {
+  margin: 0.25em 0;
+}
+
+.pause-section {
+  margin-top: 1em;
+  display: block;
+}
+
+.pause-section__title {
+  text-align: center;
+  font-size: 0.8rem;
+  margin: 0;
+  padding: 0;
+}
+
+.button {
+  display: block;
+  width: 100%;
+  padding: 0.5em 1em;
+  border: none;
+  cursor: pointer;
+  color: white;
+}
+
+.button-add {
+  background-color: darkgreen;
+}
+
+.button-remove {
+  background-color: darkred;
+}
+
+.button--pause {
+  background-color: rgb(255, 165, 0);
+}
+
+.button--pause-disabled {
+  background-color: rgba(255, 165, 0, 0.4);
+}
+
+.button--unpause {
+  background-color: blueviolet;
+}
+
+.duration-buttons {
+  margin: 0;
+}
+
+.duration-buttons__row {
+  display: flex;
+}
+
+.button--pause {
+  background-color: rgb(255, 165, 0);
+  margin: 0.1rem;
+}
+
+.button--pause-disabled {
+  background-color: rgba(255, 165, 0, 0.4);
+  margin: 0.1rem;
+}

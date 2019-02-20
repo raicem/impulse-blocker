@@ -2,3 +2,5 @@
 .idea/
 npm-debug.log
 /node_modules
+/extension/dist
+.DS_Store

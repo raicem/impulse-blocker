@@ -1,0 +1,169 @@
+html {
+  font-size: 62.5%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  color: #1a1a2f;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 1.6rem;
+  font-weight: 200;
+  letter-spacing: 1px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  margin-bottom: 0.5rem;
+  font-family: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+.container {
+  max-width: 800px;
+  padding: 0 2rem;
+  width: 90%;
+  margin: 0 auto;
+}
+
+.header {
+  background: #343a40;
+  height: 10rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.header__title {
+  color: #ffffff;
+  margin: 0;
+  padding: 0 2rem;
+  font-size: 2.4rem;
+}
+
+.header__link {
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+.header__links-seperator {
+  font-size: 1.5rem;
+  margin: 0 0.3rem;
+  font-weight: normal;
+}
+
+.header__form {
+  margin: 0;
+  padding: 0 2rem;
+  display: flex;
+}
+
+.form__input {
+  padding: 1.2rem 2rem;
+  font-size: 1.2rem;
+  font-weight: 400;
+  line-height: 1.5rem;
+  color: #55595c;
+  background-color: #f7f7f9;
+  border: 0 solid #ced4da;
+  min-width: 200px;
+}
+
+.button {
+  font-size: 1.2rem;
+  padding: 1.2rem 2rem;
+  margin: 0 0.5rem;
+  line-height: 1.5rem;
+  border-radius: 0;
+  display: inline-block;
+  font-weight: 600;
+  text-align: center;
+  vertical-align: middle;
+  border: 0 solid transparent;
+  cursor: pointer;
+}
+
+.button--red {
+  color: #ffffff;
+  background-color: #d9534f;
+  border-color: #d9534f;
+}
+
+.button--black {
+  color: #ffffff;
+  background-color: #1a1a1a;
+  border-color: #1a1a1a;
+}
+
+.blocklist__header {
+  font-size: 1.8rem;
+  color: #1a1a1a;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background: #cccccc;
+}
+
+.blocklist ul {
+  padding: 2rem;
+}
+
+.blocklist__item {
+  font-weight: 400;
+  color: #1a1a1a;
+  font-size: 1.6rem;
+  padding: 1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.blocklist__item:nth-child(2n) {
+  background-color: #f2f2f2;
+}
+
+.settings__header {
+  font-size: 1.8rem;
+  color: #1a1a1a;
+}
+
+.extension-status {
+  margin: 1rem 0;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.extension-status--on {
+  background-color: green;
+  color: #ffffff;
+}
+
+.extension-status--off {
+  background-color: darkred;
+  color: #ffffff;
+}
+
+.extension-status--paused {
+  background-color: blueviolet;
+  color: #ffffff;
+}
+
+.extension-status__title {
+  color: #ffffff;
+}
