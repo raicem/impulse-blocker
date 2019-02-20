@@ -41,7 +41,7 @@ export default class SettingsSection extends React.Component {
 
     if (response !== false) {
       this.setState({
-        extensionSettingTypes: response,
+        extensionSettings: response,
       });
     }
   }

@@ -4,9 +4,10 @@ import './options.css';
 
 import MessageTypes from '../enums/messages';
 import DomainListItem from './components/DomainListItem';
+import SettingsSection from './components/SettingsSection';
 import ExtensionStatus from './components/ExtensionStatus';
 
-class Settings extends React.Component {
+class Options extends React.Component {
   constructor(props) {
     super(props);
 
@@ -133,10 +134,11 @@ class Settings extends React.Component {
             <hr />
             <ul className="blocklist__list">{this.listItems()}</ul>
           </div>
+          <SettingsSection />
         </div>
       </div>
     );
   }
 }
 
-ReactDOM.render(<Settings />, document.getElementById('root'));
+ReactDOM.render(<Options />, document.getElementById('root'));
