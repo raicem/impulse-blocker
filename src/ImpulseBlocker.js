@@ -28,12 +28,14 @@ export default class ImpulseBlocker {
   start() {
     this.addStorageChangeListener();
     this.startBlocker();
+    this.setIcon('icons/icon96.png');
     return this.setStatus(ExtensionStatus.ON);
   }
 
   pause(duration = 60 * 5) {
     browser.webRequest.onBeforeRequest.removeListener(redirectToBlockedPage);
     this.setPausedUntil(dayjs().add(duration, 'seconds'));
+    this.setIcon('icons/icon96-disabled.png');
 
     setTimeout(() => {
       this.start();
@@ -86,10 +88,17 @@ export default class ImpulseBlocker {
 
   stop() {
     browser.webRequest.onBeforeRequest.removeListener(redirectToBlockedPage);
+    this.setIcon('icons/icon96-disabled.png');
     return this.setStatus(ExtensionStatus.OFF);
   }
 
   getDomainsToBlock() {
     return StorageHandler.getWebsiteDomainsAsMatchPatterns();
+  }
+
+  setIcon(path) {
+    browser.browserAction.setIcon({
+      path,
+    });
   }
 }
