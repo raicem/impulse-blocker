@@ -48,36 +48,36 @@ class Options extends React.Component {
     this.setState({ value: e.target.value });
   }
 
-  async handleSubmit(e) {
+  handleSubmit(e) {
     e.preventDefault();
-    const response = await browser.runtime.sendMessage({
-      type: MessageTypes.START_BLOCKING_DOMAIN,
-      domain: this.state.value,
-    });
-
-    if (response === true) {
-      this.setState(prevState => ({
-        blockedSites: [...prevState.blockedSites, this.state.value],
-        value: '',
-      }));
-    }
+    browser.runtime
+      .sendMessage({
+        type: MessageTypes.START_BLOCKING_DOMAIN,
+        domain: this.state.value,
+      })
+      .then(() => {
+        this.setState(prevState => ({
+          blockedSites: [...prevState.blockedSites, this.state.value],
+          value: '',
+        }));
+      });
   }
 
-  async onClick(domain) {
-    const response = await browser.runtime.sendMessage({
-      type: MessageTypes.START_ALLOWING_DOMAIN,
-      domain,
-    });
+  onClick(domain) {
+    browser.runtime
+      .sendMessage({
+        type: MessageTypes.START_ALLOWING_DOMAIN,
+        domain,
+      })
+      .then(() => {
+        const updatedBlockedSites = this.state.blockedSites.filter(
+          item => item !== domain,
+        );
 
-    if (response === true) {
-      const updatedBlockedSites = this.state.blockedSites.filter(
-        item => item !== domain,
-      );
-
-      this.setState({
-        blockedSites: updatedBlockedSites,
+        this.setState({
+          blockedSites: updatedBlockedSites,
+        });
       });
-    }
   }
 
   listItems() {
@@ -94,15 +94,15 @@ class Options extends React.Component {
     return this.state.extensionSettings.find(item => item.key === key);
   }
 
-  async updateExtensionStatus(extensionStatus) {
-    const extensionStatusChange = await browser.runtime.sendMessage({
-      type: MessageTypes.UPDATE_EXTENSION_STATUS,
-      parameter: extensionStatus,
-    });
-
-    if (extensionStatusChange === true) {
-      this.setState({ extensionStatus });
-    }
+  updateExtensionStatus(extensionStatus) {
+    browser.runtime
+      .sendMessage({
+        type: MessageTypes.UPDATE_EXTENSION_STATUS,
+        parameter: extensionStatus,
+      })
+      .then(() => {
+        this.setState({ extensionStatus });
+      });
   }
 
   render() {

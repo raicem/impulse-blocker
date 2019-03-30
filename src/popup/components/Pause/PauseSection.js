@@ -35,33 +35,30 @@ export default class PauseSection extends React.Component {
     }
   }
 
-  async pauseExtension(event, duration) {
+  pauseExtension(event, duration) {
     event.preventDefault();
-    const pauseRequest = await browser.runtime.sendMessage({
-      type: MessageTypes.PAUSE_BLOCKER,
-      duration,
-    });
-
-    if (pauseRequest === true) {
-      this.startCountdownTimer();
-      this.props.onChange();
-    }
+    browser.runtime
+      .sendMessage({
+        type: MessageTypes.PAUSE_BLOCKER,
+        duration,
+      })
+      .then(() => {
+        this.startCountdownTimer();
+        this.props.onChange();
+      });
   }
 
-  async unpauseExtension(event) {
+  unpauseExtension(event) {
     event.preventDefault();
-    const unpauseRequest = await browser.runtime.sendMessage({
-      type: MessageTypes.UNPAUSE_BLOCKER,
-    });
-
-    if (unpauseRequest === true) {
-      clearInterval(this.countdownTimer);
-      this.props.onChange();
-    }
-
-    this.setState({
-      secondsToExpire: 0,
-    });
+    browser.runtime
+      .sendMessage({
+        type: MessageTypes.UNPAUSE_BLOCKER,
+      })
+      .then(() => {
+        clearInterval(this.countdownTimer);
+        this.props.onChange();
+        this.setState({ secondsToExpire: 0 });
+      });
   }
 
   calculateTimeRemaining() {

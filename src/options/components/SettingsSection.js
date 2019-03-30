@@ -15,17 +15,19 @@ export default class SettingsSection extends React.Component {
     );
   }
 
-  async componentDidMount() {
-    const statusResponse = await browser.runtime.sendMessage({
-      type: MessageTypes.GET_EXTENSION_STATUS,
-    });
-
-    this.setState({
-      extensionSettings: statusResponse.extensionSettings,
-    });
+  componentDidMount() {
+    browser.runtime
+      .sendMessage({
+        type: MessageTypes.GET_EXTENSION_STATUS,
+      })
+      .then(statusResponse => {
+        this.setState({
+          extensionSettings: statusResponse.extensionSettings,
+        });
+      });
   }
 
-  async handleOnOffButtonSettingsChange(e) {
+  handleOnOffButtonSettingsChange(e) {
     e.preventDefault();
 
     let value = SettingTypes.ON;
@@ -33,17 +35,17 @@ export default class SettingsSection extends React.Component {
       value = SettingTypes.OFF;
     }
 
-    const response = await browser.runtime.sendMessage({
-      type: MessageTypes.UPDATE_EXTENSION_SETTING,
-      key: SettingTypes.SHOW_ON_OFF_BUTTONS_IN_POPUP,
-      value,
-    });
-
-    if (response !== false) {
-      this.setState({
-        extensionSettings: response,
+    browser.runtime
+      .sendMessage({
+        type: MessageTypes.UPDATE_EXTENSION_SETTING,
+        key: SettingTypes.SHOW_ON_OFF_BUTTONS_IN_POPUP,
+        value,
+      })
+      .then(response => {
+        this.setState({
+          extensionSettings: response,
+        });
       });
-    }
   }
 
   onOffButtonSetting() {

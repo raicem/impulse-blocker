@@ -49,17 +49,17 @@ export default class DomainButton extends React.Component {
     }
   }
 
-  async updateDomainInBlockedList({ type, domain }) {
-    const response = await browser.runtime.sendMessage({
-      type,
-      domain,
-    });
-
-    if (response === true) {
-      this.setState({
-        isBlocked: !this.state.isBlocked,
+  updateDomainInBlockedList({ type, domain }) {
+    browser.runtime
+      .sendMessage({
+        type,
+        domain,
+      })
+      .then(() => {
+        this.setState({
+          isBlocked: !this.state.isBlocked,
+        });
       });
-    }
   }
 
   render() {

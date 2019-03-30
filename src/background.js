@@ -9,7 +9,6 @@ import DomainParser from './utils/DomainParser';
 import { backgroundResponse } from './utils/functions';
 
 const blocker = new ImpulseBlocker();
-blocker.start();
 
 browser.runtime.onMessage.addListener(request => {
   if (request.type === MessageTypes.GET_CURRENT_DOMAIN) {
@@ -32,30 +31,20 @@ browser.runtime.onMessage.addListener(request => {
 
   if (request.type === MessageTypes.UPDATE_EXTENSION_STATUS) {
     if (request.parameter === ExtensionStatus.ON) {
-      return blocker
-        .start()
-        .then(() => true)
-        .catch(() => false);
+      return blocker.start();
     }
 
     if (request.parameter === ExtensionStatus.OFF) {
-      return blocker
-        .stop()
-        .then(() => true)
-        .catch(() => false);
+      return blocker.stop();
     }
   }
 
   if (request.type === MessageTypes.START_BLOCKING_DOMAIN) {
-    return StorageHandler.addWebsite(request.domain.replace(/^www\./, ''))
-      .then(() => true)
-      .catch(() => false);
+    return StorageHandler.addWebsite(request.domain.replace(/^www\./, ''));
   }
 
   if (request.type === MessageTypes.START_ALLOWING_DOMAIN) {
-    return StorageHandler.removeWebsite(request.domain.replace(/^www\./, ''))
-      .then(() => true)
-      .catch(() => false);
+    return StorageHandler.removeWebsite(request.domain.replace(/^www\./, ''));
   }
 
   if (request.type === MessageTypes.GET_BLOCKED_DOMAINS_LIST) {
@@ -63,17 +52,11 @@ browser.runtime.onMessage.addListener(request => {
   }
 
   if (request.type === MessageTypes.PAUSE_BLOCKER) {
-    return blocker
-      .pause(request.duration)
-      .then(() => true)
-      .catch(() => false);
+    return blocker.pause(request.duration);
   }
 
   if (request.type === MessageTypes.UNPAUSE_BLOCKER) {
-    return blocker
-      .unpause()
-      .then(() => true)
-      .catch(() => false);
+    return blocker.unpause();
   }
 
   if (request.type === MessageTypes.UPDATE_EXTENSION_SETTING) {
@@ -84,7 +67,7 @@ browser.runtime.onMessage.addListener(request => {
 });
 
 /**
- * In versions before 1.0, the blocked website domains were stores as array of strings
+ * In versions before 1.0, the blocked website domains were stored as array of strings
  * like ["example.com", "example2.com"]. To contain metadata about the blocked
  * websites we should convert the old structure to be array ob objects.
  * Website model represents that object in storage.

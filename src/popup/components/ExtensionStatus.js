@@ -20,38 +20,42 @@ export default class ExtensionStatus extends React.Component {
     this.showOnOfButtonSettingIsOn = this.showOnOfButtonSettingIsOn.bind(this);
   }
 
-  async componentDidMount() {
-    const statusResponse = await browser.runtime.sendMessage({
-      type: MessageTypes.GET_EXTENSION_STATUS,
-    });
-
-    this.setState({
-      extensionStatus: statusResponse.extensionStatus,
-      pausedUntil: statusResponse.pausedUntil,
-      extensionSettings: statusResponse.extensionSettings,
-    });
+  componentDidMount() {
+    browser.runtime
+      .sendMessage({
+        type: MessageTypes.GET_EXTENSION_STATUS,
+      })
+      .then(statusResponse => {
+        this.setState({
+          extensionStatus: statusResponse.extensionStatus,
+          pausedUntil: statusResponse.pausedUntil,
+          extensionSettings: statusResponse.extensionSettings,
+        });
+      });
   }
 
-  async handleStatusChange(extensionStatus) {
-    const extensionStatusChange = await browser.runtime.sendMessage({
-      type: MessageTypes.UPDATE_EXTENSION_STATUS,
-      parameter: extensionStatus,
-    });
-
-    if (extensionStatusChange === true) {
-      this.setState({ extensionStatus });
-    }
+  handleStatusChange(extensionStatus) {
+    browser.runtime
+      .sendMessage({
+        type: MessageTypes.UPDATE_EXTENSION_STATUS,
+        parameter: extensionStatus,
+      })
+      .then(() => {
+        this.setState({ extensionStatus });
+      });
   }
 
-  async updateExtensionStatus() {
-    const statusResponse = await browser.runtime.sendMessage({
-      type: MessageTypes.GET_EXTENSION_STATUS,
-    });
-
-    this.setState({
-      extensionStatus: statusResponse.extensionStatus,
-      pausedUntil: statusResponse.pausedUntil,
-    });
+  updateExtensionStatus() {
+    browser.runtime
+      .sendMessage({
+        type: MessageTypes.GET_EXTENSION_STATUS,
+      })
+      .then(statusResponse => {
+        this.setState({
+          extensionStatus: statusResponse.extensionStatus,
+          pausedUntil: statusResponse.pausedUntil,
+        });
+      });
   }
 
   getSetting(key) {
