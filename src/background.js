@@ -95,6 +95,10 @@ browser.runtime.onInstalled.addListener(() => {
             key: SettingTypes.SHOW_ON_OFF_BUTTONS_IN_POPUP,
             value: SettingTypes.ON,
           },
+          {
+            key: SettingTypes.SHOW_PAUSE_BUTTONS_IN_POPUP,
+            value: SettingTypes.ON,
+          },
         ],
       });
     }

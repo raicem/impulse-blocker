@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import PropTypes from 'prop-types';
 
 import ExtensionStatusTypes from '../../../enums/extensionStatus';
+import SettingTypes from '../../../enums/settings';
 import MessageTypes from '../../../enums/messages';
 import PauseButton from './PauseButton';
 import DisabledPauseButton from './DisabledPauseButton';
@@ -13,9 +14,7 @@ export default class PauseSection extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      secondsToExpire: 0,
-    };
+    this.state = { secondsToExpire: 0 };
 
     this.defaultDuration = 5 * 60;
 
@@ -67,9 +66,7 @@ export default class PauseSection extends React.Component {
 
     const secondsToExpire = expiresAt.diff(currentDatetime, 'second');
 
-    this.setState({
-      secondsToExpire,
-    });
+    this.setState({ secondsToExpire });
   }
 
   startCountdownTimer() {
@@ -105,7 +102,27 @@ export default class PauseSection extends React.Component {
     );
   }
 
+  getSetting(key) {
+    console.log(this.props);
+    return this.props.extensionSettings.find(item => item.key === key);
+  }
+
+  showPauseButtonsSettingIsOff() {
+    const setting = this.getSetting(SettingTypes.SHOW_PAUSE_BUTTONS_IN_POPUP);
+    console.log(setting);
+
+    if (setting === undefined) {
+      return false;
+    }
+
+    return setting.value === SettingTypes.OFF;
+  }
+
   render() {
+    if (this.showPauseButtonsSettingIsOff()) {
+      return false;
+    }
+
     return (
       <div className="pause-section">
         {this.props.extensionStatus === ExtensionStatusTypes.ON && (
@@ -175,5 +192,6 @@ export default class PauseSection extends React.Component {
 PauseSection.propTypes = {
   extensionStatus: PropTypes.string,
   pausedUntil: PropTypes.string,
+  extensionSettings: PropTypes.arrayOf(PropTypes.object),
   onChange: PropTypes.func,
 };

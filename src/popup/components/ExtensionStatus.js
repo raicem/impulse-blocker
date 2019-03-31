@@ -110,6 +110,7 @@ export default class ExtensionStatus extends React.Component {
         <PauseSection
           pausedUntil={this.state.pausedUntil}
           extensionStatus={this.state.extensionStatus}
+          extensionSettings={this.state.extensionSettings}
           onChange={this.updateExtensionStatus}
         />
       </div>

@@ -6,13 +6,11 @@ export default class SettingsSection extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      extensionSettings: [],
-    };
+    this.state = { extensionSettings: [] };
 
-    this.handleOnOffButtonSettingsChange = this.handleOnOffButtonSettingsChange.bind(
-      this,
-    );
+    this.handleSettingsChange = this.handleSettingsChange.bind(this);
+    this.isSettingChecked = this.isSettingChecked.bind(this);
+    this.getSettingValue = this.getSettingValue.bind(this);
   }
 
   componentDidMount() {
@@ -27,18 +25,19 @@ export default class SettingsSection extends React.Component {
       });
   }
 
-  handleOnOffButtonSettingsChange(e) {
+  handleSettingsChange(e, key) {
     e.preventDefault();
 
     let value = SettingTypes.ON;
-    if (this.onOffButtonSetting() === SettingTypes.ON) {
+
+    if (this.getSettingValue(key) === SettingTypes.ON) {
       value = SettingTypes.OFF;
     }
 
     browser.runtime
       .sendMessage({
         type: MessageTypes.UPDATE_EXTENSION_SETTING,
-        key: SettingTypes.SHOW_ON_OFF_BUTTONS_IN_POPUP,
+        key,
         value,
       })
       .then(response => {
@@ -48,9 +47,9 @@ export default class SettingsSection extends React.Component {
       });
   }
 
-  onOffButtonSetting() {
+  getSettingValue(settingKey) {
     const setting = this.state.extensionSettings.find(
-      item => item.key === SettingTypes.SHOW_ON_OFF_BUTTONS_IN_POPUP,
+      item => item.key === settingKey,
     );
 
     if (setting === undefined) {
@@ -60,21 +59,48 @@ export default class SettingsSection extends React.Component {
     return setting.value;
   }
 
+  isSettingChecked(settingKey) {
+    return this.getSettingValue(settingKey) === SettingTypes.ON;
+  }
+
   render() {
     return (
       <div className="settings">
         <h3 className="settings__header">Extension Settings</h3>
         <hr />
         <form>
-          <label htmlFor="onOffButton">Show On/Off Buttons in Popup</label>
-          <input
-            name="onOffButton"
-            type="checkbox"
-            checked={this.onOffButtonSetting() === SettingTypes.ON}
-            onChange={e => {
-              this.handleOnOffButtonSettingsChange(e);
-            }}
-          />
+          <div className="form-group">
+            <label htmlFor="onOffButton">Show On/Off Buttons in Popup</label>
+            <input
+              name="onOffButton"
+              type="checkbox"
+              checked={this.isSettingChecked(
+                SettingTypes.SHOW_ON_OFF_BUTTONS_IN_POPUP,
+              )}
+              onChange={e => {
+                this.handleSettingsChange(
+                  e,
+                  SettingTypes.SHOW_ON_OFF_BUTTONS_IN_POPUP,
+                );
+              }}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="pauseButtons">Show Pause Buttons in Popup</label>
+            <input
+              name="pauseButtons"
+              type="checkbox"
+              checked={this.isSettingChecked(
+                SettingTypes.SHOW_PAUSE_BUTTONS_IN_POPUP,
+              )}
+              onChange={e => {
+                this.handleSettingsChange(
+                  e,
+                  SettingTypes.SHOW_PAUSE_BUTTONS_IN_POPUP,
+                );
+              }}
+            />
+          </div>
         </form>
       </div>
     );
