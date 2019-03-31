@@ -10,6 +10,14 @@ import { backgroundResponse } from './utils/functions';
 
 const blocker = new ImpulseBlocker();
 
+StorageHandler.getExtensionStatus().then(storage => {
+  if (storage.status === ExtensionStatus.ON) {
+    blocker.start();
+  } else {
+    blocker.stop();
+  }
+});
+
 browser.runtime.onMessage.addListener(request => {
   if (request.type === MessageTypes.GET_CURRENT_DOMAIN) {
     return DomainParser.getCurrentDomain();
@@ -108,7 +116,7 @@ browser.runtime.onInstalled.addListener(() => {
   });
 
   browser.storage.local.get('status').then(storage => {
-    if (!Array.isArray(storage.status)) {
+    if (!storage.status) {
       return browser.storage.local.set({ status: ExtensionStatus.ON });
     }
   });
