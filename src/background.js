@@ -18,61 +18,46 @@ StorageHandler.getExtensionStatus().then(storage => {
   }
 });
 
-browser.runtime.onMessage.addListener(request => {
-  if (request.type === MessageTypes.GET_CURRENT_DOMAIN) {
-    return DomainParser.getCurrentDomain();
-  }
+const messageHandlers = {
+  [MessageTypes.GET_CURRENT_DOMAIN]: () => DomainParser.getCurrentDomain(),
 
-  if (request.type === MessageTypes.IS_DOMAIN_BLOCKED) {
-    return StorageHandler.isDomainBlocked(request.domain);
-  }
+  [MessageTypes.IS_DOMAIN_BLOCKED]: req =>
+    StorageHandler.isDomainBlocked(req.domain),
 
-  if (request.type === MessageTypes.GET_EXTENSION_STATUS) {
-    return Promise.all([blocker.getStatus(), blocker.getSettings()]).then(
-      values => ({
-        extensionStatus: values[0].status,
-        extensionSettings: values[1].extensionSettings,
-        pausedUntil: blocker.getPausedUntil(),
-      }),
-    );
-  }
+  [MessageTypes.GET_EXTENSION_STATUS]: () =>
+    Promise.all([blocker.getStatus(), blocker.getSettings()]).then(values => ({
+      extensionStatus: values[0].status,
+      extensionSettings: values[1].extensionSettings,
+      pausedUntil: blocker.getPausedUntil(),
+    })),
 
-  if (request.type === MessageTypes.UPDATE_EXTENSION_STATUS) {
-    if (request.parameter === ExtensionStatus.ON) {
-      return blocker.start();
-    }
+  [MessageTypes.UPDATE_EXTENSION_STATUS]: req =>
+    blocker[req.parameter === ExtensionStatus.ON ? 'start' : 'stop'](),
 
-    if (request.parameter === ExtensionStatus.OFF) {
-      return blocker.stop();
-    }
-  }
+  [MessageTypes.START_BLOCKING_DOMAIN]: req =>
+    StorageHandler.addWebsite(req.domain.replace(/^www\./, '')),
 
-  if (request.type === MessageTypes.START_BLOCKING_DOMAIN) {
-    return StorageHandler.addWebsite(request.domain.replace(/^www\./, ''));
-  }
+  [MessageTypes.START_ALLOWING_DOMAIN]: req =>
+    StorageHandler.removeWebsite(req.domain.replace(/^www\./, '')),
 
-  if (request.type === MessageTypes.START_ALLOWING_DOMAIN) {
-    return StorageHandler.removeWebsite(request.domain.replace(/^www\./, ''));
-  }
+  [MessageTypes.GET_BLOCKED_DOMAINS_LIST]: () =>
+    backgroundResponse(StorageHandler.getWebsiteDomains()),
 
-  if (request.type === MessageTypes.GET_BLOCKED_DOMAINS_LIST) {
-    return backgroundResponse(StorageHandler.getWebsiteDomains());
-  }
+  [MessageTypes.PAUSE_BLOCKER]: req => blocker.pause(req.duration),
 
-  if (request.type === MessageTypes.PAUSE_BLOCKER) {
-    return blocker.pause(request.duration);
-  }
+  [MessageTypes.UNPAUSE_BLOCKER]: req => blocker.unpause(req.duration),
 
-  if (request.type === MessageTypes.UNPAUSE_BLOCKER) {
-    return blocker.unpause();
-  }
+  [MessageTypes.UPDATE_EXTENSION_SETTING]: req =>
+    blocker.updateSettings(req.key, req.value),
 
-  if (request.type === MessageTypes.UPDATE_EXTENSION_SETTING) {
-    return blocker.updateSettings(request.key, request.value);
-  }
+  default: req => {
+    throw new Error('Message type not recognized: ', req.type);
+  },
+};
 
-  throw new Error('Message type not recognized');
-});
+browser.runtime.onMessage.addListener(req =>
+  (messageHandlers[req.type] || messageHandlers.default)(req),
+);
 
 /**
  * In versions before 1.0, the blocked website domains were stored as array of strings
