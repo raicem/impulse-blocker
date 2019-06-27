@@ -103,13 +103,11 @@ export default class PauseSection extends React.Component {
   }
 
   getSetting(key) {
-    console.log(this.props);
     return this.props.extensionSettings.find(item => item.key === key);
   }
 
   showPauseButtonsSettingIsOff() {
     const setting = this.getSetting(SettingTypes.SHOW_PAUSE_BUTTONS_IN_POPUP);
-    console.log(setting);
 
     if (setting === undefined) {
       return false;
