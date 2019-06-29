@@ -44,6 +44,7 @@ h5 {
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
+  padding: 1rem 0;
 }
 
 .header__title {
@@ -65,7 +66,7 @@ h5 {
 }
 
 .header__form {
-  margin: 0;
+  margin-top: 0.5rem;
   padding: 0 2rem;
   display: flex;
 }
@@ -136,6 +137,10 @@ hr {
   background-color: #f2f2f2;
 }
 
+.settings {
+  padding-bottom: 5rem;
+}
+
 .settings__header {
   font-size: 1.8rem;
   color: #1a1a1a;
@@ -166,4 +171,10 @@ hr {
 
 .extension-status__title {
   color: #ffffff;
+}
+
+@media (min-width: 320px) and (max-width: 680px) {
+  .extension-status__title {
+    font-size: 20px;
+  }
 }
