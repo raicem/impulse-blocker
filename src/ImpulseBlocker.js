@@ -97,8 +97,10 @@ export default class ImpulseBlocker {
   }
 
   setIcon(path) {
-    browser.browserAction.setIcon({
-      path,
-    });
+    if (typeof browser.browserAction.setIcon === 'function') {
+      browser.browserAction.setIcon({
+        path,
+      });
+    }
   }
 }
