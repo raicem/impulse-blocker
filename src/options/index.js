@@ -117,7 +117,7 @@ class Options extends React.Component {
                 target="_blank"
                 className="header__link"
               >
-                v1.1.1
+                v1.1.2
               </a>
               <span className="header__links-seperator">|</span>
               <a
