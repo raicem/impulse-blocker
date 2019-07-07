@@ -2,7 +2,7 @@
   "scripts": {
     "watch": "webpack --mode=development --watch",
     "build": "webpack --mode=development",
-    "release": "web-ext build --source-dir extension --config web-ext-config.js",
+    "release": "webpack --mode=development && web-ext build --source-dir extension --config web-ext-config.js",
     "browser": "web-ext run --browser-console --source-dir extension"
   },
   "devDependencies": {
