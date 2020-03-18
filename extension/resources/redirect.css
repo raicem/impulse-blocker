@@ -1,0 +1,44 @@
+body {
+    height: 200px;
+    width: 400px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-top: -100px;
+    margin-left: -200px;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+h1,
+h2 {
+    font-family: Helvetica, Arial, sans-serif;
+    letter-spacing: -1px;
+    text-align: center;
+    font-weight: 400;
+}
+
+body.light {
+    background-color: #f7f7f7;
+    color: #1e2022;
+}
+
+body.light a {
+    color: #0278ae;
+}
+
+body.dark {
+    background-color: #222831;
+    color: #eeeeee;
+}
+
+body.dark a {
+    color: #b6d7de;
+}
