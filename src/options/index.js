@@ -6,6 +6,7 @@ import MessageTypes from '../enums/messages';
 import DomainListItem from './components/DomainListItem';
 import SettingsSection from './components/SettingsSection';
 import ExtensionStatus from './components/ExtensionStatus';
+import TogglSection from './components/TogglSection';
 
 class Options extends React.Component {
   constructor(props) {
@@ -153,6 +154,7 @@ class Options extends React.Component {
             <hr />
             <ul className="blocklist__list">{this.listItems()}</ul>
           </div>
+          <TogglSection />
           <SettingsSection />
         </div>
       </div>
