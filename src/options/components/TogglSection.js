@@ -8,71 +8,96 @@ import StorageHandler from '../../storage/StorageHandler';
  * @property {string[]} breakTags
  */
 
+/**
+ * @param {TogglConfig} config
+ */
+async function updateConfig(config) {
+  await StorageHandler.setTogglConfig(config);
+  setConfig(config);
+}
+
+/**
+ * @param {string[]} breakTags
+ * @returns {string}
+ */
+const breakTagsToText = (breakTags) => breakTags.join(', ');
+
+/**
+ * @param {string} text
+ * @returns {string[]}
+ */
+const textToBreakTags = text => text.split(',')
+  .map(t => t.trim())
+  .filter(t => t);
+
 export default function TogglSection() {
-  /**
-   * @type {[TogglConfig, (togglConfig: TogglConfig) => void]}
-   */
-  const [config, setConfig] = useState();
-  console.log('config', config);
+  const [enabled, setEnabled] = useState();
+  const [token, setToken] = useState();
+  const [breakTagsText, setBreakTagsText] = useState();
+  const [loading, setLoading] = useState(true);
+
+  const loadConfig = () => {
+    StorageHandler.getTogglConfig().then(config => {
+      setEnabled(config.enabled);
+      setToken(config.token);
+      setBreakTagsText(breakTagsToText(config.breakTags));
+      setLoading(false);
+    });
+  };
+
+  const save = async () => {
+    setLoading(true);
+    await StorageHandler.setTogglConfig({
+      enabled,
+      token,
+      breakTags: textToBreakTags(breakTagsText),
+    });
+    loadConfig();
+  };
 
   useEffect(() => {
-    StorageHandler.getTogglConfig().then(setConfig);
+    loadConfig();
   }, []);
 
-  /**
-   * @param {TogglConfig} config
-   */
-  async function updateConfig(config) {
-    await StorageHandler.setTogglConfig(config);
-    setConfig(config);
-  }
-
-  const breakTagsToText = () => config.breakTags.join(', ');
-  /**
-   * @param {string} text
-   * @returns {string[]}
-   */
-  const textToBreakTags = text => text.split(',')
-    .map(t => t.trim())
-    .filter(t => t);
-
   return (
-    <div>
+    <div className="toggl">
       <h3 className="toggl__header">Toggl Integration Settings</h3>
       <p className="toggl__subheader">
         Allow access to blocked websites when you're tracking a break in
         <a className="toggl__link" href="https://toggl.com" target="_blank">Toggl</a>
       </p>
       <hr />
-      {config &&
-        <form>
+      {!loading &&
+        <form onSubmit={() => save()}>
           <div className="form-group">
             <label htmlFor="enabledButton">Enable Toggl integration</label>
             <input
               name="enabledButton"
               type="checkbox"
-              checked={config.enabled}
-              onChange={e => updateConfig({ ...config, enabled: !!e.target.value })}
+              checked={enabled}
+              onChange={e => setEnabled(!!e.target.checked)}
             />
           </div>
           <div className="form-group">
             <label htmlFor="token">Toggl API token</label>
             <input
-              name="token"
+              className="toggl__text-input"
               type="text"
-              value={config.token}
-              onChange={e => updateConfig({ ...config, token: e.target.value })}
+              value={token}
+              onChange={e => setToken(e.target.value)}
             />
           </div>
           <div className="form-group">
-            <label className="mr-2" htmlFor="breakTags">Break tags (comma separated)</label>
+            <label htmlFor="breakTags">Break tags (comma separated)</label>
             <input
+              className="toggl__text-input"
               name="breakTags"
               type="text"
-              value={breakTagsToText()}
-              onChange={e => updateConfig({ ...config, token: textToBreakTags(e.target.value) })}
+              value={breakTagsText}
+              onChange={e => setBreakTagsText(e.target.value)}
             />
           </div>
+          <input className="button button--black toggl__save" type="submit" value="Save" />
         </form>
       }
     </div>
