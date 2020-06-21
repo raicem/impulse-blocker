@@ -17,12 +17,10 @@ export async function redirectToBlockedPage(requestDetails) {
 
   const togglConfig = await StorageHandler.getTogglConfig();
   if (togglConfig.enabled && await isOnBreak(togglConfig)) {
-    console.log('cancelling redirect');
-    return {};
+    return;
   }
 
   browser.tabs.update(requestDetails.tabId, { url: interceptPage });
-  return {};
 }
 
 export function backgroundResponse(value) {
