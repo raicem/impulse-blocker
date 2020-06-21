@@ -27,9 +27,22 @@ export default function TogglSection() {
     setConfig(config);
   }
 
+  const breakTagsToText = () => config.breakTags.join(', ');
+  /**
+   * @param {string} text
+   * @returns {string[]}
+   */
+  const textToBreakTags = text => text.split(',')
+    .map(t => t.trim())
+    .filter(t => t);
+
   return (
     <div>
-      <h3 className="settings__header">Toggl Integration Settings</h3>
+      <h3 className="toggl__header">Toggl Integration Settings</h3>
+      <p className="toggl__subheader">
+        Allow access to blocked websites when you're tracking a break in
+        <a className="toggl__link" href="https://toggl.com" target="_blank">Toggl</a>
+      </p>
       <hr />
       {config &&
         <form>
@@ -47,8 +60,17 @@ export default function TogglSection() {
             <input
               name="token"
               type="text"
-              checked={config.token}
+              value={config.token}
               onChange={e => updateConfig({ ...config, token: e.target.value })}
+            />
+          </div>
+          <div className="form-group">
+            <label className="mr-2" htmlFor="breakTags">Break tags (comma separated)</label>
+            <input
+              name="breakTags"
+              type="text"
+              value={breakTagsToText()}
+              onChange={e => updateConfig({ ...config, token: textToBreakTags(e.target.value) })}
             />
           </div>
         </form>

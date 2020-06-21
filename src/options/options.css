@@ -178,3 +178,16 @@ hr {
     font-size: 20px;
   }
 }
+
+.toggl__header {
+  font-size: 1.8rem;
+  color: #1a1a1a;
+}
+
+.toggl__subheader {
+  margin: 0;
+}
+
+.toggl__link {
+  margin-left: 0.2em;
+}
