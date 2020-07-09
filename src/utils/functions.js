@@ -44,6 +44,7 @@ async function isOnBreak(togglConfig) {
 
   const body = await response.json();
   if (!body.data) return false;
+  if (!(body.data.tags instanceof Array)) return false;
 
   const breakTags = new Set(togglConfig.breakTags);
   return body.data.tags.some(tag => breakTags.has(tag));
