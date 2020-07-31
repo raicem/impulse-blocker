@@ -41,13 +41,13 @@ If you want to build it to sideload the extension without using the Mozilla's [A
 npm run release
 ```
 
-This will create a zip file in the `web-ext-artifacts` folder. This file contains everyting the Firefox needs to run the extenison. You can install it following instructions [here](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/Distribution) and [here](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Distribution_options/Sideloading_add-ons).
+This will create a zip file in the `web-ext-artifacts` folder. This file contains everything the Firefox needs to run the extension. You can install it following instructions [here](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/Distribution) and [here](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Distribution_options/Sideloading_add-ons).
 
 Again just a reminder, you can install the extension from the official [add-ons page](https://addons.mozilla.org/en-US/firefox/addon/impulse-blocker/). Simple usage instructions are [here](https://blog.cemunalan.com.tr/2017/05/17/impulse-blocker-guide/).
 
 ## Contributing
 
-The extenison is open for any kinds of contribution. Please note that it requires a basic knowledge about [WebExtensions API](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons) and [React](https://reactjs.org/).
+The extension is open for any kinds of contribution. Please note that it requires a basic knowledge about [WebExtensions API](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons) and [React](https://reactjs.org/).
 
 After following the steps explained in the Building section above, all you have to do is run these commands in parallel.
 
