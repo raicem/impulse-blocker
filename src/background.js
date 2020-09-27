@@ -13,6 +13,14 @@ const blocker = new ImpulseBlocker();
 StorageHandler.getExtensionStatus().then(storage => {
   if (storage.status === ExtensionStatus.ON) {
     blocker.start();
+  } else if (storage.status === ExtensionStatus.PAUSED) {
+    const pausedUntil = StorageHandler.getPausedUntil();
+    
+    // get current date time
+    // get difference in seconds
+    // if positive then pause
+    // if negavite start the extension
+    blocker.pause(pausedUntil.seconds);
   } else {
     blocker.stop();
   }

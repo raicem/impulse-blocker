@@ -49,8 +49,9 @@ export default class ImpulseBlocker {
     return this.start();
   }
 
-  setPausedUntil(datetime) {
+  async setPausedUntil(datetime) {
     this.pausedUntil = datetime;
+    return StorageHandler.setPausedUntil(datetime);
   }
 
   getPausedUntil() {
