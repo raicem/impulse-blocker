@@ -20,6 +20,37 @@ export default class StorageHandler {
     return browser.storage.local.get('sites');
   }
 
+
+  /**
+   * @typedef {Object} TogglConfig
+   * @property {boolean} enabled
+   * @property {string} token
+   * @property {string[]} breakTags
+   */
+
+  /**
+   * @returns {Promise<TogglConfig>}
+   */
+  static async getTogglConfig() {
+    const storage = await browser.storage.local.get('togglConfig');
+    return storage.togglConfig || {
+      enabled: false,
+      token: '',
+      breakTags: [
+        'pomodoro-break',
+        'break',
+      ],
+    };
+  }
+
+  /**
+   *
+   * @param {TogglConfig} togglConfig
+   */
+  static setTogglConfig(togglConfig) {
+    return browser.storage.local.set({ togglConfig });
+  }
+
   static async isDomainBlocked(urlToMatch) {
     const websites = await StorageHandler.getWebsiteDomains();
     return websites.includes(urlToMatch);
