@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import ImpulseBlocker from './ImpulseBlocker';
 
 import MessageTypes from './enums/messages';
@@ -13,9 +14,44 @@ const blocker = new ImpulseBlocker();
 StorageHandler.getExtensionStatus().then(storage => {
   if (storage.status === ExtensionStatus.ON) {
     blocker.start();
-  } else {
-    blocker.stop();
+
+    return;
   }
+
+  if (storage.status === ExtensionStatus.PAUSED) {
+    StorageHandler.getPausedUntil().then(data => {
+      const pausedUntilISO = data.pausedUntil;
+
+      if (!pausedUntilISO) {
+        blocker.start();
+
+        return;
+      }
+
+      const pausedUntil = dayjs(pausedUntilISO);
+
+      const differenceFromNow = pausedUntil.diff(dayjs(), 'second');
+
+      if (differenceFromNow > 0) {
+        blocker.pause(differenceFromNow);
+
+        return;
+      }
+
+      blocker.start();
+    });
+
+    return;
+  }
+
+  if (storage.status === ExtensionStatus.OFF) {
+    blocker.stop();
+
+    return;
+  }
+
+  // If no status from storage matches our definitions we start the blocker
+  blocker.start();
 });
 
 const messageHandlers = {

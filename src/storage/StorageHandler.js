@@ -4,7 +4,7 @@ export default class StorageHandler {
   static async getWebsiteDomainsAsMatchPatterns() {
     const { sites } = await StorageHandler.getBlockedWebsites();
 
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const mappedWebsites = sites.map(website => `*://*.${website.domain}/*`);
 
       resolve(mappedWebsites);
@@ -55,6 +55,16 @@ export default class StorageHandler {
     return browser.storage.local.set({
       status,
     });
+  }
+
+  static async setPausedUntil(datetime) {
+    return browser.storage.local.set({
+      pausedUntil: datetime.toISOString(),
+    });
+  }
+
+  static getPausedUntil() {
+    return browser.storage.local.get('pausedUntil');
   }
 
   static getExtensionSettings() {
