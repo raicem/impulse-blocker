@@ -8,7 +8,7 @@ export default class StorageHandler {
       const mappedWebsites = sites.map(website => `*://*.${website.domain}/*`);
 
       resolve(mappedWebsites);
-    })
+    });
   }
 
   static async getWebsiteDomains() {
@@ -58,14 +58,12 @@ export default class StorageHandler {
   }
 
   static async setPausedUntil(datetime) {
-    console.log('setting paused until');
-    console.log(datetime.toISOString());
     return browser.storage.local.set({
       pausedUntil: datetime.toISOString(),
     });
   }
 
-  static async getPausedUntil() {
+  static getPausedUntil() {
     return browser.storage.local.get('pausedUntil');
   }
 
