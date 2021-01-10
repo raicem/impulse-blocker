@@ -72,7 +72,9 @@ export default class DomainButton extends React.Component {
             }`}
             onClick={this.handleDomainClicked}
           >
-            {this.state.isBlocked ? 'Allow' : 'Block'} {this.state.domain}
+            {this.state.isBlocked ? 'Allow' : 'Block'}
+            {' '}
+            {this.state.domain}
           </button>
         )}
       </div>

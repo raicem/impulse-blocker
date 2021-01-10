@@ -5,13 +5,13 @@ export function openOptionsPage() {
 
 export function redirectToBlockedPage(requestDetails) {
   const original = encodeURIComponent(requestDetails.url);
-  const theme = requestDetails.incognito ? 'dark' : 'light';
+  const theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 
   const interceptPage = `/resources/redirect.html?target=${original}&theme=${theme}`;
 
   browser.tabs.update(requestDetails.tabId, { url: interceptPage });
 }
 
-export function backgroundResponse(value) {
-  return new Promise(res => res(value));
+export function createMatchPatterns(sites) {
+  return sites.map((site) => `*://*.${site.domain}/*`);
 }

@@ -56,7 +56,7 @@ class Options extends React.Component {
         domain: this.state.value,
       })
       .then(() => {
-        this.setState(prevState => ({
+        this.setState((prevState) => ({
           blockedSites: [...prevState.blockedSites, this.state.value],
           value: '',
         }));
@@ -71,7 +71,7 @@ class Options extends React.Component {
       })
       .then(() => {
         const updatedBlockedSites = this.state.blockedSites.filter(
-          item => item !== domain,
+          (item) => item !== domain,
         );
 
         this.setState({
@@ -81,7 +81,7 @@ class Options extends React.Component {
   }
 
   listItems() {
-    return this.state.blockedSites.map(domain => (
+    return this.state.blockedSites.map((domain) => (
       <DomainListItem
         domain={domain}
         onClick={this.onClick}
@@ -91,7 +91,7 @@ class Options extends React.Component {
   }
 
   getSetting(key) {
-    return this.state.extensionSettings.find(item => item.key === key);
+    return this.state.extensionSettings.find((item) => item.key === key);
   }
 
   updateExtensionStatus(extensionStatus) {
@@ -117,7 +117,7 @@ class Options extends React.Component {
                 target="_blank"
                 className="header__link"
               >
-                v1.1.6
+                v1.2.0
               </a>
               <span className="header__links-seperator">|</span>
               <a

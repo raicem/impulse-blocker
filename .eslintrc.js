@@ -1,20 +1,20 @@
 module.exports = {
-  extends: [
-    'airbnb-base',
-    'plugin:prettier/recommended',
-    'plugin:react/recommended',
-  ],
   env: {
     browser: true,
-    webextensions: true,
     es6: true,
+    webextensions: true,
+    'jest/globals': true,
   },
-  rules: {
-    'class-methods-use-this': 0,
-  },
-  settings: {
-    react: {
-      version: 'detect',
+  extends: 'airbnb',
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
     },
+    ecmaVersion: 2018,
+    sourceType: 'module',
+  },
+  plugins: ['react', 'jest'],
+  rules: {
+    'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],
   },
 };
