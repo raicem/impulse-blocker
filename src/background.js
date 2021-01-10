@@ -71,10 +71,10 @@ const messageHandlers = {
     blocker[req.parameter === ExtensionStatus.ON ? 'start' : 'stop'](),
 
   [MessageTypes.START_BLOCKING_DOMAIN]: req =>
-    StorageHandler.addWebsite(req.domain.replace(/^www\./, '')),
+    StorageHandler.addWebsite(req.domain.replace(/.*www\./, '')),
 
   [MessageTypes.START_ALLOWING_DOMAIN]: req =>
-    StorageHandler.removeWebsite(req.domain.replace(/^www\./, '')),
+    StorageHandler.removeWebsite(req.domain.replace(/.*www\./, '')),
 
   [MessageTypes.GET_BLOCKED_DOMAINS_LIST]: () =>
     backgroundResponse(StorageHandler.getWebsiteDomains()),
