@@ -94,6 +94,7 @@ h5 {
   vertical-align: middle;
   border: 0 solid transparent;
   cursor: pointer;
+  background-color: #f7f7f9;
 }
 
 .button--red {

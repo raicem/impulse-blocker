@@ -18,7 +18,7 @@ export default class SettingsSection extends React.Component {
       .sendMessage({
         type: MessageTypes.GET_EXTENSION_STATUS,
       })
-      .then(statusResponse => {
+      .then((statusResponse) => {
         this.setState({
           extensionSettings: statusResponse.extensionSettings,
         });
@@ -40,7 +40,7 @@ export default class SettingsSection extends React.Component {
         key,
         value,
       })
-      .then(response => {
+      .then((response) => {
         this.setState({
           extensionSettings: response,
         });
@@ -49,7 +49,7 @@ export default class SettingsSection extends React.Component {
 
   getSettingValue(settingKey) {
     const setting = this.state.extensionSettings.find(
-      item => item.key === settingKey,
+      (item) => item.key === settingKey,
     );
 
     if (setting === undefined) {
@@ -77,7 +77,7 @@ export default class SettingsSection extends React.Component {
               checked={this.isSettingChecked(
                 SettingTypes.SHOW_ON_OFF_BUTTONS_IN_POPUP,
               )}
-              onChange={e => {
+              onChange={(e) => {
                 this.handleSettingsChange(
                   e,
                   SettingTypes.SHOW_ON_OFF_BUTTONS_IN_POPUP,
@@ -93,7 +93,7 @@ export default class SettingsSection extends React.Component {
               checked={this.isSettingChecked(
                 SettingTypes.SHOW_PAUSE_BUTTONS_IN_POPUP,
               )}
-              onChange={e => {
+              onChange={(e) => {
                 this.handleSettingsChange(
                   e,
                   SettingTypes.SHOW_PAUSE_BUTTONS_IN_POPUP,

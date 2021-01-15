@@ -1,88 +1,36 @@
-import Website from './Website';
+const StorageHandler = {
+  getStatus: () => browser.storage.local.get('status'),
 
-export default class StorageHandler {
-  static async getWebsiteDomainsAsMatchPatterns() {
-    const { sites } = await StorageHandler.getBlockedWebsites();
+  setStatus: (status) => browser.storage.local.set({
+    status,
+  }),
 
-    return new Promise(resolve => {
-      const mappedWebsites = sites.map(website => `*://*.${website.domain}/*`);
+  getSettings: () => browser.storage.local.get('extensionSettings'),
 
-      resolve(mappedWebsites);
+  getBlockedWebsites: () => browser.storage.local.get('sites'),
+
+  setBlockedWebsites: (sites) => browser.storage.local.set({
+    sites,
+  }),
+
+  setPausedUntil: (datetime) => browser.storage.local.set({
+    pausedUntil: datetime.toISOString(),
+  }),
+
+  getPausedUntil: () => browser.storage.local.get('pausedUntil'),
+
+  updateSetting: (key, value) => StorageHandler.getSettings().then((storage) => {
+    const updatedSettings = storage.extensionSettings.filter(
+      (setting) => setting.key !== key,
+    );
+    updatedSettings.push({ key, value });
+
+    browser.storage.local.set({
+      extensionSettings: updatedSettings,
     });
-  }
 
-  static async getWebsiteDomains() {
-    const { sites } = await StorageHandler.getBlockedWebsites();
-    return sites.map(website => website.domain);
-  }
+    return updatedSettings;
+  }),
+};
 
-  static getBlockedWebsites() {
-    return browser.storage.local.get('sites');
-  }
-
-  static async isDomainBlocked(urlToMatch) {
-    const websites = await StorageHandler.getWebsiteDomains();
-    return websites.includes(urlToMatch);
-  }
-
-  static addWebsite(url) {
-    return browser.storage.local.get('sites').then(storage => {
-      const updatedWebsites = [...storage.sites, Website.create(url)];
-
-      return browser.storage.local.set({
-        sites: updatedWebsites,
-      });
-    });
-  }
-
-  static removeWebsite(url) {
-    return browser.storage.local.get('sites').then(storage => {
-      const updatedWebsites = storage.sites.filter(
-        website => website.domain !== url,
-      );
-
-      return browser.storage.local.set({
-        sites: updatedWebsites,
-      });
-    });
-  }
-
-  static getExtensionStatus() {
-    return browser.storage.local.get('status');
-  }
-
-  static async setExtensionStatus(status) {
-    return browser.storage.local.set({
-      status,
-    });
-  }
-
-  static async setPausedUntil(datetime) {
-    return browser.storage.local.set({
-      pausedUntil: datetime.toISOString(),
-    });
-  }
-
-  static getPausedUntil() {
-    return browser.storage.local.get('pausedUntil');
-  }
-
-  static getExtensionSettings() {
-    return browser.storage.local.get('extensionSettings');
-  }
-
-  static updateExtensionSettings(key, value) {
-    return browser.storage.local.get('extensionSettings').then(storage => {
-      const updatedSettings = storage.extensionSettings.filter(
-        setting => setting.key !== key,
-      );
-      updatedSettings.push({ key, value });
-
-      browser.storage.local.set({
-        extensionSettings: updatedSettings,
-      });
-
-      return updatedSettings;
-    });
-  }
-}
+export default StorageHandler;

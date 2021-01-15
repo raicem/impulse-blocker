@@ -1,15 +1,15 @@
-const path = require('path');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
+const path = require("path");
+const CleanWebpackPlugin = require("clean-webpack-plugin");
 
 module.exports = {
   entry: {
-    background: './src/background.js',
-    popup: './src/popup/index.js',
-    options: './src/options/index.js',
+    background: "./src/background.js",
+    popup: "./src/popup/index.js",
+    options: "./src/options/index.js",
   },
   output: {
-    path: path.resolve(__dirname, 'extension/dist'),
-    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, "extension/dist"),
+    filename: "[name].bundle.js",
   },
   module: {
     rules: [
@@ -17,40 +17,26 @@ module.exports = {
         test: /\.m?js$/,
         exclude: /(node_modules)/,
         use: {
-          loader: 'babel-loader',
-          options: {
-            presets: [
-              [
-                '@babel/env',
-                {
-                  targets: {
-                    firefox: '60',
-                  },
-                  useBuiltIns: 'usage',
-                },
-              ],
-              '@babel/preset-react',
-            ],
-          },
+          loader: "babel-loader",
         },
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        use: ["style-loader", "css-loader"],
       },
       {
         test: /\.(png|svg|jpg|gif)$/,
         use: [
           {
-            loader: 'file-loader',
+            loader: "file-loader",
             options: {
-              publicPath: '../../dist',
+              publicPath: "../../dist",
             },
           },
         ],
       },
     ],
   },
-  devtool: 'source-map',
-  plugins: [new CleanWebpackPlugin(['dist'])],
+  devtool: "source-map",
+  plugins: [new CleanWebpackPlugin(["dist"])],
 };

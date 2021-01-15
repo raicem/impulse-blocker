@@ -25,7 +25,7 @@ export default class ExtensionStatus extends React.Component {
       .sendMessage({
         type: MessageTypes.GET_EXTENSION_STATUS,
       })
-      .then(statusResponse => {
+      .then((statusResponse) => {
         this.setState({
           extensionStatus: statusResponse.extensionStatus,
           pausedUntil: statusResponse.pausedUntil,
@@ -50,7 +50,7 @@ export default class ExtensionStatus extends React.Component {
       .sendMessage({
         type: MessageTypes.GET_EXTENSION_STATUS,
       })
-      .then(statusResponse => {
+      .then((statusResponse) => {
         this.setState({
           extensionStatus: statusResponse.extensionStatus,
           pausedUntil: statusResponse.pausedUntil,
@@ -59,7 +59,7 @@ export default class ExtensionStatus extends React.Component {
   }
 
   getSetting(key) {
-    return this.state.extensionSettings.find(item => item.key === key);
+    return this.state.extensionSettings.find((item) => item.key === key);
   }
 
   showOnOfButtonSettingIsOn() {
@@ -84,9 +84,7 @@ export default class ExtensionStatus extends React.Component {
                 id="on"
                 value="on"
                 checked={this.state.extensionStatus === ExtensionStatusTypes.ON}
-                onChange={() =>
-                  this.handleStatusChange(ExtensionStatusTypes.ON)
-                }
+                onChange={() => this.handleStatusChange(ExtensionStatusTypes.ON)}
               />
               <label htmlFor="on">On</label>
             </div>
@@ -99,9 +97,7 @@ export default class ExtensionStatus extends React.Component {
                 checked={
                   this.state.extensionStatus === ExtensionStatusTypes.OFF
                 }
-                onChange={() =>
-                  this.handleStatusChange(ExtensionStatusTypes.OFF)
-                }
+                onChange={() => this.handleStatusChange(ExtensionStatusTypes.OFF)}
               />
               <label htmlFor="off">Off</label>
             </div>
