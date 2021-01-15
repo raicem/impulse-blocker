@@ -56,37 +56,34 @@ Impulse Blocker testing
 
 ### Starting and stopping
 
--[] Start the blocker with no blocked websites. It should not interfere.
--[] Start blocking a website. It should be blocked.
--[] Add a second website to the block list. It should also be blocked.
--[] Stop the blocker. Websites should now be free to access.
--[] Start the blocker again. See the websites are blocked again.
+- [ ] Start the blocker with no blocked websites. It should not interfere.
+- [ ] Start blocking a website. It should be blocked.
+- [ ] Add a second website to the block list. It should also be blocked.
+- [ ] Stop the blocker. Websites should now be free to access.
+- [ ] Start the blocker again. See the websites are blocked again.
 
 ### Pausing
 
--[] Pause the blocker. Websites should be free to access.
--[] Cancel the pause. Websites should be blocked.
--[] Pause the blocker again and restart the browser. It should still be paused.
--[] Close the browser again and wait for pause period to finish. When you open the browser it should not be in pause state and websites must be blocked.
--[] Add a website when the blocker is paused. It should still be paused.
+- [ ] Pause the blocker. Websites should be free to access.
+- [ ]  Cancel the pause. Websites should be blocked.
+- [ ] Pause the blocker again and restart the browser. It should still be paused.
+- [ ] Close the browser again and wait for pause period to finish. When you open the browser it should not be in pause state and websites must be blocked.
+- [ ] Add a website when the blocker is paused. It should still be paused.
 
 ### Options page
 
--[] Add website from the options page. It should be blocked.
--[] Remove website from the options page. It should be now accessible.
--[] Stop extension from the options page. It should stop the blocker.
--[] Start the extension from the options page. It should start the blocker.
--[] Tick and check options and check they have the desired effect on the popup.
+- [ ] Add website from the options page. It should be blocked.
+- [ ] Remove website from the options page. It should be now accessible.
+- [ ] Stop extension from the options page. It should stop the blocker.
+- [ ] Start the extension from the options page. It should start the blocker.
+- [ ] Tick and check options and check they have the desired effect on the popup.
 
 ## Contributors
 
 Huge thanks to contributors!
 
-@Crotek
-@pkonneker
-@Thynix
-@xeBuz
-@Mattwmaster58
-
-[Crote](https://github.com/Crotek)
-[pkonneker](https://github.com/pkonneker)
+- [Crote](https://github.com/Crotek)
+- [pkonneker](https://github.com/pkonneker)
+- [Thynix](https://github.com/Thynix)
+- [xeBuz](https://github.com/xeBuz)
+- [Mattwmaster58](https://github.com/Mattwmaster58)
