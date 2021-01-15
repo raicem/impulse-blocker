@@ -15,13 +15,6 @@ If you want to build the extension yourself using the source code, follow these 
 ### Dependencies
 
 Make sure you have `node` (version 11) and `npm` (version 6) installed on your machine.
-After you make sure you have `npm` install `web-ext`. `web-ext` [is a tool](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Getting_started_with_web-ext) released by Mozilla to help developing WebExtensions.
-
-Install `web-ext` using this command:
-
-```bash
-npm install --global web-ext
-```
 
 Then clone this repository:
 
