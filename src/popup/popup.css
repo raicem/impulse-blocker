@@ -19,6 +19,10 @@ body {
   top: 0.5rem;
 }
 
+.header__options:hover, .header__options:focus {
+  filter: contrast(0.4);
+}
+
 .options-icon {
   height: 1rem;
 }
@@ -56,6 +60,10 @@ form {
   border: none;
   cursor: pointer;
   color: white;
+}
+
+.button:hover, .button:focus {
+  filter: invert(1.0);
 }
 
 .button-add {

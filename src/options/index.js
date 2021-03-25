@@ -106,6 +106,10 @@ class Options extends React.Component {
   }
 
   render() {
+    var emptymsg = "empty";
+    if(this.state.blockedSites.length > 0) {
+        emptymsg = this.state.blockedSites.length.toString()
+    }
     return (
       <div>
         <header className="header">
@@ -149,7 +153,10 @@ class Options extends React.Component {
             onStatusUpdate={this.updateExtensionStatus}
           />
           <div className="blocklist">
-            <h3 className="blocklist__header">Currently blocked websites</h3>
+            <h3 className="blocklist__header">
+              Currently blocked websites
+              <span style={{float: "right"}}>({emptymsg})</span>
+            </h3>
             <hr />
             <ul className="blocklist__list">{this.listItems()}</ul>
           </div>
