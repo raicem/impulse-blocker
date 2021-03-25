@@ -72,6 +72,7 @@ export default class SettingsSection extends React.Component {
           <div className="form-group">
             <label htmlFor="onOffButton">Show On/Off Buttons in Popup</label>
             <input
+              id="onOffButton"
               name="onOffButton"
               type="checkbox"
               checked={this.isSettingChecked(
@@ -88,6 +89,7 @@ export default class SettingsSection extends React.Component {
           <div className="form-group">
             <label htmlFor="pauseButtons">Show Pause Buttons in Popup</label>
             <input
+              id="pauseButtons"
               name="pauseButtons"
               type="checkbox"
               checked={this.isSettingChecked(
