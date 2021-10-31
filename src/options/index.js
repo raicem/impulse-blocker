@@ -1,11 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Select from 'react-select';
 import './options.css';
 
 import MessageTypes from '../enums/messages';
 import DomainListItem from './components/DomainListItem';
 import SettingsSection from './components/SettingsSection';
 import ExtensionStatus from './components/ExtensionStatus';
+import UrlHistoryInput from './components/UrlHistoryInput';
 
 class Options extends React.Component {
   constructor(props) {
@@ -44,9 +46,22 @@ class Options extends React.Component {
     });
   }
 
+onHistoryItemsRetrieved(historyItems) {
+    for (var item of historyItems) {
+        console.log(item.url);
+        console.log(new Date(item.lastVisitTime));
+    }
+}
+
   handleChange(e) {
     this.setState({ value: e.target.value });
+    browser.history.search({
+        text: e.target.value,
+        maxResults: 10
+    }).then(this.onHistoryItemsRetrieved)
   }
+
+  
 
   handleSubmit(e) {
     e.preventDefault();
@@ -130,7 +145,7 @@ class Options extends React.Component {
             </div>
           </h1>
           <form onSubmit={this.handleSubmit} className="header__form">
-            <input
+            {/* <input
               type="text"
               className="form__input"
               id="site"
@@ -139,7 +154,8 @@ class Options extends React.Component {
               onChange={this.handleChange}
               placeholder="Add a site to the blocklist..."
               required
-            />
+            /> */}
+            <UrlHistoryInput />
             <input type="submit" className="button button--red" value="Block" />
           </form>
         </header>

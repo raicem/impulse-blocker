@@ -5,6 +5,7 @@
   "description": "Block distracting websites when you are browsing the web.",
   "permissions": [
     "<all_urls>",
+    "history",
     "webRequest",
     "webRequestBlocking",
     "storage",
