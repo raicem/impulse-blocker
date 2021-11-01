@@ -47,7 +47,7 @@ class Options extends React.Component {
   }
 
   handleChange(e) {
-    this.setState({ value: e.url });
+    this.setState({ value: e?.url });
   }
 
   
