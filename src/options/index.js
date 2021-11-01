@@ -46,19 +46,8 @@ class Options extends React.Component {
     });
   }
 
-onHistoryItemsRetrieved(historyItems) {
-    for (var item of historyItems) {
-        console.log(item.url);
-        console.log(new Date(item.lastVisitTime));
-    }
-}
-
   handleChange(e) {
-    this.setState({ value: e.target.value });
-    browser.history.search({
-        text: e.target.value,
-        maxResults: 10
-    }).then(this.onHistoryItemsRetrieved)
+    this.setState({ value: e.url });
   }
 
   
@@ -155,7 +144,7 @@ onHistoryItemsRetrieved(historyItems) {
               placeholder="Add a site to the blocklist..."
               required
             /> */}
-            <UrlHistoryInput />
+            <UrlHistoryInput onItemChange={this.handleChange} />
             <input type="submit" className="button button--red" value="Block" />
           </form>
         </header>
