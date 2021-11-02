@@ -1,42 +1,54 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { array } from 'prop-types';
 import AsyncSelect, { makeAsyncSelect } from 'react-select/async';
 
 export default class UrlHistoryInput extends React.Component {
 
   constructor(props) {
     super(props);
+    this.browserHistory = browser.history;
     this.state = {
       key: new Date().getMilliseconds(),
       inputValue: '',
       selectedValue: null
     };
-    browser.history.onVisited.addListener(this.onHistoryItemChanged);
-    browser.history.onVisited.removeListener(this.onHistoryItemChanged);
-  }
-
-  componentDidMount() {
     
   }
 
-  getBrowserHistory = inputValue => {
-    return browser.history.search({
-      text: inputValue,
-      maxResults: 10
-    })
-    .then((historyItems) => {
-      console.log(historyItems);
-      console.log(historyItems.flatMap(item => [{
-        id: item.id, 
-        url: new URL(item.url).hostname
+  componentDidMount() {
+    this.browserHistory.onVisited.addListener(this.onHistoryItemChanged);
+    this.browserHistory.onVisitRemoved.addListener(this.onHistoryItemChanged);
+  }
+
+  componentWillUnmount() {
+    this.browserHistory.onVisited.removeListener(this.onHistoryItemChanged);
+    this.browserHistory.onVisitRemoved.removeListener(this.onHistoryItemChanged);
+  }
+
+  removeDuplicates = (array, f) => {
+    return array.filter(f);
+  }
+
+  getBrowserHistory = inputValue => this.browserHistory.search({
+            text: inputValue,
+            maxResults: 10
       }
-    ]));
-    return historyItems.flatMap(item => [{
-        id: item.id, 
-        url: item.url,
-        host: new URL(item.url).hostname
-      }
-    ])})
+    )
+    .then((historyItems) => historyItems.flatMap(item => [{
+            id: item.id, 
+            url: item.url,
+            host: new URL(item.url).hostname
+          }
+          ]
+        )
+    )
+    .then((historyItems) => 
+        // squashing duplicate entries
+        historyItems.filter((item, index, arr) => {
+          return arr.findIndex(i => i.host === item.host) == index;
+        }
+      )
+    )
     .catch(err => { console.log("bzzt");});;
   }
 
