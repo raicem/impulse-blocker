@@ -44,13 +44,10 @@ export default class UrlHistoryInput extends React.Component {
     )
     .then((historyItems) => 
         // squashing duplicate entries
-        historyItems.filter((item, index, arr) => {
-          return arr.findIndex(i => i.host === item.host) == index;
-        }
-      )
+        historyItems.filter((item, index, arr) => arr.findIndex(i => i.host === item.host) == index)
     )
-    .catch(err => { console.log("bzzt");});;
-  }
+    .catch(err => console.log("bzzt"));
+    
 
   onHistoryItemChanged = _ => {
     console.log("History Changed");
