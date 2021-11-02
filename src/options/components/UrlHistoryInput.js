@@ -1,6 +1,19 @@
-import React, { useState } from 'react';
-import PropTypes, { array } from 'prop-types';
-import AsyncSelect, { makeAsyncSelect } from 'react-select/async';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { components, ContainerProps} from 'react-select'
+import AsyncSelect from 'react-select/async';
+
+
+const SelectContainer = ({
+  children,
+  ...props
+}) => {
+  return (
+      <components.SelectContainer {...props}>
+        {children}
+      </components.SelectContainer>
+  );
+};
 
 export default class UrlHistoryInput extends React.Component {
 
@@ -12,53 +25,45 @@ export default class UrlHistoryInput extends React.Component {
       inputValue: '',
       selectedValue: null
     };
-    
   }
 
   componentDidMount() {
-    this.browserHistory.onVisited.addListener(this.onHistoryItemChanged);
-    this.browserHistory.onVisitRemoved.addListener(this.onHistoryItemChanged);
+    this.browserHistory.onTitleChanged.addListener(this.onHistoryItemChanged);
   }
 
   componentWillUnmount() {
-    this.browserHistory.onVisited.removeListener(this.onHistoryItemChanged);
-    this.browserHistory.onVisitRemoved.removeListener(this.onHistoryItemChanged);
+    this.browserHistory.onTitleChanged.removeListener(this.onHistoryItemChanged);
   }
 
-  removeDuplicates = (array, f) => {
-    return array.filter(f);
-  }
+  getBrowserHistory = inputValue => {
+    var searchPromise = this.browserHistory.search({
+      text: inputValue,
+      maxResults: 10
+    });
+    if (!!inputValue) {
+      // return the recently visited websites
+      return searchPromise;
+    }
 
-  getBrowserHistory = inputValue => this.browserHistory.search({
-            text: inputValue,
-            maxResults: 10
-      }
-    )
-    .then((historyItems) => historyItems.flatMap(item => [{
-            id: item.id, 
-            url: item.url,
-            host: new URL(item.url).hostname
-          }
-          ]
-        )
-    )
+    return searchPromise
+      .then((historyItems) => historyItems.flatMap(item => [{
+        id: item.id, 
+        title: item.title,
+        url: item.url,
+        host: new URL(item.url).hostname
+      }]))
     .then((historyItems) => 
-        // squashing duplicate entries
-        historyItems.filter((item, index, arr) => arr.findIndex(i => i.host === item.host) == index)
-    )
-    .catch(err => console.log("bzzt"));
-    
+    // only showing history items with a title
+      historyItems.filter((item, index, arr) => item.title))
+    .catch(err => console.log("bzzt"));   
+  }  
 
-  onHistoryItemChanged = _ => {
-    console.log("History Changed");
-    this.setState({key: new Date().getMilliseconds()});
-  };
+  onHistoryItemChanged = _ => this.setState({key: new Date().getMilliseconds()});
   
-   
+
   // handle input change event
-  handleInputChange = value => {
-    this.setState({inputValue: value});
-  }
+  handleInputChange = value => this.setState({inputValue: value});
+  
   
   // handle selection
   handleChange = value => {
@@ -67,12 +72,11 @@ export default class UrlHistoryInput extends React.Component {
   }
 
   render() {
-    // <div className="form__input" id="site" name="site">
       return <AsyncSelect 
         key={this.state.key}
         autoFocus
         cacheOptions 
-        className={"form__input"}
+        // className={"form__input"}
         classNamePrefix={"form"}
         closeMenuOnSelect
         defaultOptions 
@@ -82,13 +86,25 @@ export default class UrlHistoryInput extends React.Component {
         isClearable
         isSearchable
         value={this.state.selectedValue}
-        getOptionLabel={e => e.host}
+        getOptionLabel={e => e.title + " - " + e.url}
         getOptionValue={e => e.id}
         onInputChange={this.handleInputChange}
         onChange={this.handleChange}
         loadOptions={this.getBrowserHistory}
+        components={{ SelectContainer }}
+        styles={{
+          container: (base) => ({
+            ...base,
+            backgroundColor: "#f7f7f9",
+            fontSize: "1.2rem",
+            fontWeight: 400,
+            lineHeight: "1.5rem",
+            color: "#55595c",
+            border: "0 solid #ced4da;",
+            minWidth: 200
+          }),
+        }}
       />
-    // </div>
   }
 }
 
