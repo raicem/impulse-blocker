@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { components, ContainerProps} from 'react-select'
+import { components } from 'react-select'
 import AsyncSelect from 'react-select/async';
 
 
@@ -21,6 +21,7 @@ export default class UrlHistoryInput extends React.Component {
     super(props);
     this.browserHistory = browser.history;
     this.state = {
+      // allows to rerender the dropdown list
       key: new Date().getMilliseconds(),
       inputValue: '',
       selectedValue: null
@@ -40,30 +41,21 @@ export default class UrlHistoryInput extends React.Component {
       text: inputValue,
       maxResults: 10
     });
-    if (!!inputValue) {
-      // return the recently visited websites
+    
+    if (!inputValue) {
       return searchPromise;
     }
 
-    return searchPromise
-      .then((historyItems) => historyItems.flatMap(item => [{
-        id: item.id, 
-        title: item.title,
-        url: item.url,
-        host: new URL(item.url).hostname
-      }]))
-    .then((historyItems) => 
-    // only showing history items with a title
+    return searchPromise.then((historyItems) => 
+    // returning only history items with a title
       historyItems.filter((item, index, arr) => item.title))
-    .catch(err => console.log("bzzt"));   
+    .catch(err => console.log("Error fetching browser history: " + err));   
   }  
 
   onHistoryItemChanged = _ => this.setState({key: new Date().getMilliseconds()});
-  
 
   // handle input change event
   handleInputChange = value => this.setState({inputValue: value});
-  
   
   // handle selection
   handleChange = value => {
@@ -71,22 +63,29 @@ export default class UrlHistoryInput extends React.Component {
     this.props.onItemChange(value);
   }
 
+  getLabel = item => {
+    console.log(!item.title);
+    if (!item.title) {
+      return item.url
+    }
+    return item.title.concat(" - ", item.url);
+  }
+
   render() {
       return <AsyncSelect 
         key={this.state.key}
         autoFocus
         cacheOptions 
-        // className={"form__input"}
         classNamePrefix={"form"}
         closeMenuOnSelect
-        defaultOptions 
+        defaultOptions
         name={"site"}
         id={"site"}
         placeholder={"Add a site to the blocklist..."}
         isClearable
         isSearchable
         value={this.state.selectedValue}
-        getOptionLabel={e => e.title + " - " + e.url}
+        getOptionLabel={this.getLabel}
         getOptionValue={e => e.id}
         onInputChange={this.handleInputChange}
         onChange={this.handleChange}
@@ -101,7 +100,8 @@ export default class UrlHistoryInput extends React.Component {
             lineHeight: "1.5rem",
             color: "#55595c",
             border: "0 solid #ced4da;",
-            minWidth: 200
+            minWidth: 200,
+            width: 250
           }),
         }}
       />
