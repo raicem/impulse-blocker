@@ -133,16 +133,6 @@ class Options extends React.Component {
             </div>
           </h1>
           <form onSubmit={this.handleSubmit} className="header__form">
-            {/* <input
-              type="text"
-              className="form__input"
-              id="site"
-              name="site"
-              value={this.state.value}
-              onChange={this.handleChange}
-              placeholder="Add a site to the blocklist..."
-              required
-            /> */}
             <UrlHistoryInput onItemChange={this.handleChange} />
             <input type="submit" className="button button--red" value="Block" />
           </form>
