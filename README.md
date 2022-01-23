@@ -87,3 +87,4 @@ Huge thanks to contributors!
 - [Thynix](https://github.com/Thynix)
 - [xeBuz](https://github.com/xeBuz)
 - [Mattwmaster58](https://github.com/Mattwmaster58)
+- [LorenzoAncora](https://github.com/LorenzoAncora)
