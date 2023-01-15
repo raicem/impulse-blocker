@@ -19,19 +19,11 @@ export default class UrlHistoryInput extends React.Component {
 
   constructor(props) {
     super(props);
-    browser.permissions.request({permissions: ["history"]})
-    .then((response) => {
-      if (response) {
-        console.log("Permission was granted");
-      } else {
-        console.log("Permission was refused");
-      }
-      return browser.permissions.getAll();
-    })
-    .then((currentPermissions) => {
-      console.log("Current: ", currentPermissions);
-    });
     this.browserHistory = browser.history;
+    this.getBrowserHistory = this.getBrowserHistory.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.getLabel = this.getLabel.bind(this);
     this.state = {
       // allows to rerender the dropdown list
       key: new Date().getMilliseconds(),
@@ -41,15 +33,15 @@ export default class UrlHistoryInput extends React.Component {
   }
 
   componentDidMount() {
+    console.log(this.browserHistory);
     this.browserHistory.onTitleChanged.addListener(this.onHistoryItemChanged);
-    // this.browser.permissions.onAdded.addListener(listener)
   }
 
   componentWillUnmount() {
     this.browserHistory.onTitleChanged.removeListener(this.onHistoryItemChanged);
   }
 
-  getBrowserHistory = inputValue => {
+  getBrowserHistory(inputValue) {
     var searchPromise = this.browserHistory.search({
       text: inputValue,
       maxResults: 10
@@ -59,24 +51,33 @@ export default class UrlHistoryInput extends React.Component {
       return searchPromise;
     }
 
-    return searchPromise.then((historyItems) => 
-    // returning only history items with a title
-      historyItems.filter((item, index, arr) => item.title))
+    return searchPromise.then((historyItems) =>  {
+      let flatted = historyItems.flatMap((item) => new URL(item.url).hostname)
+        .filter((item, index, arr) => arr.indexOf(item) === index);
+      console.log(flatted);
+      let filtered = historyItems.filter((item) => item.title);
+      console.log(filtered);
+      // returning only history items with a title
+      return filtered;
+    })
     .catch(err => console.log("Error fetching browser history: " + err));   
   }  
 
-  onHistoryItemChanged = _ => this.setState({key: new Date().getMilliseconds()});
+  onHistoryItemChanged(_) {
+     this.setState({key: new Date().getMilliseconds()}) 
+  }
 
   // handle input change event
-  handleInputChange = value => this.setState({inputValue: value});
+  handleInputChange(value) {
+    this.setState({inputValue: value}); }
   
   // handle selection
-  handleChange = value => {
+  handleChange(value) {
     this.setState({selectedValue: value})
     this.props.onItemChange(value);
   }
 
-  getLabel = item => {
+  getLabel(item) {
     if (!item.title) {
       return item.url
     }

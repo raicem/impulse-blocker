@@ -20,13 +20,6 @@ class ImpulseBlocker {
   }
 
   boot() {
-    // browser.permissions.contains({
-    //   permissions: ["history"]
-    // }).then((response) => {
-    //   if (!response) {
-    //     this.requestPermissions(["history"]);
-    //   }
-    // });
     browser.storage.onChanged.addListener(this.onStorageUpdated);
     browser.permissions.onAdded.addListener(this.onPermissionsUpdated);
     browser.permissions.onRemoved.addListener(this.onPermissionsUpdated);

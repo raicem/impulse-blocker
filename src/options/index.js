@@ -6,6 +6,7 @@ import MessageTypes from '../enums/messages';
 import DomainListItem from './components/DomainListItem';
 import SettingsSection from './components/SettingsSection';
 import ExtensionStatus from './components/ExtensionStatus';
+import UrlHistoryInput from './components/UrlHistoryInput';
 
 class Options extends React.Component {
   constructor(props) {
@@ -46,7 +47,7 @@ class Options extends React.Component {
   }
 
   handleChange(e) {
-    this.setState({ value: e.target.value });
+    this.setState({ value: e?.target?.value });
   }
 
   handleSubmit(e) {
@@ -151,7 +152,7 @@ class Options extends React.Component {
             </div>
           </h1>
           <form onSubmit={this.handleSubmit} className="header__form">
-            <input
+            {/* <input
               type="text"
               className="form__input"
               id="site"
@@ -160,7 +161,8 @@ class Options extends React.Component {
               onChange={this.handleChange}
               placeholder="Add a site to the blocklist..."
               required
-            />
+            /> */}
+            <UrlHistoryInput onItemChange={this.handleChange} />
             <input type="submit" className="button button--red" value="Block" />
           </form>
           <a href='#' onClick={this.requestHistoryPermission}>Request Permission for history</a>
