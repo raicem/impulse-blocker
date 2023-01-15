@@ -10,6 +10,7 @@ class ImpulseBlocker {
     this.storageHandler = storageHandler;
 
     this.boot = this.boot.bind(this);
+    this.onPermissionsUpdated = this.onPermissionsUpdated.bind(this);
     this.onStorageUpdated = this.onStorageUpdated.bind(this);
     this.getState = this.getState.bind(this);
     this.updateStatus = this.updateStatus.bind(this);
@@ -19,7 +20,16 @@ class ImpulseBlocker {
   }
 
   boot() {
+    // browser.permissions.contains({
+    //   permissions: ["history"]
+    // }).then((response) => {
+    //   if (!response) {
+    //     this.requestPermissions(["history"]);
+    //   }
+    // });
     browser.storage.onChanged.addListener(this.onStorageUpdated);
+    browser.permissions.onAdded.addListener(this.onPermissionsUpdated);
+    browser.permissions.onRemoved.addListener(this.onPermissionsUpdated);
 
     return this.storageHandler.getStatus().then(async ({ status }) => {
       if (status === extensionStatus.ON) {
@@ -51,6 +61,11 @@ class ImpulseBlocker {
 
       return this.start(false);
     });
+  }
+
+  onPermissionsUpdated(permissions) {
+    console.log("update:" + permissions.permissions);
+    this.updateSetting("permissions", permissions.permissions);
   }
 
   attachWebRequestListener() {

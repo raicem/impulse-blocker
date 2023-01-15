@@ -21,6 +21,7 @@ class Options extends React.Component {
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.requestHistoryPermission = this.requestHistoryPermission.bind(this);
     this.listItems = this.listItems.bind(this);
     this.onClick = this.onClick.bind(this);
     this.getSetting = this.getSetting.bind(this);
@@ -61,6 +62,22 @@ class Options extends React.Component {
           value: '',
         }));
       });
+  }
+
+  requestHistoryPermission(_) {
+    browser.permissions.request({permissions: ["history"]})
+    .then((response) => {
+      console.log("granted " + response);
+    })
+    .catch((err) => {
+      // Catch the case where the permission cannot be granted.
+      console.log("denied " + err);
+    });
+  }
+
+  revokeHistoryPermission(_) {
+    browser.permissions.remove({permissions: ["history"]})
+    .catch((_) => {});
   }
 
   onClick(domain) {
@@ -146,6 +163,7 @@ class Options extends React.Component {
             />
             <input type="submit" className="button button--red" value="Block" />
           </form>
+          <a href='#' onClick={this.requestHistoryPermission}>Request Permission for history</a>
         </header>
         <div className="container">
           <ExtensionStatus
