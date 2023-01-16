@@ -18,14 +18,23 @@ class Options extends React.Component {
       extensionStatus: null,
       pausedUntil: null,
       extensionSettings: [],
+      hasHistoryPermission: false,
     };
-
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleChange = this.handleChange.bind(this);
+    this.historyPermission = "history";
+    this.browserPermissions = browser.permissions;
+    this.onPermissionsAdded = this.onPermissionsAdded.bind(this);
+    this.onPermissionsRemoved = this.onPermissionsRemoved.bind(this);
     this.requestHistoryPermission = this.requestHistoryPermission.bind(this);
-    this.listItems = this.listItems.bind(this);
-    this.onClick = this.onClick.bind(this);
+    this.hasHistoryPermission = this.hasHistoryPermission.bind(this);
+
+    this.onBlockDomainClick = this.onBlockDomainClick.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.getDomainInput = this.getDomainInput.bind(this);
+    
+    this.getListItems = this.getListItems.bind(this);
+    this.onListItemClick = this.onListItemClick.bind(this);
     this.getSetting = this.getSetting.bind(this);
+    this.showPermissionNoteIfHistoryPermissionDenied = this.showPermissionNoteIfHistoryPermissionDenied.bind(this);
     this.updateExtensionStatus = this.updateExtensionStatus.bind(this);
   }
 
@@ -33,24 +42,63 @@ class Options extends React.Component {
     const domains = await browser.runtime.sendMessage({
       type: MessageTypes.GET_BLOCKED_DOMAINS_LIST,
     });
-
     const statusResponse = await browser.runtime.sendMessage({
       type: MessageTypes.GET_EXTENSION_STATUS,
     });
+    
+    this.browserPermissions.onAdded.addListener(this.onPermissionsAdded);
+    this.browserPermissions.onRemoved.addListener(this.onPermissionsRemoved);
+    const hasHistoryPermission = await this.hasHistoryPermission();
+    console.log(hasHistoryPermission);
 
     this.setState({
       blockedSites: domains,
       extensionStatus: statusResponse.extensionStatus,
       pausedUntil: statusResponse.pausedUntil,
       extensionSettings: statusResponse.extensionSettings,
+      hasHistoryPermission: hasHistoryPermission,
     });
+  }
+
+  async componentWillUnmount() {
+    this.browserPermissions.onAdded.removeListener(this.onPermissionsAdded);
+    this.browserPermissions.onRemoved.removeListener(this.onPermissionsRemoved);
+  }
+
+  onPermissionsRemoved(_) {
+    this.setState({hasHistoryPermission: false });
+    console.log(this.state)
+  }
+
+  onPermissionsAdded(_) {
+    this.setState({ hasHistoryPermission: true });
+    console.log(this.state)
+  }
+
+  async requestHistoryPermission(_) {
+    return browser.permissions.request({permissions: [this.historyPermission]})
+    .then((response) => response)
+    .catch((_) => false);
+  }
+
+  async revokeHistoryPermission(_) {
+    browser.permissions.remove({permissions: [this.historyPermission]})
+    .catch((_) => _);
+  }
+
+  async hasHistoryPermission() {
+    return this.browserPermissions.contains({
+        permissions: [this.historyPermission]
+      })
+      .then((response) => { return response; })
+      .catch((_) => { return false; });
   }
 
   handleChange(e) {
     this.setState({ value: e?.target?.value });
   }
 
-  handleSubmit(e) {
+  onBlockDomainClick(e) {
     e.preventDefault();
     browser.runtime
       .sendMessage({
@@ -65,23 +113,31 @@ class Options extends React.Component {
       });
   }
 
-  requestHistoryPermission(_) {
-    browser.permissions.request({permissions: ["history"]})
-    .then((response) => {
-      console.log("granted " + response);
-    })
-    .catch((err) => {
-      // Catch the case where the permission cannot be granted.
-      console.log("denied " + err);
-    });
+  getDomainInput() {
+    if (this.state.hasHistoryPermission) {
+      return (<UrlHistoryInput onItemChange={this.handleChange} />);
+    }
+    return (<input
+              type="text"
+              className="form__input"
+              id="site"
+              name="site"
+              value={this.state.value}
+              onChange={this.handleChange}
+              placeholder="Add a site to the blocklist..."
+              required
+            />);
   }
 
-  revokeHistoryPermission(_) {
-    browser.permissions.remove({permissions: ["history"]})
-    .catch((_) => {});
+  showPermissionNoteIfHistoryPermissionDenied() {
+    if (!this.state.hasHistoryPermission) {
+      return (<div className="header__links">
+        <a href='#' className="header__note"onClick={this.requestHistoryPermission}>Request Permission for history</a>
+      </div>)
+    }
   }
 
-  onClick(domain) {
+  onListItemClick(domain) {
     browser.runtime
       .sendMessage({
         type: MessageTypes.START_ALLOWING_DOMAIN,
@@ -98,11 +154,11 @@ class Options extends React.Component {
       });
   }
 
-  listItems() {
+  getListItems() {
     return this.state.blockedSites.map((domain) => (
       <DomainListItem
         domain={domain}
-        onClick={this.onClick}
+        onClick={this.onListItemClick}
         key={Math.random()}
       />
     ));
@@ -150,22 +206,12 @@ class Options extends React.Component {
                 Guide
               </a>
             </div>
+            {this.showPermissionNoteIfHistoryPermissionDenied()}
           </h1>
-          <form onSubmit={this.handleSubmit} className="header__form">
-            {/* <input
-              type="text"
-              className="form__input"
-              id="site"
-              name="site"
-              value={this.state.value}
-              onChange={this.handleChange}
-              placeholder="Add a site to the blocklist..."
-              required
-            /> */}
-            <UrlHistoryInput onItemChange={this.handleChange} />
+          <form onSubmit={this.onBlockDomainClick} className="header__form">
+            {this.getDomainInput()}
             <input type="submit" className="button button--red" value="Block" />
           </form>
-          <a href='#' onClick={this.requestHistoryPermission}>Request Permission for history</a>
         </header>
         <div className="container">
           <ExtensionStatus
@@ -178,7 +224,7 @@ class Options extends React.Component {
               <span style={{float: "right"}}>({emptymsg})</span>
             </h3>
             <hr />
-            <ul className="blocklist__list">{this.listItems()}</ul>
+            <ul className="blocklist__list">{this.getListItems()}</ul>
           </div>
           <SettingsSection />
         </div>

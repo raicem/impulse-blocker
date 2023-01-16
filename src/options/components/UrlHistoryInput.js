@@ -33,12 +33,11 @@ export default class UrlHistoryInput extends React.Component {
   }
 
   componentDidMount() {
-    console.log(this.browserHistory);
-    this.browserHistory.onTitleChanged.addListener(this.onHistoryItemChanged);
+    this.browserHistory.onTitleChanged?.addListener(this.onHistoryItemChanged);
   }
 
   componentWillUnmount() {
-    this.browserHistory.onTitleChanged.removeListener(this.onHistoryItemChanged);
+    this.browserHistory.onTitleChanged?.removeListener(this.onHistoryItemChanged);
   }
 
   getBrowserHistory(inputValue) {

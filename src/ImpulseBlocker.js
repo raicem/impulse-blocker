@@ -8,9 +8,7 @@ import { createMatchPatterns, redirectToBlockedPage } from './utils/functions';
 class ImpulseBlocker {
   constructor(storageHandler) {
     this.storageHandler = storageHandler;
-
-    this.boot = this.boot.bind(this);
-    this.onPermissionsUpdated = this.onPermissionsUpdated.bind(this);
+    this.boot = this.boot.bind(this);   
     this.onStorageUpdated = this.onStorageUpdated.bind(this);
     this.getState = this.getState.bind(this);
     this.updateStatus = this.updateStatus.bind(this);
@@ -21,9 +19,7 @@ class ImpulseBlocker {
 
   boot() {
     browser.storage.onChanged.addListener(this.onStorageUpdated);
-    browser.permissions.onAdded.addListener(this.onPermissionsUpdated);
-    browser.permissions.onRemoved.addListener(this.onPermissionsUpdated);
-
+    
     return this.storageHandler.getStatus().then(async ({ status }) => {
       if (status === extensionStatus.ON) {
         return this.start(false);
@@ -55,12 +51,7 @@ class ImpulseBlocker {
       return this.start(false);
     });
   }
-
-  onPermissionsUpdated(permissions) {
-    console.log("update:" + permissions.permissions);
-    this.updateSetting("permissions", permissions.permissions);
-  }
-
+  
   attachWebRequestListener() {
     return this.storageHandler.getBlockedWebsites().then(({ sites }) => {
       const domainsToBlock = createMatchPatterns(sites);
