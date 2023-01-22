@@ -43,23 +43,18 @@ export default class UrlHistoryInput extends React.Component {
   getBrowserHistory(inputValue) {
     var searchPromise = this.browserHistory.search({
       text: inputValue,
-      maxResults: 10
+      maxResults: 1
     });
     
     if (!inputValue) {
       return searchPromise;
     }
 
-    return searchPromise.then((historyItems) =>  {
-      let flatted = historyItems.flatMap((item) => new URL(item.url).hostname)
-        .filter((item, index, arr) => arr.indexOf(item) === index);
-      console.log(flatted);
-      let filtered = historyItems.filter((item) => item.title);
-      console.log(filtered);
+    return searchPromise.then((historyItems) =>  {      
       // returning only history items with a title
-      return filtered;
+      return historyItems.filter((item) => item.title);;
     })
-    .catch(err => console.log("Error fetching browser history: " + err));   
+    .catch(err => "");   
   }  
 
   onHistoryItemChanged(_) {

@@ -28,7 +28,8 @@ class Options extends React.Component {
     this.hasHistoryPermission = this.hasHistoryPermission.bind(this);
 
     this.onBlockDomainClick = this.onBlockDomainClick.bind(this);
-    this.handleChange = this.handleChange.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleUrlHistoryInputChange = this.handleUrlHistoryInputChange.bind(this);
     this.getDomainInput = this.getDomainInput.bind(this);
     
     this.getListItems = this.getListItems.bind(this);
@@ -49,7 +50,6 @@ class Options extends React.Component {
     this.browserPermissions.onAdded.addListener(this.onPermissionsAdded);
     this.browserPermissions.onRemoved.addListener(this.onPermissionsRemoved);
     const hasHistoryPermission = await this.hasHistoryPermission();
-    console.log(hasHistoryPermission);
 
     this.setState({
       blockedSites: domains,
@@ -67,12 +67,10 @@ class Options extends React.Component {
 
   onPermissionsRemoved(_) {
     this.setState({hasHistoryPermission: false });
-    console.log(this.state)
   }
 
   onPermissionsAdded(_) {
     this.setState({ hasHistoryPermission: true });
-    console.log(this.state)
   }
 
   async requestHistoryPermission(_) {
@@ -86,16 +84,15 @@ class Options extends React.Component {
     .catch((_) => _);
   }
 
+  /**
+   * @returns `true` if extension has the permission to read user's browser history. `false` otherwise.
+   */
   async hasHistoryPermission() {
     return this.browserPermissions.contains({
         permissions: [this.historyPermission]
       })
       .then((response) => { return response; })
       .catch((_) => { return false; });
-  }
-
-  handleChange(e) {
-    this.setState({ value: e?.target?.value });
   }
 
   onBlockDomainClick(e) {
@@ -113,9 +110,13 @@ class Options extends React.Component {
       });
   }
 
+  /**
+   * Returns an input field based on the history permission of this extension.
+   * @returns `UrlHistoryInput` if the extension has a history permission, `input` otherwise.
+   */
   getDomainInput() {
     if (this.state.hasHistoryPermission) {
-      return (<UrlHistoryInput onItemChange={this.handleChange} />);
+      return (<UrlHistoryInput onItemChange={this.handleUrlHistoryInputChange} />);
     }
     return (<input
               type="text"
@@ -123,16 +124,24 @@ class Options extends React.Component {
               id="site"
               name="site"
               value={this.state.value}
-              onChange={this.handleChange}
+              onChange={this.handleInputChange}
               placeholder="Add a site to the blocklist..."
               required
             />);
   }
 
+  handleInputChange(e) {
+    this.setState({ value: e?.target?.value });
+  }
+
+  handleUrlHistoryInputChange(e) {
+    this.setState({ value: e?.url });
+  }
+
   showPermissionNoteIfHistoryPermissionDenied() {
     if (!this.state.hasHistoryPermission) {
       return (<div className="header__links">
-        <a href='#' className="header__note"onClick={this.requestHistoryPermission}>Request Permission for history</a>
+        <a href='#' className="header__note" onClick={this.requestHistoryPermission}>Request Permission for history</a>
       </div>)
     }
   }
