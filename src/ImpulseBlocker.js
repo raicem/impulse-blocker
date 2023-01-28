@@ -126,12 +126,12 @@ class ImpulseBlocker {
     });
   }
 
-  getBlockedDomains() {
+  async getBlockedDomains() {
     return this.storageHandler.getBlockedWebsites()
       .then((storage) => storage.sites.map((website) => website.domain));
   }
 
-  getState() {
+  async getState() {
     const promises = [
       this.storageHandler.getStatus(),
       this.storageHandler.getSettings(),
@@ -158,18 +158,22 @@ class ImpulseBlocker {
   }
 
   addToBlockList(domain) {
-    const domainToBlock = domain.replace(/.*www\./, '');
-
+    // removing the https and www and finally trailing 
+    // slashes which es necessary when domains are selected 
+    // from the history drop down menu
+    let domainToBlock = domain.replace(/.*\/\/(.*www\.)?/g, '').replace(/\/$/, '');
     return this.storageHandler.getBlockedWebsites().then(({ sites }) => {
       const updatedWebsites = [...sites, Website.create(domainToBlock)];
-
+      console.log(updatedWebsites);
       return this.storageHandler.setBlockedWebsites(updatedWebsites);
     });
   }
 
   removeFromBlockList(domain) {
-    const domainToRemove = domain.replace(/.*www\./, '');
-
+    // removing the https and www and finally trailing 
+    // slashes which es necessary when domains are selected 
+    // from the history drop down menu
+    let domainToRemove = domain.replace(/.*\/\/(.*www\.)?/g, '').replace(/\/$/, '');
     return this.storageHandler.getBlockedWebsites().then((storage) => {
       const updatedWebsites = storage.sites.filter(
         (website) => website.domain !== domainToRemove,

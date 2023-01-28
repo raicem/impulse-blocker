@@ -26,6 +26,7 @@ class Options extends React.Component {
     this.onPermissionsRemoved = this.onPermissionsRemoved.bind(this);
     this.requestHistoryPermission = this.requestHistoryPermission.bind(this);
     this.hasHistoryPermission = this.hasHistoryPermission.bind(this);
+    this.urlHistoryInputElement = React.createRef();
 
     this.onBlockDomainClick = this.onBlockDomainClick.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -103,6 +104,7 @@ class Options extends React.Component {
         domain: this.state.value,
       })
       .then(() => {
+        this.urlHistoryInputElement.current.clearSelected();
         this.setState((prevState) => ({
           blockedSites: [...prevState.blockedSites, this.state.value],
           value: '',
@@ -116,7 +118,7 @@ class Options extends React.Component {
    */
   getDomainInput() {
     if (this.state.hasHistoryPermission) {
-      return (<UrlHistoryInput onItemChange={this.handleUrlHistoryInputChange} />);
+      return (<UrlHistoryInput onItemChange={this.handleUrlHistoryInputChange} ref={this.urlHistoryInputElement}/>);
     }
     return (<input
               type="text"
@@ -141,7 +143,7 @@ class Options extends React.Component {
   showPermissionNoteIfHistoryPermissionDenied() {
     if (!this.state.hasHistoryPermission) {
       return (<div className="header__links">
-        <a href='#' className="header__note" onClick={this.requestHistoryPermission}>Request Permission for history</a>
+        <a href='#' className="header__note" onClick={this.requestHistoryPermission}>Request optional permission for this extension</a>
       </div>)
     }
   }

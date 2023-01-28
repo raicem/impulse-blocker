@@ -52,7 +52,7 @@ export default class UrlHistoryInput extends React.Component {
 
     return searchPromise.then((historyItems) =>  {      
       // returning only history items with a title
-      return historyItems.filter((item) => item.title);;
+      return historyItems.filter((item) => item.title);
     })
     .catch(err => "");   
   }  
@@ -63,12 +63,18 @@ export default class UrlHistoryInput extends React.Component {
 
   // handle input change event
   handleInputChange(value) {
-    this.setState({inputValue: value}); }
+    this.setState({ inputValue: value });
+  }
   
-  // handle selection
+  // handle selection change event
   handleChange(value) {
-    this.setState({selectedValue: value})
+    this.setState({ selectedValue: value })
     this.props.onItemChange(value);
+  }
+
+  clearSelected() {
+    this.setState({ 
+      selectedValue: null});
   }
 
   getLabel(item) {
