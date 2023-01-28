@@ -104,7 +104,7 @@ class Options extends React.Component {
         domain: this.state.value,
       })
       .then(() => {
-        this.urlHistoryInputElement.current.clearSelected();
+        this.urlHistoryInputElement?.current?.clearSelected();
         this.setState((prevState) => ({
           blockedSites: [...prevState.blockedSites, this.state.value],
           value: '',
