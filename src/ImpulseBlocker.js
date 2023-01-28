@@ -164,7 +164,7 @@ class ImpulseBlocker {
     let domainToBlock = domain.replace(/.*\/\/(.*www\.)?/g, '').replace(/\/$/, '');
     return this.storageHandler.getBlockedWebsites().then(({ sites }) => {
       const updatedWebsites = [...sites, Website.create(domainToBlock)];
-      console.log(updatedWebsites);
+
       return this.storageHandler.setBlockedWebsites(updatedWebsites);
     });
   }
