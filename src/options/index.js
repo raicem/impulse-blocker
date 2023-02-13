@@ -80,11 +80,6 @@ class Options extends React.Component {
     .catch((_) => false);
   }
 
-  async revokeHistoryPermission(_) {
-    browser.permissions.remove({permissions: [this.historyPermission]})
-    .catch((_) => _);
-  }
-
   /**
    * @returns `true` if extension has the permission to read user's browser history. `false` otherwise.
    */
