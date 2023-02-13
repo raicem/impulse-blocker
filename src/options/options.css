@@ -63,6 +63,12 @@ h5 {
 	text-decoration: none;
 }
 
+.header__note {
+  font-size: 1rem;
+  padding: 2rem 0;
+  color: #FFCCCC;
+}
+
 .header__links-seperator {
   font-size: 1.5rem;
   margin: 0 0.3rem;

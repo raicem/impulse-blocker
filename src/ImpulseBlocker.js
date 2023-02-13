@@ -8,8 +8,7 @@ import { createMatchPatterns, redirectToBlockedPage } from './utils/functions';
 class ImpulseBlocker {
   constructor(storageHandler) {
     this.storageHandler = storageHandler;
-
-    this.boot = this.boot.bind(this);
+    this.boot = this.boot.bind(this);   
     this.onStorageUpdated = this.onStorageUpdated.bind(this);
     this.getState = this.getState.bind(this);
     this.updateStatus = this.updateStatus.bind(this);
@@ -20,7 +19,7 @@ class ImpulseBlocker {
 
   boot() {
     browser.storage.onChanged.addListener(this.onStorageUpdated);
-
+    
     return this.storageHandler.getStatus().then(async ({ status }) => {
       if (status === extensionStatus.ON) {
         return this.start(false);
@@ -52,7 +51,7 @@ class ImpulseBlocker {
       return this.start(false);
     });
   }
-
+  
   attachWebRequestListener() {
     return this.storageHandler.getBlockedWebsites().then(({ sites }) => {
       const domainsToBlock = createMatchPatterns(sites);
@@ -127,12 +126,12 @@ class ImpulseBlocker {
     });
   }
 
-  getBlockedDomains() {
+  async getBlockedDomains() {
     return this.storageHandler.getBlockedWebsites()
       .then((storage) => storage.sites.map((website) => website.domain));
   }
 
-  getState() {
+  async getState() {
     const promises = [
       this.storageHandler.getStatus(),
       this.storageHandler.getSettings(),
@@ -159,8 +158,10 @@ class ImpulseBlocker {
   }
 
   addToBlockList(domain) {
-    const domainToBlock = domain.replace(/.*www\./, '');
-
+    // removing the https and www and finally trailing 
+    // slashes which es necessary when domains are selected 
+    // from the history drop down menu
+    let domainToBlock = domain.replace(/.*\/\/(.*www\.)?/g, '').replace(/\/$/, '');
     return this.storageHandler.getBlockedWebsites().then(({ sites }) => {
       const updatedWebsites = [...sites, Website.create(domainToBlock)];
 
@@ -169,8 +170,10 @@ class ImpulseBlocker {
   }
 
   removeFromBlockList(domain) {
-    const domainToRemove = domain.replace(/.*www\./, '');
-
+    // removing the https and www and finally trailing 
+    // slashes which es necessary when domains are selected 
+    // from the history drop down menu
+    let domainToRemove = domain.replace(/.*\/\/(.*www\.)?/g, '').replace(/\/$/, '');
     return this.storageHandler.getBlockedWebsites().then((storage) => {
       const updatedWebsites = storage.sites.filter(
         (website) => website.domain !== domainToRemove,

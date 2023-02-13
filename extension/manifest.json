@@ -10,6 +10,9 @@
     "storage",
     "tabs"
   ],
+  "optional_permissions": [
+    "history"
+  ],
   "icons": {
     "48": "icons/icon48.png",
     "96": "icons/icon96.png"
