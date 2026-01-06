@@ -128,8 +128,8 @@ export default class PauseSection extends React.Component {
             <p className="pause-section__title">Pause for...</p>
             <div className="duration-buttons__row">
               <PauseButton
-                label="5 Minutes"
-                duration={5 * 60}
+                label="10 Seconds (dev)"
+                duration={10}
                 onClick={this.pauseExtension}
               />
               <PauseButton
