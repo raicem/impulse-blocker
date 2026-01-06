@@ -16,7 +16,7 @@ class ImpulseBlocker {
     this.start = this.start.bind(this);
     this.stop = this.stop.bind(this);
     this.getBlockedDomains = this.getBlockedDomains.bind(this);
-    this.refreshBlockedDomainTabs = this.refreshBlockedDomainTabs.bind(this);
+    this.refreshBlockedTabs = this.refreshBlockedTabs.bind(this);
   }
 
   boot() {
@@ -94,6 +94,7 @@ class ImpulseBlocker {
       redirectToBlockedPage,
     );
     await PopupIcon.off();
+    await this.enableBlockedTabs();
   }
 
   async start(setStatus = true) {
@@ -103,10 +104,15 @@ class ImpulseBlocker {
 
     await this.attachWebRequestListener();
     await PopupIcon.on();
+    await this.refreshBlockedTabs(); 
   }
 
-  async refreshBlockedDomainTabs() {
+  // Refreshes all tabs which are in the block list
+  // This triggers the Impulse Blocker window if they should be blocked
+  // Intended when starting the blocker or coming back from a pause
+  async refreshBlockedTabs() {
     // Get a list of open tabs which are in the block list
+    console.log("im logging here");
     const allTabs = await browser.tabs.query({});
     const blockedDomains = await this.getBlockedDomains();
     const tabsToRefresh = allTabs.filter((tab) => {
@@ -135,6 +141,32 @@ class ImpulseBlocker {
       browser.tabs.reload(tab.id);
     });
   }
+  
+  // Finds all active Impulse Blocker windows (sites in a blocked state) and replaces them with the site they are blocking
+  // Intended for automatically removing all the blocks from windows (during a pause or after turning blocker off)
+  async enableBlockedTabs() {
+    const allTabs = await browser.tabs.query({});
+    console.log(allTabs); 
+    for (const tab of allTabs) {
+      const tabUrl = new URL(tab.url);
+      console.log(tabUrl);
+      if(tabUrl.protocol === "moz-extension:") {
+        console.log("inside");
+        if (!tabUrl.searchParams.has("target")) {
+          console.warn("No target param found");
+        }
+        const target = tabUrl.searchParams.get("target"); 
+        console.log(target);
+        await browser.tabs.update(
+          tab.id,
+          {
+            loadReplace: true,
+            url: target
+          }
+        ); 
+      } 
+    }
+  }
 
   async pause(duration = 60 * 5, setStatus = true) {
     browser.webRequest.onBeforeRequest.removeListener(redirectToBlockedPage);
@@ -147,10 +179,10 @@ class ImpulseBlocker {
 
     await this.storageHandler.setPausedUntil(pausedUntil);
     await PopupIcon.off();
+    await this.enableBlockedTabs();
 
-    setTimeout(async () => {
-      await this.start();
-      await this.refreshBlockedDomainTabs();
+    setTimeout(() => {
+      this.start();
     }, 1000 * duration);
   }
 

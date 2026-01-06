@@ -3,7 +3,7 @@
     "watch": "webpack --mode=development --watch",
     "build": "webpack --mode=development",
     "release": "webpack --mode=development && web-ext build --source-dir extension --config web-ext-config.js",
-    "browser": "web-ext run --browser-console --source-dir extension",
+    "browser": "web-ext run --browser-console --source-dir extension --devtools",
     "test": "jest"
   },
   "devDependencies": {
