@@ -66,6 +66,10 @@ export default class PauseSection extends React.Component {
 
     const secondsToExpire = expiresAt.diff(currentDatetime, 'second');
 
+    if (secondsToExpire <= 0) {
+      clearInterval(this.countdownTimer);
+      this.props.onChange();
+    }
     this.setState({ secondsToExpire });
   }
 
@@ -128,8 +132,8 @@ export default class PauseSection extends React.Component {
             <p className="pause-section__title">Pause for...</p>
             <div className="duration-buttons__row">
               <PauseButton
-                label="10 Seconds (dev)"
-                duration={10}
+                label="5 Minutes"
+                duration={5 * 60}
                 onClick={this.pauseExtension}
               />
               <PauseButton
