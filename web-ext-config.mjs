@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   ignoreFiles: [
     'package.json',
     'package-lock.json',
