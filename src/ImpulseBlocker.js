@@ -104,7 +104,7 @@ class ImpulseBlocker {
 
     await this.attachWebRequestListener();
     await PopupIcon.on();
-    await this.refreshBlockedTabs(); 
+    await this.refreshBlockedTabs();
   }
 
   // Refreshes all tabs which are in the block list
@@ -112,7 +112,6 @@ class ImpulseBlocker {
   // Intended when starting the blocker or coming back from a pause
   async refreshBlockedTabs() {
     // Get a list of open tabs which are in the block list
-    console.log("im logging here");
     const allTabs = await browser.tabs.query({});
     const blockedDomains = await this.getBlockedDomains();
     const tabsToRefresh = allTabs.filter((tab) => {
@@ -141,30 +140,26 @@ class ImpulseBlocker {
       browser.tabs.reload(tab.id);
     });
   }
-  
+
   // Finds all active Impulse Blocker windows (sites in a blocked state) and replaces them with the site they are blocking
   // Intended for automatically removing all the blocks from windows (during a pause or after turning blocker off)
   async enableBlockedTabs() {
     const allTabs = await browser.tabs.query({});
-    console.log(allTabs); 
     for (const tab of allTabs) {
       const tabUrl = new URL(tab.url);
-      console.log(tabUrl);
-      if(tabUrl.protocol === "moz-extension:") {
-        console.log("inside");
+      if (tabUrl.protocol === "moz-extension:") {
         if (!tabUrl.searchParams.has("target")) {
-          console.warn("No target param found");
+          return;
         }
-        const target = tabUrl.searchParams.get("target"); 
-        console.log(target);
-        await browser.tabs.update(
+        const target = tabUrl.searchParams.get("target");
+        browser.tabs.update(
           tab.id,
           {
             loadReplace: true,
-            url: target
-          }
-        ); 
-      } 
+            url: target,
+          },
+        );
+      }
     }
   }
 
