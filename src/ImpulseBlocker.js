@@ -17,6 +17,7 @@ class ImpulseBlocker {
     this.stop = this.stop.bind(this);
     this.getBlockedDomains = this.getBlockedDomains.bind(this);
     this.refreshBlockedTabs = this.refreshBlockedTabs.bind(this);
+    this.enableBlockedTabs = this.enableBlockedTabs.bind(this);
   }
 
   boot() {
