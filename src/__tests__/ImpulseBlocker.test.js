@@ -21,6 +21,9 @@ global.browser = {
   browserAction: {
     setIcon: jest.fn(),
   },
+  tabs: {
+    query: jest.fn().mockResolvedValue([]),
+  },
 };
 
 beforeEach(() => {
@@ -28,6 +31,7 @@ beforeEach(() => {
   global.browser.webRequest.onBeforeRequest.removeListener.mockClear();
   global.browser.webRequest.onBeforeRequest.addListener.mockClear();
   global.browser.browserAction.setIcon.mockClear();
+  global.browser.tabs.query.mockClear();
 });
 
 test('it boots with paused status', () => {
