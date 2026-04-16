@@ -1,9 +1,9 @@
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 
-import extensionStatus from './enums/extensionStatus';
-import Website from './storage/Website';
-import PopupIcon from './PopupIcon';
-import { createMatchPatterns, redirectToBlockedPage } from './utils/functions';
+import extensionStatus from "./enums/extensionStatus";
+import Website from "./storage/Website";
+import PopupIcon from "./PopupIcon";
+import { createMatchPatterns, redirectToBlockedPage } from "./utils/functions";
 
 class ImpulseBlocker {
   constructor(storageHandler) {
@@ -16,6 +16,8 @@ class ImpulseBlocker {
     this.start = this.start.bind(this);
     this.stop = this.stop.bind(this);
     this.getBlockedDomains = this.getBlockedDomains.bind(this);
+    this.refreshBlockedTabs = this.refreshBlockedTabs.bind(this);
+    this.enableBlockedTabs = this.enableBlockedTabs.bind(this);
   }
 
   boot() {
@@ -39,7 +41,7 @@ class ImpulseBlocker {
 
           const pausedUntilParsed = dayjs(pausedUntil);
 
-          const differenceFromNow = pausedUntilParsed.diff(dayjs(), 'second');
+          const differenceFromNow = pausedUntilParsed.diff(dayjs(), "second");
 
           if (differenceFromNow < 0) {
             return this.start(false);
@@ -61,8 +63,8 @@ class ImpulseBlocker {
       if (domainsToBlock.length > 0) {
         browser.webRequest.onBeforeRequest.addListener(
           redirectToBlockedPage,
-          { urls: domainsToBlock, types: ['main_frame'] },
-          ['blocking'],
+          { urls: domainsToBlock, types: ["main_frame"] },
+          ["blocking"],
         );
       }
 
@@ -72,7 +74,7 @@ class ImpulseBlocker {
 
   onStorageUpdated(changes) {
     if (changes.sites === undefined) {
-      return Promise.resolve('No need for action');
+      return Promise.resolve("No need for action");
     }
 
     return this.storageHandler.getStatus().then(({ status }) => {
@@ -80,7 +82,7 @@ class ImpulseBlocker {
         return this.attachWebRequestListener();
       }
 
-      return Promise.resolve('No need for action');
+      return Promise.resolve("No need for action");
     });
   }
 
@@ -89,8 +91,11 @@ class ImpulseBlocker {
       await this.storageHandler.setStatus(extensionStatus.OFF);
     }
 
-    await browser.webRequest.onBeforeRequest.removeListener(redirectToBlockedPage);
+    await browser.webRequest.onBeforeRequest.removeListener(
+      redirectToBlockedPage,
+    );
     await PopupIcon.off();
+    await this.enableBlockedTabs();
   }
 
   async start(setStatus = true) {
@@ -100,12 +105,76 @@ class ImpulseBlocker {
 
     await this.attachWebRequestListener();
     await PopupIcon.on();
+    await this.refreshBlockedTabs();
+  }
+
+  // Refreshes all tabs which are in the block list
+  // This triggers the Impulse Blocker window if they should be blocked
+  // Intended when starting the blocker or coming back from a pause
+  async refreshBlockedTabs() {
+    // Get a list of open tabs which are in the block list
+    const allTabs = await browser.tabs.query({});
+    const blockedDomains = await this.getBlockedDomains();
+    const tabsToRefresh = allTabs.filter((tab) => {
+      if (!tab.url) {
+        return false;
+      }
+      try {
+        const tabUrl = new URL(tab.url);
+        const tabDomain = tabUrl.hostname.replace(/^www\./, "");
+
+        return blockedDomains.some((blockedDomain) => {
+          const cleanedBlockedDomain = blockedDomain.replace(/^www\./, "");
+          return (
+            tabDomain === cleanedBlockedDomain ||
+            tabDomain.endsWith(`.${cleanedBlockedDomain}`)
+          );
+        });
+      } catch (e) {
+        // Invalid URL, skip this tab
+        return false;
+      }
+    });
+
+    // Refresh each tab with a blocked domain
+    tabsToRefresh.forEach((tab) => {
+      browser.tabs.reload(tab.id);
+    });
+  }
+ 
+  // Finds all active Impulse Blocker windows (sites in a blocked state) and replaces them with the site they are blocking
+  // Intended for automatically removing all the blocks from windows (during a pause or after turning blocker off)
+  async enableBlockedTabs() {
+    const allTabs = await browser.tabs.query({});
+    allTabs.forEach((tab) => {
+      if (!tab.url) {
+        return;
+      }
+      try {
+        const tabUrl = new URL(tab.url);
+        if (tabUrl.protocol === "moz-extension:") {
+          if (!tabUrl.searchParams.has("target")) {
+            return;
+          }
+          const target = tabUrl.searchParams.get("target");
+          browser.tabs.update(
+            tab.id,
+            {
+              loadReplace: true,
+              url: target,
+            },
+          );
+        }
+      } catch (e) {
+        return;
+      }
+    });
   }
 
   async pause(duration = 60 * 5, setStatus = true) {
     browser.webRequest.onBeforeRequest.removeListener(redirectToBlockedPage);
 
-    const pausedUntil = dayjs().add(duration, 'seconds');
+    const pausedUntil = dayjs().add(duration, "seconds");
 
     if (setStatus) {
       await this.storageHandler.setStatus(extensionStatus.PAUSED);
@@ -113,6 +182,7 @@ class ImpulseBlocker {
 
     await this.storageHandler.setPausedUntil(pausedUntil);
     await PopupIcon.off();
+    await this.enableBlockedTabs();
 
     setTimeout(() => {
       this.start();
@@ -128,7 +198,8 @@ class ImpulseBlocker {
   }
 
   getBlockedDomains() {
-    return this.storageHandler.getBlockedWebsites()
+    return this.storageHandler
+      .getBlockedWebsites()
       .then((storage) => storage.sites.map((website) => website.domain));
   }
 
@@ -159,7 +230,7 @@ class ImpulseBlocker {
   }
 
   addToBlockList(domain) {
-    const domainToBlock = domain.replace(/.*www\./, '');
+    const domainToBlock = domain.replace(/.*www\./, "");
 
     return this.storageHandler.getBlockedWebsites().then(({ sites }) => {
       const updatedWebsites = [...sites, Website.create(domainToBlock)];
@@ -169,7 +240,7 @@ class ImpulseBlocker {
   }
 
   removeFromBlockList(domain) {
-    const domainToRemove = domain.replace(/.*www\./, '');
+    const domainToRemove = domain.replace(/.*www\./, "");
 
     return this.storageHandler.getBlockedWebsites().then((storage) => {
       const updatedWebsites = storage.sites.filter(

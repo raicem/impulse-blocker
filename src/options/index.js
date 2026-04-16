@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './options.css';
 
 import MessageTypes from '../enums/messages';
 import DomainListItem from './components/DomainListItem';
