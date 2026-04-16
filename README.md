@@ -14,7 +14,7 @@ If you want to build the extension yourself using the source code, follow these 
 
 ### Dependencies
 
-Make sure you have `node` (version 11) and `npm` (version 6) installed on your machine.
+Make sure you have Node.js `24.x` installed on your machine. This repository includes an `.nvmrc` file so version managers such as `fnm` and `nvm` can switch to the tested version automatically.
 
 Then clone this repository:
 
