@@ -62,10 +62,6 @@ form {
   color: white;
 }
 
-.button:hover, .button:focus {
-  filter: invert(1.0);
-}
-
 .button-add {
   background-color: darkgreen;
 }
