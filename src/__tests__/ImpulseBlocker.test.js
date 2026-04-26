@@ -27,6 +27,7 @@ global.browser = {
 };
 
 beforeEach(() => {
+  jest.useRealTimers();
   global.browser.storage.onChanged.addListener.mockClear();
   global.browser.webRequest.onBeforeRequest.removeListener.mockClear();
   global.browser.webRequest.onBeforeRequest.addListener.mockClear();
@@ -110,6 +111,43 @@ test('blocker can be started', () => {
   });
 });
 
+test('blocker ignores malformed stored domains when attaching listener', () => {
+  storageHandler.getBlockedWebsites = jest.fn().mockResolvedValue({
+    sites: [
+      Website.create('example.com'),
+      Website.create('ftp://invalid.example.com'),
+    ],
+  });
+
+  const blocker = new ImpulseBlocker(storageHandler);
+
+  return blocker.attachWebRequestListener().then(() => {
+    expect(global.browser.webRequest.onBeforeRequest.removeListener).toHaveBeenCalledTimes(1);
+    expect(global.browser.webRequest.onBeforeRequest.addListener).toHaveBeenCalledTimes(1);
+    expect(global.browser.webRequest.onBeforeRequest.addListener.mock.calls[0][1]).toStrictEqual({
+      urls: ['*://*.example.com/*'],
+      types: ['main_frame'],
+    });
+  });
+});
+
+test('stopping blocker clears pending pause timeout', () => {
+  jest.useFakeTimers();
+
+  storageHandler.setStatus = jest.fn().mockResolvedValue(true);
+  storageHandler.setPausedUntil = jest.fn().mockResolvedValue(true);
+
+  const blocker = new ImpulseBlocker(storageHandler);
+  blocker.start = jest.fn();
+
+  return blocker.pause(60).then(() => blocker.stop()).then(() => {
+    jest.advanceTimersByTime(60 * 1000);
+
+    expect(blocker.start).toHaveBeenCalledTimes(0);
+    jest.useRealTimers();
+  });
+});
+
 test('it can check if domain is blocked or not', () => {
   const blockedDomain = 'example.com';
   const notBlockedDomain = 'test.com';
@@ -153,6 +191,32 @@ test('it can add new websites to the block list', () => {
   return impulseBlocker.addToBlockList(newWebsiteToBlock).then(() => {
     expect(storageHandler.getBlockedWebsites).toHaveBeenCalledTimes(1);
     expect(storageHandler.setBlockedWebsites).toHaveBeenCalledTimes(1);
+  });
+});
+
+test('it normalizes urls before adding them to the block list', () => {
+  storageHandler.getBlockedWebsites = jest.fn().mockResolvedValue({ sites: [] });
+  storageHandler.setBlockedWebsites = jest.fn().mockResolvedValue();
+
+  const impulseBlocker = new ImpulseBlocker(storageHandler);
+
+  return impulseBlocker.addToBlockList('https://www.example.com:8080/articles').then((domain) => {
+    expect(domain).toBe('example.com');
+    expect(storageHandler.setBlockedWebsites).toHaveBeenCalledWith([
+      expect.objectContaining({ domain: 'example.com' }),
+    ]);
+  });
+});
+
+test('it rejects non-http urls before adding them to the block list', () => {
+  storageHandler.getBlockedWebsites = jest.fn();
+  storageHandler.setBlockedWebsites = jest.fn();
+
+  const impulseBlocker = new ImpulseBlocker(storageHandler);
+
+  return expect(impulseBlocker.addToBlockList('ftp://example.com')).rejects.toThrow().then(() => {
+    expect(storageHandler.getBlockedWebsites).toHaveBeenCalledTimes(0);
+    expect(storageHandler.setBlockedWebsites).toHaveBeenCalledTimes(0);
   });
 });
 

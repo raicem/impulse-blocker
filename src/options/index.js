@@ -55,9 +55,9 @@ class Options extends React.Component {
         type: MessageTypes.START_BLOCKING_DOMAIN,
         domain: this.state.value,
       })
-      .then(() => {
+      .then((domain) => {
         this.setState((prevState) => ({
-          blockedSites: [...prevState.blockedSites, this.state.value],
+          blockedSites: [...prevState.blockedSites, domain],
           value: '',
         }));
       });

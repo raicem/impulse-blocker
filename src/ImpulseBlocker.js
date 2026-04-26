@@ -8,6 +8,7 @@ import { createMatchPatterns, redirectToBlockedPage } from "./utils/functions";
 class ImpulseBlocker {
   constructor(storageHandler) {
     this.storageHandler = storageHandler;
+    this.pauseTimer = null;
 
     this.boot = this.boot.bind(this);
     this.onStorageUpdated = this.onStorageUpdated.bind(this);
@@ -18,6 +19,39 @@ class ImpulseBlocker {
     this.getBlockedDomains = this.getBlockedDomains.bind(this);
     this.refreshBlockedTabs = this.refreshBlockedTabs.bind(this);
     this.enableBlockedTabs = this.enableBlockedTabs.bind(this);
+    this.clearPauseTimer = this.clearPauseTimer.bind(this);
+  }
+
+  static normalizeDomain(domain) {
+    const trimmedDomain = domain.trim();
+    const hasProtocol = /^[a-z][a-z\d+.-]*:\/\//i.test(trimmedDomain);
+
+    if (hasProtocol && !/^https?:\/\//i.test(trimmedDomain)) {
+      throw new Error(`Unsupported domain: ${domain}`);
+    }
+
+    const url = new URL(
+      hasProtocol ? trimmedDomain : `https://${trimmedDomain}`,
+    );
+
+    if (!["http:", "https:"].includes(url.protocol)) {
+      throw new Error(`Unsupported domain protocol: ${url.protocol}`);
+    }
+
+    const hostname = url.hostname.replace(/^www\./i, "").replace(/\.$/, "").toLowerCase();
+
+    if (!hostname) {
+      throw new Error("Domain cannot be empty");
+    }
+
+    return hostname;
+  }
+
+  clearPauseTimer() {
+    if (this.pauseTimer !== null) {
+      clearTimeout(this.pauseTimer);
+      this.pauseTimer = null;
+    }
   }
 
   boot() {
@@ -57,7 +91,17 @@ class ImpulseBlocker {
 
   attachWebRequestListener() {
     return this.storageHandler.getBlockedWebsites().then(({ sites }) => {
-      const domainsToBlock = createMatchPatterns(sites);
+      const normalizedSites = sites.reduce((accumulator, site) => {
+        try {
+          return [
+            ...accumulator,
+            { ...site, domain: ImpulseBlocker.normalizeDomain(site.domain) },
+          ];
+        } catch (e) {
+          return accumulator;
+        }
+      }, []);
+      const domainsToBlock = createMatchPatterns(normalizedSites);
       browser.webRequest.onBeforeRequest.removeListener(redirectToBlockedPage);
 
       if (domainsToBlock.length > 0) {
@@ -87,6 +131,8 @@ class ImpulseBlocker {
   }
 
   async stop(setStatus = true) {
+    this.clearPauseTimer();
+
     if (setStatus) {
       await this.storageHandler.setStatus(extensionStatus.OFF);
     }
@@ -99,6 +145,8 @@ class ImpulseBlocker {
   }
 
   async start(setStatus = true) {
+    this.clearPauseTimer();
+
     if (setStatus) {
       await this.storageHandler.setStatus(extensionStatus.ON);
     }
@@ -172,6 +220,7 @@ class ImpulseBlocker {
   }
 
   async pause(duration = 60 * 5, setStatus = true) {
+    this.clearPauseTimer();
     browser.webRequest.onBeforeRequest.removeListener(redirectToBlockedPage);
 
     const pausedUntil = dayjs().add(duration, "seconds");
@@ -184,7 +233,8 @@ class ImpulseBlocker {
     await PopupIcon.off();
     await this.enableBlockedTabs();
 
-    setTimeout(() => {
+    this.pauseTimer = setTimeout(() => {
+      this.pauseTimer = null;
       this.start();
     }, 1000 * duration);
   }
@@ -230,17 +280,31 @@ class ImpulseBlocker {
   }
 
   addToBlockList(domain) {
-    const domainToBlock = domain.replace(/.*www\./, "");
+    let domainToBlock;
+
+    try {
+      domainToBlock = ImpulseBlocker.normalizeDomain(domain);
+    } catch (e) {
+      return Promise.reject(e);
+    }
 
     return this.storageHandler.getBlockedWebsites().then(({ sites }) => {
       const updatedWebsites = [...sites, Website.create(domainToBlock)];
 
-      return this.storageHandler.setBlockedWebsites(updatedWebsites);
+      return this.storageHandler
+        .setBlockedWebsites(updatedWebsites)
+        .then(() => domainToBlock);
     });
   }
 
   removeFromBlockList(domain) {
-    const domainToRemove = domain.replace(/.*www\./, "");
+    let domainToRemove;
+
+    try {
+      domainToRemove = ImpulseBlocker.normalizeDomain(domain);
+    } catch (e) {
+      return Promise.reject(e);
+    }
 
     return this.storageHandler.getBlockedWebsites().then((storage) => {
       const updatedWebsites = storage.sites.filter(
