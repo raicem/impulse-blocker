@@ -4,7 +4,9 @@ Block distracting websites when you are browsing the web. Written using [WebExte
 
 ## Installation and Usage
 
-If you want to install and use the extension please head over to [here](https://addons.mozilla.org/en-US/firefox/addon/impulse-blocker/).
+**Recommended: install Impulse Blocker from the official Firefox Add-ons listing.**
+
+[Install from Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/impulse-blocker/)
 
 Simple usage guide can be found [here](https://blog.cemunalan.com.tr/2017/05/17/impulse-blocker-guide/).
 
@@ -36,7 +38,7 @@ npm run release
 
 This will create a zip file in the `web-ext-artifacts` folder. This file contains everything the Firefox needs to run the extension. You can install it following instructions [here](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/Distribution) and [here](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Distribution_options/Sideloading_add-ons).
 
-Again just a reminder, you can install the extension from the official [add-ons page](https://addons.mozilla.org/en-US/firefox/addon/impulse-blocker/). Simple usage instructions are [here](https://blog.cemunalan.com.tr/2017/05/17/impulse-blocker-guide/).
+Again, you can install the extension from the official [Firefox Add-ons page](https://addons.mozilla.org/en-US/firefox/addon/impulse-blocker/). Simple usage instructions are [here](https://blog.cemunalan.com.tr/2017/05/17/impulse-blocker-guide/).
 
 ## Contributing
 
