@@ -70,7 +70,7 @@ class ImpulseBlocker {
         /* pausedUntil format is 2021-01-10T11:52:32.067Z */
         return this.storageHandler.getPausedUntil().then(({ pausedUntil }) => {
           if (!pausedUntil) {
-            return this.start(false);
+            return this.start();
           }
 
           const pausedUntilParsed = dayjs(pausedUntil);
@@ -78,7 +78,7 @@ class ImpulseBlocker {
           const differenceFromNow = pausedUntilParsed.diff(dayjs(), "second");
 
           if (differenceFromNow < 0) {
-            return this.start(false);
+            return this.start();
           }
 
           return this.pause(differenceFromNow, false);

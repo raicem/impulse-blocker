@@ -72,6 +72,25 @@ test('it boots with blocker on when pausedUntil is expired', () => {
 
     expect(impulseBlocker.pause).toHaveBeenCalledTimes(0);
     expect(impulseBlocker.start).toHaveBeenCalledTimes(1);
+    expect(impulseBlocker.start).toHaveBeenCalledWith();
+  });
+});
+
+test('it boots with blocker on when paused status has no pausedUntil', () => {
+  storageHandler.getStatus = jest.fn().mockResolvedValue({ status: extensionStatus.PAUSED });
+  storageHandler.getPausedUntil = jest.fn().mockResolvedValue({});
+
+  const impulseBlocker = new ImpulseBlocker(storageHandler);
+  impulseBlocker.pause = jest.fn();
+  impulseBlocker.start = jest.fn();
+
+  return impulseBlocker.boot().then(() => {
+    expect(storageHandler.getStatus).toHaveBeenCalledTimes(1);
+    expect(storageHandler.getPausedUntil).toHaveBeenCalledTimes(1);
+
+    expect(impulseBlocker.pause).toHaveBeenCalledTimes(0);
+    expect(impulseBlocker.start).toHaveBeenCalledTimes(1);
+    expect(impulseBlocker.start).toHaveBeenCalledWith();
   });
 });
 
