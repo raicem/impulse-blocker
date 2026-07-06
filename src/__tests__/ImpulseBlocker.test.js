@@ -23,6 +23,8 @@ global.browser = {
   },
   tabs: {
     query: jest.fn().mockResolvedValue([]),
+    reload: jest.fn(),
+    update: jest.fn(),
   },
 };
 
@@ -33,6 +35,8 @@ beforeEach(() => {
   global.browser.webRequest.onBeforeRequest.addListener.mockClear();
   global.browser.browserAction.setIcon.mockClear();
   global.browser.tabs.query.mockClear();
+  global.browser.tabs.reload.mockClear();
+  global.browser.tabs.update.mockClear();
 });
 
 test('it boots with paused status', () => {
@@ -147,6 +151,79 @@ test('blocker ignores malformed stored domains when attaching listener', () => {
       urls: ['*://*.example.com/*'],
       types: ['main_frame'],
     });
+  });
+});
+
+test('refreshBlockedTabs reloads matching loaded tabs', () => {
+  storageHandler.getBlockedWebsites = jest.fn().mockResolvedValue({
+    sites: [Website.create('example.com')],
+  });
+  global.browser.tabs.query = jest.fn().mockResolvedValue([
+    { id: 1, url: 'https://example.com/feed', discarded: false },
+    { id: 2, url: 'https://unblocked.com/feed', discarded: false },
+  ]);
+
+  const blocker = new ImpulseBlocker(storageHandler);
+
+  return blocker.refreshBlockedTabs().then(() => {
+    expect(global.browser.tabs.reload).toHaveBeenCalledTimes(1);
+    expect(global.browser.tabs.reload).toHaveBeenCalledWith(1);
+  });
+});
+
+test('refreshBlockedTabs does not reload matching discarded tabs', () => {
+  storageHandler.getBlockedWebsites = jest.fn().mockResolvedValue({
+    sites: [Website.create('example.com')],
+  });
+  global.browser.tabs.query = jest.fn().mockResolvedValue([
+    { id: 1, url: 'https://example.com/feed', discarded: true },
+  ]);
+
+  const blocker = new ImpulseBlocker(storageHandler);
+
+  return blocker.refreshBlockedTabs().then(() => {
+    expect(global.browser.tabs.reload).toHaveBeenCalledTimes(0);
+  });
+});
+
+test('enableBlockedTabs updates matching loaded redirect tabs', () => {
+  global.browser.tabs.query = jest.fn().mockResolvedValue([
+    {
+      id: 1,
+      url: 'moz-extension://abc/resources/redirect.html?target=https%3A%2F%2Fexample.com%2Ffeed',
+      discarded: false,
+    },
+    {
+      id: 2,
+      url: 'https://example.com/feed',
+      discarded: false,
+    },
+  ]);
+
+  const blocker = new ImpulseBlocker(storageHandler);
+
+  return blocker.enableBlockedTabs().then(() => {
+    expect(global.browser.tabs.update).toHaveBeenCalledTimes(1);
+    expect(global.browser.tabs.update).toHaveBeenCalledWith(1, {
+      loadReplace: true,
+      url: 'https://example.com/feed',
+    });
+  });
+});
+
+test('enableBlockedTabs does not update matching discarded redirect tabs', () => {
+  global.browser.tabs.query = jest.fn().mockResolvedValue([
+    {
+      id: 1,
+      url: 'moz-extension://abc/resources/redirect.html?target=https%3A%2F%2Fexample.com%2Ffeed',
+      discarded: true,
+    },
+  ]);
+
+  const blocker = new ImpulseBlocker(storageHandler);
+
+  return blocker.enableBlockedTabs().then(() => {
+    expect(global.browser.tabs.update).toHaveBeenCalledTimes(0);
   });
 });
 

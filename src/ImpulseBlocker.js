@@ -164,7 +164,7 @@ class ImpulseBlocker {
     const allTabs = await browser.tabs.query({});
     const blockedDomains = await this.getBlockedDomains();
     const tabsToRefresh = allTabs.filter((tab) => {
-      if (!tab.url) {
+      if (!tab.url || tab.discarded) {
         return false;
       }
       try {
@@ -195,7 +195,7 @@ class ImpulseBlocker {
   async enableBlockedTabs() {
     const allTabs = await browser.tabs.query({});
     allTabs.forEach((tab) => {
-      if (!tab.url) {
+      if (!tab.url || tab.discarded) {
         return;
       }
       try {
