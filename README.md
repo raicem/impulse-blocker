@@ -40,6 +40,33 @@ This will create a zip file in the `web-ext-artifacts` folder. This file contain
 
 Again, you can install the extension from the official [Firefox Add-ons page](https://addons.mozilla.org/en-US/firefox/addon/impulse-blocker/). Simple usage instructions are [here](https://blog.cemunalan.com.tr/2017/05/17/impulse-blocker-guide/).
 
+### Mozilla source code submission
+
+This extension uses Webpack, Babel, and CSS loaders to generate the files in `extension/dist`, so Mozilla reviewers need the source code package as well as the built extension package.
+
+Build environment requirements:
+
+- Node.js `24.x`; install it from [nodejs.org](https://nodejs.org/) or use a version manager such as `nvm` or `fnm` with the included `.nvmrc`.
+- npm, included with Node.js.
+
+To create the source code package for Mozilla reviewers:
+
+```bash
+npm install
+npm run source
+```
+
+This creates `web-ext-artifacts/impulse-blocker-<version>-source.zip`. Upload that ZIP as the source code package in AMO.
+
+To rebuild the submitted extension package from that source package:
+
+```bash
+npm install
+npm run release
+```
+
+This rebuilds the extension files with Webpack and creates the installable extension ZIP in `web-ext-artifacts`.
+
 ## Contributing
 
 The extension is open for any kinds of contribution. Please note that it requires a basic knowledge about [WebExtensions API](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons) and [React](https://reactjs.org/).
