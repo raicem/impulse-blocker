@@ -4,7 +4,8 @@
     "build": "webpack --mode=development",
     "release": "webpack --mode=development && web-ext build --source-dir extension --config web-ext-config.mjs",
     "source": "node scripts/package-source.js",
-    "browser": "web-ext run --browser-console --source-dir extension --devtools",
+    "browser": "web-ext run --source-dir extension",
+    "browser:debug": "web-ext run --browser-console --source-dir extension --devtools",
     "test": "jest"
   },
   "engines": {

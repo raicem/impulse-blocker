@@ -77,6 +77,8 @@ After following the steps explained in the Building section above, all you have 
 
 `npm run browser` will load the built files into the isolated Firefox instance and you will be able to see the changes you make immediately.
 
+To also open Firefox's browser console and extension developer tools, run `npm run browser:debug` instead.
+
 ## Testing
 
 Make sure you run through these steps to make sure the extension works.
