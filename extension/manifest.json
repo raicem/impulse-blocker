@@ -18,7 +18,7 @@
     "page": "options.html",
     "open_in_tab": true
   },
-  "web_accessible_resources": ["redirect.html"],
+  "web_accessible_resources": ["resources/redirect.html"],
   "background": {
     "scripts": ["dist/background.bundle.js"]
   },

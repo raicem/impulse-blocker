@@ -9,7 +9,7 @@ export function redirectToBlockedPage(requestDetails) {
 
   const interceptPage = `/resources/redirect.html?target=${original}&theme=${theme}`;
 
-  browser.tabs.update(requestDetails.tabId, { url: interceptPage });
+  return { redirectUrl: browser.runtime.getURL(interceptPage) };
 }
 
 export function createMatchPatterns(sites) {
