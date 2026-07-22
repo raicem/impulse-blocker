@@ -4,6 +4,10 @@ export function openOptionsPage() {
 }
 
 export function redirectToBlockedPage(requestDetails) {
+  if (['POST', 'PUT', 'PATCH'].includes(requestDetails.method)) {
+    return {};
+  }
+
   const original = encodeURIComponent(requestDetails.url);
   const theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 
