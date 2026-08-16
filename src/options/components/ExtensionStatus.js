@@ -8,37 +8,40 @@ export default function ExtensionStatus(props) {
     <div>
       {props.status === ExtensionStatusTypes.ON && (
         <div className="extension-status extension-status--on">
+          <span className="extension-status__dot" aria-hidden="true" />
           <div className="extension-status__text">
-            <h2 className="extension-status__title">Blocker is On.</h2>
-            <p>Blocked websites listed below will not be accessible.</p>
+            <h2 className="extension-status__title">Blocker is on</h2>
+            <p>Blocked sites will not be accessible.</p>
           </div>
           <ExtenisonStatusButton
             onClick={() => props.onStatusUpdate(ExtensionStatusTypes.OFF)}
-            value="Turn Off Blocker"
+            value="Turn blocker off"
           />
         </div>
       )}
       {props.status === ExtensionStatusTypes.OFF && (
         <div className="extension-status extension-status--off">
+          <span className="extension-status__dot" aria-hidden="true" />
           <div className="extension-status__text">
-            <h2 className="extension-status__title">Blocker is Off.</h2>
-            <p>Blocked websites listed below will be accessible.</p>
+            <h2 className="extension-status__title">Blocker is off</h2>
+            <p>Blocked sites will open as usual.</p>
           </div>
           <ExtenisonStatusButton
             onClick={() => props.onStatusUpdate(ExtensionStatusTypes.ON)}
-            value="Turn On Blocker"
+            value="Turn blocker on"
           />
         </div>
       )}
       {props.status === ExtensionStatusTypes.PAUSED && (
         <div className="extension-status extension-status--paused">
+          <span className="extension-status__dot" aria-hidden="true" />
           <div className="extension-status__text">
-            <h2 className="extension-status__title">Blocker is Paused.</h2>
-            <p>Blocked websites listed below will be accessible.</p>
+            <h2 className="extension-status__title">Blocker is paused</h2>
+            <p>Blocked sites will open as usual while the blocker is paused.</p>
           </div>
           <ExtenisonStatusButton
             onClick={() => props.onStatusUpdate(ExtensionStatusTypes.ON)}
-            value="Cancel Pause"
+            value="Cancel pause"
           />
         </div>
       )}

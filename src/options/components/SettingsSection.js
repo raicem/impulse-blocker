@@ -66,11 +66,10 @@ export default class SettingsSection extends React.Component {
   render() {
     return (
       <div className="settings">
-        <h3 className="settings__header">Extension Settings</h3>
+        <h3 className="settings__header">Settings</h3>
         <hr />
         <form>
           <div className="form-group">
-            <label htmlFor="onOffButton">Show On/Off Buttons in Popup</label>
             <input
               id="onOffButton"
               name="onOffButton"
@@ -85,9 +84,14 @@ export default class SettingsSection extends React.Component {
                 );
               }}
             />
+            <div className="form-group__text">
+              <label htmlFor="onOffButton">Show on/off buttons in popup</label>
+              <p className="form-group__description">
+                Adds buttons to turn the blocker on and off from the popup.
+              </p>
+            </div>
           </div>
           <div className="form-group">
-            <label htmlFor="pauseButtons">Show Pause Buttons in Popup</label>
             <input
               id="pauseButtons"
               name="pauseButtons"
@@ -102,9 +106,15 @@ export default class SettingsSection extends React.Component {
                 );
               }}
             />
+            <div className="form-group__text">
+              <label htmlFor="pauseButtons">Show pause buttons in popup</label>
+              <p className="form-group__description">
+                Adds buttons to pause the blocker for a set time from the
+                popup.
+              </p>
+            </div>
           </div>
           <div className="form-group">
-            <label htmlFor="holdToConfirm">Hold to Confirm Pause</label>
             <input
               id="holdToConfirm"
               name="holdToConfirm"
@@ -119,6 +129,12 @@ export default class SettingsSection extends React.Component {
                 );
               }}
             />
+            <div className="form-group__text">
+              <label htmlFor="holdToConfirm">Hold to confirm pause</label>
+              <p className="form-group__description">
+                Requires holding a pause button before the pause starts.
+              </p>
+            </div>
           </div>
         </form>
       </div>

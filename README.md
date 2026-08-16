@@ -81,6 +81,28 @@ To also open Firefox's browser console and extension developer tools, run `npm r
 
 ## Testing
 
+Run the unit tests with:
+
+```bash
+npm test
+```
+
+Run the automated Firefox extension smoke test with:
+
+```bash
+npm run test:e2e
+```
+
+The end-to-end test builds the extension, launches an isolated headless Firefox
+profile, installs the extension temporarily, and checks its options page and
+persisted settings, then verifies blocking behavior against a local test
+server. Firefox must be installed. On a failure, diagnostics are written under
+`test-results/e2e-firefox`. Selenium Manager may download GeckoDriver the first
+time the test runs.
+
+`npm run browser` remains the interactive development command; it does not
+finish on its own or report a test result.
+
 Make sure you run through these steps to make sure the extension works.
 
 Impulse Blocker testing
