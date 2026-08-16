@@ -11,19 +11,28 @@ import PauseButton from './PauseButton';
 import DisabledPauseButton from './DisabledPauseButton';
 import CancelPauseButton from './CancelPauseButton';
 
+const HOLD_NOTICE_DURATION_MS = 5000;
+
 // TODO: Add prop types
 export default class PauseSection extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { secondsToExpire: 0 };
+    this.state = { secondsToExpire: 0, showHoldNotice: false };
 
     this.defaultDuration = 5 * 60;
+    this.holdNoticeTimer = null;
 
     this.pauseExtension = this.pauseExtension.bind(this);
     this.unpauseExtension = this.unpauseExtension.bind(this);
     this.calculateTimeRemaining = this.calculateTimeRemaining.bind(this);
     this.startCountdownTimer = this.startCountdownTimer.bind(this);
+    this.handleHoldAborted = this.handleHoldAborted.bind(this);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.countdownTimer);
+    clearTimeout(this.holdNoticeTimer);
   }
 
   componentDidUpdate(prevProps) {
@@ -79,6 +88,14 @@ export default class PauseSection extends React.Component {
       () => this.calculateTimeRemaining(),
       1000,
     );
+  }
+
+  handleHoldAborted() {
+    clearTimeout(this.holdNoticeTimer);
+    this.setState({ showHoldNotice: true });
+    this.holdNoticeTimer = setTimeout(() => {
+      this.setState({ showHoldNotice: false });
+    }, HOLD_NOTICE_DURATION_MS);
   }
 
   remainingTime() {
@@ -155,6 +172,7 @@ export default class PauseSection extends React.Component {
         duration={option.duration}
         holdDuration={holdDuration}
         onConfirm={this.pauseExtension}
+        onHoldAborted={this.handleHoldAborted}
       />
     ) : (
       <PauseButton
@@ -176,6 +194,14 @@ export default class PauseSection extends React.Component {
             <div className="duration-buttons__row">
               {pauseOptions.slice(3).map(pauseButton)}
             </div>
+            {holdToConfirm && (
+              <p
+                className={`pause-section__notice${this.state.showHoldNotice ? ' pause-section__notice--visible' : ''}`}
+                role="status"
+              >
+                {this.state.showHoldNotice && 'Press and hold a button to start the pause.'}
+              </p>
+            )}
           </div>
         )}
         {this.props.extensionStatus === ExtensionStatusTypes.OFF && (

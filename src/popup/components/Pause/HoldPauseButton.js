@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 
 import { MIN_HOLD_DURATION_MS } from '../../../utils/holdDuration';
 
+const HOLD_NOTICE_THRESHOLD_MS = 1000;
+
 export default class HoldPauseButton extends React.Component {
   constructor(props) {
     super(props);
@@ -63,8 +65,19 @@ export default class HoldPauseButton extends React.Component {
   }
 
   cancelHold() {
+    const wasHolding = this.state.holding;
+    const heldForMs = Date.now() - this.holdStartedAt;
+
     this.stopHoldTimer();
     this.setState({ holding: false, progress: 0 });
+
+    if (
+      wasHolding
+      && heldForMs < HOLD_NOTICE_THRESHOLD_MS
+      && this.props.onHoldAborted
+    ) {
+      this.props.onHoldAborted();
+    }
   }
 
   render() {
@@ -124,4 +137,5 @@ HoldPauseButton.propTypes = {
   duration: PropTypes.number,
   holdDuration: PropTypes.number,
   onConfirm: PropTypes.func,
+  onHoldAborted: PropTypes.func,
 };

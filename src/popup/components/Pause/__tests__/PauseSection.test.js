@@ -12,6 +12,12 @@ global.browser = {
   },
 };
 
+jest.useFakeTimers();
+
+afterEach(() => {
+  jest.clearAllTimers();
+});
+
 function renderPauseSection(extensionSettings = []) {
   return TestRenderer.create(
     <PauseSection
@@ -45,6 +51,57 @@ test('it renders instant pause buttons when the hold to confirm setting is off',
 
   expect(renderer.root.findAllByType(HoldPauseButton).length).toBe(0);
   expect(renderer.root.findAllByType('button').length).toBe(6);
+});
+
+test('it shows a hold notice after a pause button is released early', () => {
+  const renderer = renderPauseSection([
+    { key: SettingTypes.HOLD_TO_CONFIRM_PAUSE, value: SettingTypes.ON },
+  ]);
+
+  const notice = renderer.root.findByProps({ className: 'pause-section__notice' });
+  expect(notice.children.join('')).toBe('');
+
+  const button = renderer.root.findAllByType('button')[0];
+  button.props.onPointerDown();
+  button.props.onPointerUp();
+
+  expect(notice.children.join('')).toBe('Press and hold a button to start the pause.');
+  expect(notice.props.className).toContain('pause-section__notice--visible');
+});
+
+test('it hides the hold notice after five seconds', () => {
+  const renderer = renderPauseSection([
+    { key: SettingTypes.HOLD_TO_CONFIRM_PAUSE, value: SettingTypes.ON },
+  ]);
+
+  const button = renderer.root.findAllByType('button')[0];
+  button.props.onPointerDown();
+  button.props.onPointerUp();
+
+  const notice = renderer.root.findByProps({ className: 'pause-section__notice pause-section__notice--visible' });
+
+  jest.advanceTimersByTime(5000);
+
+  expect(notice.children.join('')).toBe('');
+  expect(notice.props.className).not.toContain('pause-section__notice--visible');
+});
+
+test('it does not hide the hold notice when a hold is released early again', () => {
+  const renderer = renderPauseSection([
+    { key: SettingTypes.HOLD_TO_CONFIRM_PAUSE, value: SettingTypes.ON },
+  ]);
+
+  const button = renderer.root.findAllByType('button')[0];
+  button.props.onPointerDown();
+  button.props.onPointerUp();
+
+  jest.advanceTimersByTime(4000);
+  button.props.onPointerDown();
+  button.props.onPointerUp();
+  jest.advanceTimersByTime(4000);
+
+  const notice = renderer.root.findByProps({ className: 'pause-section__notice pause-section__notice--visible' });
+  expect(notice.children.join('')).toBe('Press and hold a button to start the pause.');
 });
 
 test('it does not render pause buttons when the pause buttons setting is off', () => {

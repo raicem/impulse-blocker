@@ -61,6 +61,47 @@ test('it does not pause when the pointer leaves the button early', () => {
   expect(onConfirm).not.toHaveBeenCalled();
 });
 
+test('it notifies when the button is released after a quick click', () => {
+  const onHoldAborted = jest.fn();
+  const { button } = renderButton({ onHoldAborted });
+
+  button.props.onPointerDown();
+  jest.advanceTimersByTime(500);
+  button.props.onPointerUp();
+
+  expect(onHoldAborted).toHaveBeenCalledTimes(1);
+});
+
+test('it does not notify when the button is released after a longer hold', () => {
+  const onHoldAborted = jest.fn();
+  const { button } = renderButton({ onHoldAborted });
+
+  button.props.onPointerDown();
+  jest.advanceTimersByTime(MIN_HOLD_DURATION_MS / 2);
+  button.props.onPointerUp();
+
+  expect(onHoldAborted).not.toHaveBeenCalled();
+});
+
+test('it does not notify when the hold completes', () => {
+  const onHoldAborted = jest.fn();
+  const { button } = renderButton({ onHoldAborted });
+
+  button.props.onPointerDown();
+  jest.advanceTimersByTime(MIN_HOLD_DURATION_MS);
+
+  expect(onHoldAborted).not.toHaveBeenCalled();
+});
+
+test('it does not notify on pointer up when no hold is in progress', () => {
+  const onHoldAborted = jest.fn();
+  const { button } = renderButton({ onHoldAborted });
+
+  button.props.onPointerUp();
+
+  expect(onHoldAborted).not.toHaveBeenCalled();
+});
+
 test('it can be paused again after cancelling a hold', () => {
   const { button, onConfirm } = renderButton();
 

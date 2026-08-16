@@ -53,6 +53,20 @@ form {
   padding: 0;
 }
 
+.pause-section__notice {
+  text-align: center;
+  font-size: 0.75rem;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  color: rgb(160, 90, 0);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.pause-section__notice--visible {
+  opacity: 1;
+}
+
 .button {
   display: block;
   width: 100%;
