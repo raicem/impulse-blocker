@@ -125,7 +125,7 @@ export default class PauseSection extends React.Component {
     const setting = this.getSetting(SettingTypes.HOLD_TO_CONFIRM_PAUSE);
 
     if (setting === undefined) {
-      return true;
+      return false;
     }
 
     return setting.value === SettingTypes.ON;

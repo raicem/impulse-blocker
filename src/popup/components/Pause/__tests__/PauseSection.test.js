@@ -32,10 +32,10 @@ test('it renders hold buttons when the hold to confirm setting is on', () => {
   expect(renderer.root.findAllByType(HoldPauseButton).length).toBe(6);
 });
 
-test('it renders hold buttons by default when the setting is missing', () => {
+test('it renders instant pause buttons by default when the setting is missing', () => {
   const renderer = renderPauseSection([]);
 
-  expect(renderer.root.findAllByType(HoldPauseButton).length).toBe(6);
+  expect(renderer.root.findAllByType(HoldPauseButton).length).toBe(0);
 });
 
 test('it renders instant pause buttons when the hold to confirm setting is off', () => {

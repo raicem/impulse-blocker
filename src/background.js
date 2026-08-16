@@ -47,6 +47,10 @@ browser.runtime.onInstalled.addListener(() => {
         key: SettingTypes.SHOW_PAUSE_BUTTONS_IN_POPUP,
         value: SettingTypes.ON,
       },
+    ];
+
+    const freshInstallSettings = [
+      ...defaultSettings,
       {
         key: SettingTypes.HOLD_TO_CONFIRM_PAUSE,
         value: SettingTypes.ON,
@@ -55,11 +59,19 @@ browser.runtime.onInstalled.addListener(() => {
 
     if (!Array.isArray(storage.extensionSettings)) {
       return browser.storage.local.set({
-        extensionSettings: defaultSettings,
+        extensionSettings: freshInstallSettings,
       });
     }
 
-    const missingSettings = defaultSettings.filter((defaultSetting) => (
+    const updatedInstallSettings = [
+      ...defaultSettings,
+      {
+        key: SettingTypes.HOLD_TO_CONFIRM_PAUSE,
+        value: SettingTypes.OFF,
+      },
+    ];
+
+    const missingSettings = updatedInstallSettings.filter((defaultSetting) => (
       !storage.extensionSettings.some((setting) => setting.key === defaultSetting.key)
     ));
 
