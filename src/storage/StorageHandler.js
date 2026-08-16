@@ -19,6 +19,13 @@ const StorageHandler = {
 
   getPausedUntil: () => browser.storage.local.get('pausedUntil'),
 
+  getPauseCount: () => browser.storage.local.get(['pauseCount', 'pauseCountDate']),
+
+  setPauseCount: (count, date) => browser.storage.local.set({
+    pauseCount: count,
+    pauseCountDate: date,
+  }),
+
   updateSetting: (key, value) => StorageHandler.getSettings().then((storage) => {
     const updatedSettings = storage.extensionSettings.filter(
       (setting) => setting.key !== key,

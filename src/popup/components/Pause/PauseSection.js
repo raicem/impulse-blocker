@@ -5,6 +5,8 @@ import PropTypes from 'prop-types';
 import ExtensionStatusTypes from '../../../enums/extensionStatus';
 import SettingTypes from '../../../enums/settings';
 import MessageTypes from '../../../enums/messages';
+import { getHoldDurationMs } from '../../../utils/holdDuration';
+import HoldPauseButton from './HoldPauseButton';
 import PauseButton from './PauseButton';
 import DisabledPauseButton from './DisabledPauseButton';
 import CancelPauseButton from './CancelPauseButton';
@@ -34,8 +36,7 @@ export default class PauseSection extends React.Component {
     }
   }
 
-  pauseExtension(event, duration) {
-    event.preventDefault();
+  pauseExtension(duration) {
     browser.runtime
       .sendMessage({
         type: MessageTypes.PAUSE_BLOCKER,
@@ -98,7 +99,7 @@ export default class PauseSection extends React.Component {
     return (
       <button
         className="button button--pause-disabled"
-        onClick={e => this.pauseExtension(e, duration)}
+        onClick={() => this.pauseExtension(duration)}
         disabled
       >
         {label}
@@ -120,10 +121,49 @@ export default class PauseSection extends React.Component {
     return setting.value === SettingTypes.OFF;
   }
 
+  holdToConfirmSettingIsOn() {
+    const setting = this.getSetting(SettingTypes.HOLD_TO_CONFIRM_PAUSE);
+
+    if (setting === undefined) {
+      return true;
+    }
+
+    return setting.value === SettingTypes.ON;
+  }
+
   render() {
     if (this.showPauseButtonsSettingIsOff()) {
       return false;
     }
+
+    const holdDuration = getHoldDurationMs(this.props.pauseCount);
+    const holdToConfirm = this.holdToConfirmSettingIsOn();
+
+    const pauseOptions = [
+      { label: '5 Minutes', duration: 5 * 60 },
+      { label: '10 Minutes', duration: 10 * 60 },
+      { label: '15 Minutes', duration: 15 * 60 },
+      { label: '30 Minutes', duration: 30 * 60 },
+      { label: '1 Hour', duration: 60 * 60 },
+      { label: '3 Hours', duration: 3 * 60 * 60 },
+    ];
+
+    const pauseButton = (option) => (holdToConfirm ? (
+      <HoldPauseButton
+        key={option.label}
+        label={option.label}
+        duration={option.duration}
+        holdDuration={holdDuration}
+        onConfirm={this.pauseExtension}
+      />
+    ) : (
+      <PauseButton
+        key={option.label}
+        label={option.label}
+        duration={option.duration}
+        onClick={this.pauseExtension}
+      />
+    ));
 
     return (
       <div className="pause-section">
@@ -131,38 +171,10 @@ export default class PauseSection extends React.Component {
           <div className="duration-buttons">
             <p className="pause-section__title">Pause for...</p>
             <div className="duration-buttons__row">
-              <PauseButton
-                label="5 Minutes"
-                duration={5 * 60}
-                onClick={this.pauseExtension}
-              />
-              <PauseButton
-                label="10 Minutes"
-                duration={10 * 60}
-                onClick={this.pauseExtension}
-              />
-              <PauseButton
-                label="15 Minutes"
-                duration={15 * 60}
-                onClick={this.pauseExtension}
-              />
+              {pauseOptions.slice(0, 3).map(pauseButton)}
             </div>
             <div className="duration-buttons__row">
-              <PauseButton
-                label="30 Minutes"
-                duration={30 * 60}
-                onClick={this.pauseExtension}
-              />
-              <PauseButton
-                label="1 Hour"
-                duration={60 * 60}
-                onClick={this.pauseExtension}
-              />
-              <PauseButton
-                label="3 Hours"
-                duration={3 * 60 * 60}
-                onClick={this.pauseExtension}
-              />
+              {pauseOptions.slice(3).map(pauseButton)}
             </div>
           </div>
         )}
@@ -194,6 +206,7 @@ export default class PauseSection extends React.Component {
 PauseSection.propTypes = {
   extensionStatus: PropTypes.string,
   pausedUntil: PropTypes.string,
+  pauseCount: PropTypes.number,
   extensionSettings: PropTypes.arrayOf(PropTypes.object),
   onChange: PropTypes.func,
 };

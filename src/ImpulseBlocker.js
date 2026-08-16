@@ -227,6 +227,7 @@ class ImpulseBlocker {
 
     if (setStatus) {
       await this.storageHandler.setStatus(extensionStatus.PAUSED);
+      await this.incrementTodaysPauseCount();
     }
 
     await this.storageHandler.setPausedUntil(pausedUntil);
@@ -237,6 +238,31 @@ class ImpulseBlocker {
       this.pauseTimer = null;
       this.start();
     }, 1000 * duration);
+  }
+
+  getTodaysPauseCount() {
+    const today = dayjs().format("YYYY-MM-DD");
+
+    return this.storageHandler.getPauseCount().then((storage) => {
+      const { pauseCount, pauseCountDate } = storage;
+
+      if (pauseCountDate !== today) {
+        return 0;
+      }
+
+      return pauseCount || 0;
+    });
+  }
+
+  incrementTodaysPauseCount() {
+    const today = dayjs().format("YYYY-MM-DD");
+
+    return this.storageHandler.getPauseCount().then((storage) => {
+      const { pauseCount, pauseCountDate } = storage;
+      const countToday = pauseCountDate === today ? pauseCount || 0 : 0;
+
+      return this.storageHandler.setPauseCount(countToday + 1, today);
+    });
   }
 
   isDomainBlocked(domainToCheck) {
@@ -258,12 +284,14 @@ class ImpulseBlocker {
       this.storageHandler.getStatus(),
       this.storageHandler.getSettings(),
       this.storageHandler.getPausedUntil(),
+      this.getTodaysPauseCount(),
     ];
 
     return Promise.all(promises).then((results) => ({
       extensionStatus: results[0].status,
       extensionSettings: results[1].extensionSettings,
       pausedUntil: results[2].pausedUntil,
+      pauseCount: results[3],
     }));
   }
 

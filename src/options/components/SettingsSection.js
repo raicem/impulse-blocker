@@ -103,6 +103,23 @@ export default class SettingsSection extends React.Component {
               }}
             />
           </div>
+          <div className="form-group">
+            <label htmlFor="holdToConfirm">Hold to Confirm Pause</label>
+            <input
+              id="holdToConfirm"
+              name="holdToConfirm"
+              type="checkbox"
+              checked={this.isSettingChecked(
+                SettingTypes.HOLD_TO_CONFIRM_PAUSE,
+              )}
+              onChange={(e) => {
+                this.handleSettingsChange(
+                  e,
+                  SettingTypes.HOLD_TO_CONFIRM_PAUSE,
+                );
+              }}
+            />
+          </div>
         </form>
       </div>
     );

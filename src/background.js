@@ -38,20 +38,38 @@ browser.runtime.onInstalled.addListener(() => {
   });
 
   browser.storage.local.get('extensionSettings').then((storage) => {
+    const defaultSettings = [
+      {
+        key: SettingTypes.SHOW_ON_OFF_BUTTONS_IN_POPUP,
+        value: SettingTypes.ON,
+      },
+      {
+        key: SettingTypes.SHOW_PAUSE_BUTTONS_IN_POPUP,
+        value: SettingTypes.ON,
+      },
+      {
+        key: SettingTypes.HOLD_TO_CONFIRM_PAUSE,
+        value: SettingTypes.ON,
+      },
+    ];
+
     if (!Array.isArray(storage.extensionSettings)) {
       return browser.storage.local.set({
-        extensionSettings: [
-          {
-            key: SettingTypes.SHOW_ON_OFF_BUTTONS_IN_POPUP,
-            value: SettingTypes.ON,
-          },
-          {
-            key: SettingTypes.SHOW_PAUSE_BUTTONS_IN_POPUP,
-            value: SettingTypes.ON,
-          },
-        ],
+        extensionSettings: defaultSettings,
       });
     }
+
+    const missingSettings = defaultSettings.filter((defaultSetting) => (
+      !storage.extensionSettings.some((setting) => setting.key === defaultSetting.key)
+    ));
+
+    if (missingSettings.length === 0) {
+      return null;
+    }
+
+    return browser.storage.local.set({
+      extensionSettings: [...storage.extensionSettings, ...missingSettings],
+    });
   });
 
   browser.storage.local.get('status').then((storage) => {

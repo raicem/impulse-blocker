@@ -232,6 +232,11 @@ test('stopping blocker clears pending pause timeout', () => {
 
   storageHandler.setStatus = jest.fn().mockResolvedValue(true);
   storageHandler.setPausedUntil = jest.fn().mockResolvedValue(true);
+  storageHandler.getPauseCount = jest.fn().mockResolvedValue({
+    pauseCount: 0,
+    pauseCountDate: dayjs().format('YYYY-MM-DD'),
+  });
+  storageHandler.setPauseCount = jest.fn().mockResolvedValue(true);
 
   const blocker = new ImpulseBlocker(storageHandler);
   blocker.start = jest.fn();
@@ -265,12 +270,19 @@ test('it can return the current state containing status, settings and paused unt
   storageHandler.getStatus = jest.fn().mockResolvedValue({ status: extensionStatus.ON });
   storageHandler.getSettings = jest.fn().mockResolvedValue({ extensionSettings: {} });
   storageHandler.getBlockedWebsites = jest.fn().mockResolvedValue({ sites: [] });
+  storageHandler.getPausedUntil = jest.fn().mockResolvedValue({ pausedUntil: null });
+  storageHandler.getPauseCount = jest.fn().mockResolvedValue({
+    pauseCount: 2,
+    pauseCountDate: dayjs().format('YYYY-MM-DD'),
+  });
 
   const impulseBlocker = new ImpulseBlocker(storageHandler);
 
   return impulseBlocker.getState().then((result) => {
     expect(result.extensionStatus).toBe(extensionStatus.ON);
     expect(result.extensionSettings).toStrictEqual({});
+    expect(result.pausedUntil).toBe(null);
+    expect(result.pauseCount).toBe(2);
   });
 });
 
@@ -398,5 +410,92 @@ test('it can call storage handler update settings', () => {
   return impulseBlocker.updateSetting('setting2', 'value2').then(() => {
     expect(storageHandler.updateSetting).toHaveBeenCalledTimes(1);
     expect(storageHandler.updateSetting).toHaveBeenLastCalledWith('setting2', 'value2');
+  });
+});
+
+test('pausing increments the daily pause count', () => {
+  jest.useFakeTimers();
+
+  storageHandler.setStatus = jest.fn().mockResolvedValue(true);
+  storageHandler.setPausedUntil = jest.fn().mockResolvedValue(true);
+  storageHandler.getPauseCount = jest.fn().mockResolvedValue({
+    pauseCount: 1,
+    pauseCountDate: dayjs().format('YYYY-MM-DD'),
+  });
+  storageHandler.setPauseCount = jest.fn().mockResolvedValue(true);
+
+  const blocker = new ImpulseBlocker(storageHandler);
+
+  return blocker.pause(60).then(() => {
+    expect(storageHandler.setPauseCount).toHaveBeenCalledWith(2, dayjs().format('YYYY-MM-DD'));
+    blocker.stop();
+    jest.useRealTimers();
+  });
+});
+
+test('pausing during boot recovery does not increment the daily pause count', () => {
+  jest.useFakeTimers();
+
+  storageHandler.setPausedUntil = jest.fn().mockResolvedValue(true);
+  storageHandler.getPauseCount = jest.fn();
+  storageHandler.setPauseCount = jest.fn();
+
+  const blocker = new ImpulseBlocker(storageHandler);
+
+  return blocker.pause(60, false).then(() => {
+    expect(storageHandler.getPauseCount).not.toHaveBeenCalled();
+    expect(storageHandler.setPauseCount).not.toHaveBeenCalled();
+    blocker.stop();
+    jest.useRealTimers();
+  });
+});
+
+test('getTodaysPauseCount returns the stored count for today', () => {
+  storageHandler.getPauseCount = jest.fn().mockResolvedValue({
+    pauseCount: 5,
+    pauseCountDate: dayjs().format('YYYY-MM-DD'),
+  });
+
+  const blocker = new ImpulseBlocker(storageHandler);
+
+  return blocker.getTodaysPauseCount().then((count) => {
+    expect(count).toBe(5);
+  });
+});
+
+test('getTodaysPauseCount returns 0 when the stored date is not today', () => {
+  storageHandler.getPauseCount = jest.fn().mockResolvedValue({
+    pauseCount: 5,
+    pauseCountDate: '2020-01-01',
+  });
+
+  const blocker = new ImpulseBlocker(storageHandler);
+
+  return blocker.getTodaysPauseCount().then((count) => {
+    expect(count).toBe(0);
+  });
+});
+
+test('getTodaysPauseCount returns 0 when no count is stored', () => {
+  storageHandler.getPauseCount = jest.fn().mockResolvedValue({});
+
+  const blocker = new ImpulseBlocker(storageHandler);
+
+  return blocker.getTodaysPauseCount().then((count) => {
+    expect(count).toBe(0);
+  });
+});
+
+test('incrementTodaysPauseCount resets the count when the stored date is not today', () => {
+  storageHandler.getPauseCount = jest.fn().mockResolvedValue({
+    pauseCount: 5,
+    pauseCountDate: '2020-01-01',
+  });
+  storageHandler.setPauseCount = jest.fn().mockResolvedValue(true);
+
+  const blocker = new ImpulseBlocker(storageHandler);
+
+  return blocker.incrementTodaysPauseCount().then(() => {
+    expect(storageHandler.setPauseCount).toHaveBeenCalledWith(1, dayjs().format('YYYY-MM-DD'));
   });
 });

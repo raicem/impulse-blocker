@@ -11,6 +11,7 @@ export default class ExtensionStatus extends React.Component {
     this.state = {
       extensionStatus: null,
       pausedUntil: null,
+      pauseCount: 0,
       extensionSettings: [],
     };
 
@@ -29,6 +30,7 @@ export default class ExtensionStatus extends React.Component {
         this.setState({
           extensionStatus: statusResponse.extensionStatus,
           pausedUntil: statusResponse.pausedUntil,
+          pauseCount: statusResponse.pauseCount,
           extensionSettings: statusResponse.extensionSettings,
         });
       });
@@ -54,6 +56,7 @@ export default class ExtensionStatus extends React.Component {
         this.setState({
           extensionStatus: statusResponse.extensionStatus,
           pausedUntil: statusResponse.pausedUntil,
+          pauseCount: statusResponse.pauseCount,
         });
       });
   }
@@ -105,6 +108,7 @@ export default class ExtensionStatus extends React.Component {
         )}
         <PauseSection
           pausedUntil={this.state.pausedUntil}
+          pauseCount={this.state.pauseCount}
           extensionStatus={this.state.extensionStatus}
           extensionSettings={this.state.extensionSettings}
           onChange={this.updateExtensionStatus}

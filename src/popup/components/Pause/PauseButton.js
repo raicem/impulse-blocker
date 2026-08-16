@@ -4,8 +4,9 @@ import PropTypes from 'prop-types';
 export default function PauseButton(props) {
   return (
     <button
+      type="button"
       className="button button--pause"
-      onClick={e => props.onClick(e, props.duration)}
+      onClick={() => props.onClick(props.duration)}
     >
       {props.label}
     </button>
