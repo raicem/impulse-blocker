@@ -21,6 +21,7 @@ export default class PauseSection extends React.Component {
     this.state = { secondsToExpire: 0, showHoldNotice: false };
 
     this.defaultDuration = 5 * 60;
+    this.countdownTimer = null;
     this.holdNoticeTimer = null;
 
     this.pauseExtension = this.pauseExtension.bind(this);
@@ -84,6 +85,7 @@ export default class PauseSection extends React.Component {
   }
 
   startCountdownTimer() {
+    clearInterval(this.countdownTimer);
     this.countdownTimer = setInterval(
       () => this.calculateTimeRemaining(),
       1000,

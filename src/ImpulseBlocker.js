@@ -47,6 +47,14 @@ class ImpulseBlocker {
     return hostname;
   }
 
+  static normalizeStoredDomain(domain) {
+    try {
+      return ImpulseBlocker.normalizeDomain(domain);
+    } catch (e) {
+      return domain;
+    }
+  }
+
   clearPauseTimer() {
     if (this.pauseTimer !== null) {
       clearTimeout(this.pauseTimer);
@@ -266,17 +274,26 @@ class ImpulseBlocker {
   }
 
   isDomainBlocked(domainToCheck) {
-    return this.storageHandler.getBlockedWebsites().then(({ sites }) => {
-      const domains = sites.map((site) => site.domain);
+    let normalizedDomainToCheck;
 
-      return domains.includes(domainToCheck);
-    });
+    try {
+      normalizedDomainToCheck = ImpulseBlocker.normalizeDomain(domainToCheck);
+    } catch (e) {
+      return Promise.resolve(false);
+    }
+
+    return this.getBlockedDomains()
+      .then((domains) => domains.includes(normalizedDomainToCheck));
   }
 
   getBlockedDomains() {
     return this.storageHandler
       .getBlockedWebsites()
-      .then((storage) => storage.sites.map((website) => website.domain));
+      .then((storage) => Array.from(new Set(
+        storage.sites.map((website) => (
+          ImpulseBlocker.normalizeStoredDomain(website.domain)
+        )),
+      )));
   }
 
   getState() {
@@ -326,18 +343,29 @@ class ImpulseBlocker {
   }
 
   removeFromBlockList(domain) {
-    let domainToRemove;
+    let normalizedDomainToRemove = null;
 
     try {
-      domainToRemove = ImpulseBlocker.normalizeDomain(domain);
+      normalizedDomainToRemove = ImpulseBlocker.normalizeDomain(domain);
     } catch (e) {
-      return Promise.reject(e);
+      // Malformed entries saved by older versions must still be removable.
     }
 
     return this.storageHandler.getBlockedWebsites().then((storage) => {
-      const updatedWebsites = storage.sites.filter(
-        (website) => website.domain !== domainToRemove,
-      );
+      const updatedWebsites = storage.sites.filter((website) => {
+        let normalizedStoredDomain = null;
+
+        try {
+          normalizedStoredDomain = ImpulseBlocker.normalizeDomain(website.domain);
+        } catch (e) {
+          return website.domain !== domain;
+        }
+
+        return (
+          normalizedDomainToRemove === null
+          || normalizedStoredDomain !== normalizedDomainToRemove
+        );
+      });
 
       return this.storageHandler.setBlockedWebsites(updatedWebsites);
     });

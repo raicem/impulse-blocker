@@ -266,6 +266,16 @@ test('it can check if domain is blocked or not', () => {
   });
 });
 
+test('it recognizes legacy url-shaped domains as blocked', () => {
+  storageHandler.getBlockedWebsites = jest.fn().mockResolvedValue({
+    sites: [Website.create('https://WWW.Example.com/articles')],
+  });
+
+  const impulseBlocker = new ImpulseBlocker(storageHandler);
+
+  return expect(impulseBlocker.isDomainBlocked('example.com')).resolves.toBe(true);
+});
+
 test('it can return the current state containing status, settings and paused until', () => {
   storageHandler.getStatus = jest.fn().mockResolvedValue({ status: extensionStatus.ON });
   storageHandler.getSettings = jest.fn().mockResolvedValue({ extensionSettings: {} });
@@ -349,6 +359,38 @@ test('it can remove websites from the block list', () => {
   });
 });
 
+test('it can remove legacy url-shaped domains from the block list', () => {
+  const legacyEntry = Website.create('https://WWW.Example.com/articles');
+  const testCom = Website.create('test.com');
+
+  storageHandler.getBlockedWebsites = jest.fn().mockResolvedValue({
+    sites: [legacyEntry, testCom],
+  });
+  storageHandler.setBlockedWebsites = jest.fn().mockResolvedValue();
+
+  const impulseBlocker = new ImpulseBlocker(storageHandler);
+
+  return impulseBlocker.removeFromBlockList('example.com').then(() => {
+    expect(storageHandler.setBlockedWebsites).toHaveBeenCalledWith([testCom]);
+  });
+});
+
+test('it can remove malformed domains saved by older versions', () => {
+  const malformedEntry = Website.create('ftp://example.com');
+  const testCom = Website.create('test.com');
+
+  storageHandler.getBlockedWebsites = jest.fn().mockResolvedValue({
+    sites: [malformedEntry, testCom],
+  });
+  storageHandler.setBlockedWebsites = jest.fn().mockResolvedValue();
+
+  const impulseBlocker = new ImpulseBlocker(storageHandler);
+
+  return impulseBlocker.removeFromBlockList('ftp://example.com').then(() => {
+    expect(storageHandler.setBlockedWebsites).toHaveBeenCalledWith([testCom]);
+  });
+});
+
 test('it returns list of blocked domains', () => {
   const currentBlockList = [Website.create('example.com'), Website.create('test.com')];
   const currentBlockedDomains = currentBlockList.map((website) => website.domain);
@@ -360,6 +402,23 @@ test('it returns list of blocked domains', () => {
   return impulseBlocker.getBlockedDomains().then((domains) => {
     expect(domains).toStrictEqual(currentBlockedDomains);
   });
+});
+
+test('it returns a unique normalized list of stored domains', () => {
+  storageHandler.getBlockedWebsites = jest.fn().mockResolvedValue({
+    sites: [
+      Website.create('example.com'),
+      Website.create('https://WWW.Example.com/articles'),
+      Website.create('ftp://legacy.example.com'),
+    ],
+  });
+
+  const impulseBlocker = new ImpulseBlocker(storageHandler);
+
+  return expect(impulseBlocker.getBlockedDomains()).resolves.toStrictEqual([
+    'example.com',
+    'ftp://legacy.example.com',
+  ]);
 });
 
 test('it can re-attach webrequest listener when blocked list is updated', () => {

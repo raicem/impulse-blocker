@@ -111,3 +111,16 @@ test('it does not render pause buttons when the pause buttons setting is off', (
 
   expect(renderer.root.findAllByType('button').length).toBe(0);
 });
+
+test('starting the countdown again replaces the existing interval', () => {
+  const renderer = renderPauseSection();
+  const pauseSection = renderer.root.findByType(PauseSection).instance;
+
+  pauseSection.startCountdownTimer();
+  pauseSection.startCountdownTimer();
+
+  expect(jest.getTimerCount()).toBe(1);
+
+  renderer.unmount();
+  expect(jest.getTimerCount()).toBe(0);
+});
