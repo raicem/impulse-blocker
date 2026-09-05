@@ -1,4 +1,5 @@
 import React from 'react';
+import dayjs from 'dayjs';
 import ExtensionStatusTypes from '../../enums/extensionStatus';
 import MessageTypes from '../../enums/messages';
 import PauseSection from './Pause/PauseSection';
@@ -14,9 +15,11 @@ export default class ExtensionStatus extends React.Component {
       pauseCount: 0,
       extensionSettings: [],
     };
+    this.dailyStatusTimer = null;
 
     this.handleStatusChange = this.handleStatusChange.bind(this);
     this.updateExtensionStatus = this.updateExtensionStatus.bind(this);
+    this.scheduleDailyStatusRefresh = this.scheduleDailyStatusRefresh.bind(this);
     this.getSetting = this.getSetting.bind(this);
     this.showOnOfButtonSettingIsOn = this.showOnOfButtonSettingIsOn.bind(this);
   }
@@ -34,6 +37,12 @@ export default class ExtensionStatus extends React.Component {
           extensionSettings: statusResponse.extensionSettings,
         });
       });
+
+    this.scheduleDailyStatusRefresh();
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.dailyStatusTimer);
   }
 
   handleStatusChange(extensionStatus) {
@@ -59,6 +68,18 @@ export default class ExtensionStatus extends React.Component {
           pauseCount: statusResponse.pauseCount,
         });
       });
+  }
+
+  scheduleDailyStatusRefresh() {
+    clearTimeout(this.dailyStatusTimer);
+
+    const now = dayjs();
+    const nextDay = now.add(1, 'day').startOf('day');
+
+    this.dailyStatusTimer = setTimeout(() => {
+      this.updateExtensionStatus();
+      this.scheduleDailyStatusRefresh();
+    }, nextDay.diff(now));
   }
 
   getSetting(key) {
