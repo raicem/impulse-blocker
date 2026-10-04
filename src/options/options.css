@@ -336,6 +336,41 @@ hr {
   overflow-wrap: anywhere;
 }
 
+.blocklist__entry {
+  min-width: 0;
+}
+
+.blocklist__scope {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+  font-size: 1.3rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.blocklist__scope input {
+  width: 1.6rem;
+  height: 1.6rem;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.blocklist__help {
+  font-size: 1.3rem;
+  color: var(--muted);
+}
+
+.blocklist__item .button {
+  flex-shrink: 0;
+}
+
+.blocklist__item .button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
 .blocklist__empty {
   padding: 2rem 0.2rem;
   border-bottom: 1px solid var(--line);

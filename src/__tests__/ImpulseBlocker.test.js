@@ -7,6 +7,7 @@ import Website from '../storage/Website';
 jest.mock('../storage/StorageHandler');
 
 global.browser = {
+  runtime: { getURL: (path) => `moz-extension://abc/${path}` },
   storage: {
     onChanged: {
       addListener: jest.fn(),
@@ -37,6 +38,115 @@ beforeEach(() => {
   global.browser.tabs.query.mockClear();
   global.browser.tabs.reload.mockClear();
   global.browser.tabs.update.mockClear();
+});
+
+test('new entries include subdomains by default', () => {
+  expect(Website.create('youtube.com').includeSubdomains).toBe(true);
+});
+
+test.each([undefined, true, false])('domain checks respect includeSubdomains=%s', async (includeSubdomains) => {
+  storageHandler.getBlockedWebsites = jest.fn().mockResolvedValue({
+    sites: [{ domain: 'youtube.com', includeSubdomains }],
+  });
+  const blocker = new ImpulseBlocker(storageHandler);
+  expect(await blocker.isDomainBlocked('youtube.com')).toBe(true);
+  expect(await blocker.isDomainBlocked('https://WWW.YouTube.com/watch')).toBe(true);
+  expect(await blocker.isDomainBlocked('music.youtube.com')).toBe(includeSubdomains !== false);
+  expect(await blocker.isDomainBlocked('nested.music.youtube.com')).toBe(includeSubdomains !== false);
+  expect(await blocker.isDomainBlocked('notyoutube.com')).toBe(false);
+  expect(await blocker.isDomainBlocked('youtube.com.example.com')).toBe(false);
+});
+
+test('an explicit subdomain rule still blocks alongside a domain-only parent', async () => {
+  storageHandler.getBlockedWebsites = jest.fn().mockResolvedValue({
+    sites: [
+      { domain: 'youtube.com', includeSubdomains: false },
+      { domain: 'music.youtube.com', includeSubdomains: false },
+    ],
+  });
+  const blocker = new ImpulseBlocker(storageHandler);
+  expect(await blocker.isDomainBlocked('music.youtube.com')).toBe(true);
+  expect(await blocker.isDomainBlocked('nested.music.youtube.com')).toBe(false);
+  expect(await blocker.getMatchingBlockedDomains('music.youtube.com')).toEqual(['music.youtube.com']);
+});
+
+test('site list defaults legacy entries to checked and combines duplicate scopes', async () => {
+  storageHandler.getBlockedWebsites = jest.fn().mockResolvedValue({
+    sites: [
+      { domain: 'youtube.com', includeSubdomains: false },
+      { domain: 'https://www.youtube.com/watch', createdAt: '2020-01-01' },
+      { domain: 'example.com', includeSubdomains: false },
+    ],
+  });
+  const blocker = new ImpulseBlocker(storageHandler);
+  expect(await blocker.getBlockedSites()).toEqual([
+    { domain: 'youtube.com', includeSubdomains: true, createdAt: '2020-01-01' },
+    { domain: 'example.com', includeSubdomains: false },
+  ]);
+});
+
+test('domain-only rules do not reload unrelated subdomains on start or resume', async () => {
+  storageHandler.getBlockedWebsites = jest.fn().mockResolvedValue({
+    sites: [{ domain: 'youtube.com', includeSubdomains: false }],
+  });
+  global.browser.tabs.query.mockResolvedValue([
+    { id: 1, url: 'https://youtube.com/watch' },
+    { id: 2, url: 'https://www.youtube.com/watch' },
+    { id: 3, url: 'https://music.youtube.com/' },
+    { id: 4, url: 'https://youtube.com/', discarded: true },
+  ]);
+  await new ImpulseBlocker(storageHandler).refreshBlockedTabs();
+  expect(global.browser.tabs.reload.mock.calls).toEqual([[1], [2]]);
+});
+
+test('narrowing scope preserves metadata and restores only newly allowed loaded tabs', async () => {
+  let sites = [
+    { domain: 'https://www.youtube.com/watch', createdAt: '2020-01-01', timesBlocked: 7 },
+    { domain: 'youtube.com', includeSubdomains: true, createdAt: '2021-01-01' },
+    { domain: 'kids.youtube.com', includeSubdomains: true },
+  ];
+  storageHandler.getBlockedWebsites = jest.fn().mockImplementation(async () => ({ sites }));
+  storageHandler.setBlockedWebsites = jest.fn().mockImplementation(async (value) => { sites = value; });
+  storageHandler.getStatus = jest.fn().mockResolvedValue({ status: extensionStatus.ON });
+  const blocked = (target, host = 'abc') => `moz-extension://${host}/resources/redirect.html?target=${encodeURIComponent(target)}`;
+  global.browser.tabs.query.mockResolvedValue([
+    { id: 1, url: blocked('https://music.youtube.com/') },
+    { id: 2, url: blocked('https://www.youtube.com/') },
+    { id: 3, url: blocked('https://kids.youtube.com/') },
+    { id: 4, url: blocked('https://music.youtube.com/'), discarded: true },
+    { id: 5, url: blocked('https://music.youtube.com/', 'other-extension') },
+    { id: 6, url: 'https://youtube.com/watch' },
+    { id: 7, url: 'https://music.youtube.com/' },
+  ]);
+  await new ImpulseBlocker(storageHandler).updateSubdomainBlocking('youtube.com', false);
+  expect(sites[0]).toEqual({
+    domain: 'https://www.youtube.com/watch', includeSubdomains: false, createdAt: '2020-01-01', timesBlocked: 7,
+  });
+  expect(sites[1].includeSubdomains).toBe(false);
+  expect(sites[2].includeSubdomains).toBe(true);
+  expect(global.browser.tabs.update.mock.calls).toEqual([[1, { url: 'https://music.youtube.com/', loadReplace: true }]]);
+  expect(global.browser.tabs.reload.mock.calls).toEqual([[6]]);
+  expect(global.browser.webRequest.onBeforeRequest.addListener.mock.calls[0][1].urls).toEqual([
+    '*://youtube.com/*', '*://www.youtube.com/*',
+    '*://youtube.com/*', '*://www.youtube.com/*', '*://*.kids.youtube.com/*',
+  ]);
+});
+
+test.each([extensionStatus.OFF, extensionStatus.PAUSED])('scope changes preserve status %s', async (status) => {
+  storageHandler.getBlockedWebsites = jest.fn().mockResolvedValue({ sites: [Website.create('youtube.com')] });
+  storageHandler.setBlockedWebsites = jest.fn().mockResolvedValue();
+  storageHandler.getStatus = jest.fn().mockResolvedValue({ status });
+  storageHandler.setStatus = jest.fn();
+  await new ImpulseBlocker(storageHandler).updateSubdomainBlocking('youtube.com', false);
+  expect(storageHandler.setStatus).not.toHaveBeenCalled();
+  expect(global.browser.webRequest.onBeforeRequest.addListener).not.toHaveBeenCalled();
+  expect(global.browser.tabs.query).not.toHaveBeenCalled();
+});
+
+test('scope changes reject non-boolean values before saving', async () => {
+  storageHandler.setBlockedWebsites = jest.fn();
+  await expect(new ImpulseBlocker(storageHandler).updateSubdomainBlocking('youtube.com', 'false')).rejects.toThrow();
+  expect(storageHandler.setBlockedWebsites).not.toHaveBeenCalled();
 });
 
 test('it boots with paused status', () => {

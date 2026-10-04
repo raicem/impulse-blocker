@@ -17,6 +17,8 @@ class Options extends React.Component {
       extensionStatus: null,
       pausedUntil: null,
       extensionSettings: [],
+      savingDomain: null,
+      error: '',
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -25,11 +27,12 @@ class Options extends React.Component {
     this.onClick = this.onClick.bind(this);
     this.getSetting = this.getSetting.bind(this);
     this.updateExtensionStatus = this.updateExtensionStatus.bind(this);
+    this.updateSubdomainBlocking = this.updateSubdomainBlocking.bind(this);
   }
 
   async componentDidMount() {
-    const domains = await browser.runtime.sendMessage({
-      type: MessageTypes.GET_BLOCKED_DOMAINS_LIST,
+    const sites = await browser.runtime.sendMessage({
+      type: MessageTypes.GET_BLOCKED_SITES_LIST,
     });
 
     const statusResponse = await browser.runtime.sendMessage({
@@ -37,7 +40,7 @@ class Options extends React.Component {
     });
 
     this.setState({
-      blockedSites: domains,
+      blockedSites: sites,
       extensionStatus: statusResponse.extensionStatus,
       pausedUntil: statusResponse.pausedUntil,
       extensionSettings: statusResponse.extensionSettings,
@@ -55,11 +58,12 @@ class Options extends React.Component {
         type: MessageTypes.START_BLOCKING_DOMAIN,
         domain: this.state.value,
       })
-      .then((domain) => {
-        this.setState((prevState) => ({
-          blockedSites: [...prevState.blockedSites, domain],
+      .then(() => browser.runtime.sendMessage({ type: MessageTypes.GET_BLOCKED_SITES_LIST }))
+      .then((sites) => {
+        this.setState({
+          blockedSites: sites,
           value: '',
-        }));
+        });
       });
   }
 
@@ -71,7 +75,7 @@ class Options extends React.Component {
       })
       .then(() => {
         const updatedBlockedSites = this.state.blockedSites.filter(
-          (item) => item !== domain,
+          (item) => item.domain !== domain,
         );
 
         this.setState({
@@ -81,9 +85,32 @@ class Options extends React.Component {
   }
 
   listItems() {
-    return this.state.blockedSites.map((domain) => (
-      <DomainListItem domain={domain} onClick={this.onClick} key={domain} />
+    return this.state.blockedSites.map((site) => (
+      <DomainListItem
+        domain={site.domain}
+        includeSubdomains={site.includeSubdomains}
+        onClick={this.onClick}
+        onScopeChange={this.updateSubdomainBlocking}
+        disabled={this.state.savingDomain !== null}
+        key={site.domain}
+      />
     ));
+  }
+
+  async updateSubdomainBlocking(domain, includeSubdomains) {
+    this.setState({ savingDomain: domain, error: '' });
+    try {
+      const sites = await browser.runtime.sendMessage({
+        type: MessageTypes.UPDATE_SUBDOMAIN_BLOCKING,
+        domain,
+        includeSubdomains,
+      });
+      this.setState({ blockedSites: sites });
+    } catch (error) {
+      this.setState({ error: 'Could not update subdomain blocking. Please try again.' });
+    } finally {
+      this.setState({ savingDomain: null });
+    }
   }
 
   getSetting(key) {
@@ -153,15 +180,21 @@ class Options extends React.Component {
                 value={this.state.value}
                 onChange={this.handleChange}
                 placeholder="Add a site (e.g. instagram.com)"
+                disabled={this.state.savingDomain !== null}
                 required
               />
               <input
                 type="submit"
                 className="button button--red"
                 value="Block"
+                disabled={this.state.savingDomain !== null}
               />
             </form>
             <hr />
+            <p className="blocklist__help">
+              Uncheck include subdomains to block only the listed domain and its www. address.
+            </p>
+            {this.state.error && <p role="alert">{this.state.error}</p>}
             <ul className="blocklist__list">
               {count === 0 ? (
                 <li className="blocklist__empty">

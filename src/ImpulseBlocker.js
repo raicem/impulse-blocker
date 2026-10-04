@@ -3,7 +3,12 @@ import dayjs from "dayjs";
 import extensionStatus from "./enums/extensionStatus";
 import Website from "./storage/Website";
 import PopupIcon from "./PopupIcon";
-import { createMatchPatterns, redirectToBlockedPage } from "./utils/functions";
+import {
+  createMatchPatterns,
+  getBlockedPageTarget,
+  redirectToBlockedPage,
+  siteMatchesDomain,
+} from "./utils/functions";
 
 class ImpulseBlocker {
   constructor(storageHandler) {
@@ -170,22 +175,15 @@ class ImpulseBlocker {
   async refreshBlockedTabs() {
     // Get a list of open tabs which are in the block list
     const allTabs = await browser.tabs.query({});
-    const blockedDomains = await this.getBlockedDomains();
+    const sites = await this.getBlockedSites();
     const tabsToRefresh = allTabs.filter((tab) => {
       if (!tab.url || tab.discarded) {
         return false;
       }
       try {
-        const tabUrl = new URL(tab.url);
-        const tabDomain = tabUrl.hostname.replace(/^www\./, "");
+        const tabDomain = ImpulseBlocker.normalizeDomain(tab.url);
 
-        return blockedDomains.some((blockedDomain) => {
-          const cleanedBlockedDomain = blockedDomain.replace(/^www\./, "");
-          return (
-            tabDomain === cleanedBlockedDomain ||
-            tabDomain.endsWith(`.${cleanedBlockedDomain}`)
-          );
-        });
+        return sites.some((site) => siteMatchesDomain(site, tabDomain));
       } catch (e) {
         // Invalid URL, skip this tab
         return false;
@@ -193,38 +191,33 @@ class ImpulseBlocker {
     });
 
     // Refresh each tab with a blocked domain
-    tabsToRefresh.forEach((tab) => {
-      browser.tabs.reload(tab.id);
-    });
+    // Tabs can close between querying and reloading; one failure must not stop the others.
+    await Promise.allSettled(tabsToRefresh.map((tab) => browser.tabs.reload(tab.id)));
   }
  
   // Finds all active Impulse Blocker windows (sites in a blocked state) and replaces them with the site they are blocking
   // Intended for automatically removing all the blocks from windows (during a pause or after turning blocker off)
-  async enableBlockedTabs() {
+  async enableBlockedTabs(onlyUnblocked = false) {
     const allTabs = await browser.tabs.query({});
-    allTabs.forEach((tab) => {
+    const sites = onlyUnblocked ? await this.getBlockedSites() : [];
+    await Promise.allSettled(allTabs.map((tab) => {
       if (!tab.url || tab.discarded) {
         return;
       }
       try {
-        const tabUrl = new URL(tab.url);
-        if (tabUrl.protocol === "moz-extension:") {
-          if (!tabUrl.searchParams.has("target")) {
-            return;
-          }
-          const target = tabUrl.searchParams.get("target");
-          browser.tabs.update(
-            tab.id,
-            {
-              loadReplace: true,
-              url: target,
-            },
-          );
+        const target = getBlockedPageTarget(tab.url);
+        if (!target) {
+          return;
         }
+        const targetDomain = ImpulseBlocker.normalizeDomain(target);
+        if (onlyUnblocked && sites.some((site) => siteMatchesDomain(site, targetDomain))) {
+          return;
+        }
+        return browser.tabs.update(tab.id, { loadReplace: true, url: target });
       } catch (e) {
         return;
       }
-    });
+    }));
   }
 
   async pause(duration = 60 * 5, setStatus = true) {
@@ -274,26 +267,67 @@ class ImpulseBlocker {
   }
 
   isDomainBlocked(domainToCheck) {
+    return this.getMatchingBlockedDomains(domainToCheck).then((domains) => domains.length > 0);
+  }
+
+  getMatchingBlockedDomains(domainToCheck) {
     let normalizedDomainToCheck;
 
     try {
       normalizedDomainToCheck = ImpulseBlocker.normalizeDomain(domainToCheck);
     } catch (e) {
-      return Promise.resolve(false);
+      return Promise.resolve([]);
     }
 
-    return this.getBlockedDomains()
-      .then((domains) => domains.includes(normalizedDomainToCheck));
+    return this.getBlockedSites().then((sites) => sites
+      .filter((site) => siteMatchesDomain(site, normalizedDomainToCheck))
+      .map((site) => site.domain));
   }
 
   getBlockedDomains() {
-    return this.storageHandler
-      .getBlockedWebsites()
-      .then((storage) => Array.from(new Set(
-        storage.sites.map((website) => (
-          ImpulseBlocker.normalizeStoredDomain(website.domain)
-        )),
-      )));
+    return this.getBlockedSites().then((sites) => sites.map((site) => site.domain));
+  }
+
+  getBlockedSites() {
+    return this.storageHandler.getBlockedWebsites().then(({ sites = [] }) => {
+      const uniqueSites = new Map();
+      sites.forEach((site) => {
+        const domain = ImpulseBlocker.normalizeStoredDomain(site.domain);
+        const previous = uniqueSites.get(domain);
+        // Duplicate legacy entries must retain the broadest saved scope.
+        const includeSubdomains = site.includeSubdomains !== false || (
+          previous !== undefined && previous.includeSubdomains
+        );
+        uniqueSites.set(domain, {
+          ...site,
+          domain,
+          includeSubdomains,
+        });
+      });
+      return Array.from(uniqueSites.values());
+    });
+  }
+
+  async updateSubdomainBlocking(domain, includeSubdomains) {
+    if (typeof includeSubdomains !== 'boolean') {
+      throw new Error('Include subdomains must be a boolean');
+    }
+    const normalizedDomain = ImpulseBlocker.normalizeDomain(domain);
+    const { sites } = await this.storageHandler.getBlockedWebsites();
+    const updatedSites = sites.map((site) => (
+      ImpulseBlocker.normalizeStoredDomain(site.domain) === normalizedDomain
+        ? { ...site, includeSubdomains }
+        : site
+    ));
+    await this.storageHandler.setBlockedWebsites(updatedSites);
+
+    const { status } = await this.storageHandler.getStatus();
+    if (status === extensionStatus.ON) {
+      await this.attachWebRequestListener();
+      await this.enableBlockedTabs(true);
+      await this.refreshBlockedTabs();
+    }
+    return this.getBlockedSites();
   }
 
   getState() {

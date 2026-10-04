@@ -46,3 +46,10 @@ test('it creates match patterns for site urls', () => {
   expect(websitesAsMatchPatterns[0]).toBe('*://*.test.example.com/*');
   expect(websitesAsMatchPatterns[1]).toBe('*://*.example.com/*');
 });
+
+test('it uses exact domain and www patterns only when explicitly unchecked', () => {
+  expect(createMatchPatterns([
+    { domain: 'youtube.com', includeSubdomains: false },
+    { domain: 'example.com' },
+  ])).toEqual(['*://youtube.com/*', '*://www.youtube.com/*', '*://*.example.com/*']);
+});

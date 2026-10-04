@@ -20,6 +20,9 @@ const messageHandlers = {
   [MessageTypes.UNPAUSE_BLOCKER]: blocker.start,
   [MessageTypes.UPDATE_EXTENSION_SETTING]: (req) => blocker.updateSetting(req.key, req.value),
   [MessageTypes.GET_BLOCKED_DOMAINS_LIST]: blocker.getBlockedDomains,
+  [MessageTypes.GET_BLOCKED_SITES_LIST]: () => blocker.getBlockedSites(),
+  [MessageTypes.GET_MATCHING_BLOCKED_DOMAINS]: (req) => blocker.getMatchingBlockedDomains(req.domain),
+  [MessageTypes.UPDATE_SUBDOMAIN_BLOCKING]: (req) => blocker.updateSubdomainBlocking(req.domain, req.includeSubdomains),
 
   default: (req) => {
     throw new Error('Message type not recognized: ', req.type);

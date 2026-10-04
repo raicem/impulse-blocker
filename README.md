@@ -10,6 +10,12 @@ Block distracting websites when you are browsing the web. Written using [WebExte
 
 Simple usage guide can be found [here](https://blog.cemunalan.com.tr/2017/05/17/impulse-blocker-guide/).
 
+Each blocked site has an **Include subdomains** checkbox in the options page.
+It starts checked for new and existing entries, preserving the previous behavior.
+Uncheck it to block only that domain and its `www.` address. For example,
+blocking `youtube.com` with this option unchecked leaves `music.youtube.com`
+accessible, unless another entry blocks it.
+
 ## Building
 
 If you want to build the extension yourself using the source code, follow these steps.

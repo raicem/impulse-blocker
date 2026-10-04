@@ -132,12 +132,134 @@ async function assertAccessible(driver, targetUrl) {
   assert.equal(await driver.getCurrentUrl(), targetUrl);
 }
 
+async function addSite(driver, domain) {
+  const input = await driver.findElement(By.id('site'));
+  await input.clear();
+  await input.sendKeys(domain);
+  await driver.executeScript('arguments[0].click()', await driver.findElement(By.css('input[type="submit"]')));
+  await waitForText(driver, By.css('.blocklist__list'), domain);
+}
+
+async function runInExtension(driver, operation) {
+  const result = await driver.executeAsyncScript(operation);
+  assert.equal(result, null);
+}
+
+async function setSubdomainScope(driver, checked) {
+  const locator = By.css('input[aria-label="Include subdomains for youtube.localhost"]');
+  const checkbox = await driver.wait(until.elementLocated(locator), timeout);
+  if ((await checkbox.isSelected()) !== checked) {
+    await checkbox.click();
+  }
+  await driver.wait(async () => {
+    const current = await driver.findElement(locator);
+    return (await current.isEnabled()) && (await current.isSelected()) === checked;
+  }, timeout);
+}
+
+async function assertSubdomainBlocking(driver, optionsUrl, targetUrl) {
+  const root = new URL(targetUrl);
+  root.hostname = 'youtube.localhost';
+  const www = new URL(root);
+  www.hostname = 'www.youtube.localhost';
+  const music = new URL(root);
+  music.hostname = 'music.youtube.localhost';
+  const nested = new URL(root);
+  nested.hostname = 'nested.music.youtube.localhost';
+
+  await openOptions(driver, optionsUrl);
+  await addSite(driver, 'youtube.localhost');
+  const checkbox = By.css('input[aria-label="Include subdomains for youtube.localhost"]');
+  assert.equal(await driver.findElement(checkbox).isSelected(), true);
+  await waitForText(driver, By.css('.header__link'), 'v1.5.0');
+
+  console.log('Checking legacy entries without a subdomain setting...');
+  await runInExtension(driver, function legacyEntry() {
+    const done = arguments[arguments.length - 1];
+    browser.storage.local.get('sites').then(({ sites }) => {
+      sites.forEach((site) => { delete site.includeSubdomains; });
+      return browser.storage.local.set({ sites });
+    }).then(() => done(null), (error) => done(error.message));
+  });
+  await openOptions(driver, optionsUrl);
+  assert.equal(await driver.findElement(checkbox).isSelected(), true);
+  const optionsTab = await driver.getWindowHandle();
+  await driver.switchTo().newWindow('tab');
+  const targetTab = await driver.getWindowHandle();
+  await assertBlocked(driver, root.href);
+  await assertBlocked(driver, www.href);
+  await assertBlocked(driver, nested.href);
+  await assertBlocked(driver, music.href);
+
+  console.log('Narrowing the rule and checking live restoration and persistence...');
+  await driver.switchTo().window(optionsTab);
+  await setSubdomainScope(driver, false);
+  await driver.switchTo().window(targetTab);
+  await driver.wait(until.elementLocated(By.id('loaded')), timeout);
+  assert.equal(await driver.getCurrentUrl(), music.href);
+  await assertAccessible(driver, nested.href);
+  await assertBlocked(driver, root.href);
+  await assertBlocked(driver, www.href);
+  await driver.switchTo().window(optionsTab);
+  await openOptions(driver, optionsUrl);
+  assert.equal(await driver.findElement(checkbox).isSelected(), false);
+
+  console.log('Checking domain-only rules after stopping and restarting the blocker...');
+  await clickButton(driver, 'Turn blocker off');
+  await waitForText(driver, By.css('.extension-status__title'), 'Blocker is off');
+  await driver.switchTo().window(targetTab);
+  await assertAccessible(driver, music.href);
+  await driver.switchTo().window(optionsTab);
+  await clickButton(driver, 'Turn blocker on');
+  await waitForText(driver, By.css('.extension-status__title'), 'Blocker is on');
+  await driver.switchTo().window(targetTab);
+  await assertAccessible(driver, music.href);
+
+  console.log('Widening the rule and checking live blocking...');
+  await driver.switchTo().window(optionsTab);
+  await setSubdomainScope(driver, true);
+  await driver.switchTo().window(targetTab);
+  await driver.wait(async () => (await driver.getCurrentUrl()).includes('/resources/redirect.html?'), timeout);
+  assert.equal(new URL(await driver.getCurrentUrl()).searchParams.get('target'), music.href);
+
+  console.log('Checking scope changes during a pause and blocking after resuming...');
+  await driver.switchTo().window(optionsTab);
+  await runInExtension(driver, function pause() {
+    const done = arguments[arguments.length - 1];
+    browser.runtime.sendMessage({ type: 'pauseBlocker', duration: 60 })
+      .then(() => done(null), (error) => done(error.message));
+  });
+  await setSubdomainScope(driver, false);
+  await driver.switchTo().window(targetTab);
+  await assertAccessible(driver, root.href);
+  await assertAccessible(driver, music.href);
+  await driver.switchTo().window(optionsTab);
+  await runInExtension(driver, function resume() {
+    const done = arguments[arguments.length - 1];
+    browser.runtime.sendMessage({ type: 'unpauseBlocker' })
+      .then(() => done(null), (error) => done(error.message));
+  });
+  await driver.switchTo().window(targetTab);
+  await assertAccessible(driver, music.href);
+  await assertBlocked(driver, root.href);
+  await assertBlocked(driver, www.href);
+
+  await driver.switchTo().window(optionsTab);
+  await openOptions(driver, optionsUrl);
+  assert.equal(await driver.findElement(checkbox).isSelected(), false);
+  await fs.mkdir(resultsPath, { recursive: true });
+  await fs.writeFile(path.join(resultsPath, 'options-desktop.png'), await driver.takeScreenshot(), 'base64');
+  await driver.manage().window().setRect({ width: 390, height: 844 });
+  await fs.writeFile(path.join(resultsPath, 'options-mobile.png'), await driver.takeScreenshot(), 'base64');
+}
+
 async function main() {
   await fs.rm(resultsPath, { recursive: true, force: true });
 
   const { server, url: targetUrl } = await startTestServer();
   const options = new firefox.Options()
     .addArguments('-headless')
+    .setPreference('network.dns.localDomains', 'youtube.localhost,www.youtube.localhost,music.youtube.localhost,nested.music.youtube.localhost')
     .windowSize({ width: 1280, height: 900 });
   const service = new firefox.ServiceBuilder().addArguments('--allow-system-access');
   let driver;
@@ -187,6 +309,8 @@ async function main() {
       return !(await list.getText()).includes('localhost');
     }, timeout);
     await assertAccessible(driver, targetUrl);
+
+    await assertSubdomainBlocking(driver, optionsUrl, targetUrl);
 
     console.log('Firefox extension smoke test passed.');
   } catch (error) {
